@@ -2,15 +2,28 @@ import { Globe, Mail, MapPin, Phone } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { DesgloseValoraciones } from '../components/directorio/DesgloseValoraciones'
 import { EmptyState } from '../components/estado/EmptyState'
+import { ErrorState } from '../components/estado/ErrorState'
+import { LoadingState } from '../components/estado/LoadingState'
 import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
 import { Puntuacion } from '../components/ui/Puntuacion'
-import { buscarCategoriaPorSlug, buscarZonaPorSlug } from '../features/directorio/categorias'
-import { PROFESIONALES_DEMO } from '../features/directorio/demoProfesionales'
+import { useProfesional } from '../features/directorio/queries'
 
 export function FichaProfesional() {
   const { slug } = useParams<{ slug: string }>()
-  const profesional = PROFESIONALES_DEMO.find((p) => p.slug === slug)
+  const { data: profesional, isLoading, isError } = useProfesional(slug)
+
+  if (isLoading) {
+    return <LoadingState etiqueta="Cargando ficha…" />
+  }
+
+  if (isError) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
+        <ErrorState descripcion="No hemos podido cargar esta ficha. Inténtalo de nuevo en unos segundos." />
+      </div>
+    )
+  }
 
   if (!profesional) {
     return (
@@ -28,14 +41,13 @@ export function FichaProfesional() {
     )
   }
 
-  const categoria = buscarCategoriaPorSlug(profesional.oficioPrincipal)
-  const zonas = profesional.zonasTrabajo.map((slugZona) => buscarZonaPorSlug(slugZona)?.nombre ?? slugZona)
-
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
-        Ficha de demostración — este profesional todavía no es real.
-      </div>
+      {profesional.esDemo && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+          Ficha de demostración — este profesional todavía no es real.
+        </div>
+      )}
 
       <header className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
@@ -49,10 +61,10 @@ export function FichaProfesional() {
               <h1 className="text-2xl font-bold text-neutral-900">{profesional.nombreComercial}</h1>
               {profesional.patrocinado && <Badge tono="patrocinado">Patrocinado</Badge>}
             </div>
-            <p className="text-neutral-600">{categoria?.nombre ?? profesional.oficioPrincipal}</p>
+            <p className="text-neutral-600">{profesional.categoriaNombre}</p>
             <div className="mt-1 flex items-center gap-1.5 text-sm text-neutral-500">
               <MapPin className="h-4 w-4" aria-hidden="true" />
-              {profesional.localidad} · trabaja en {zonas.join(', ')}
+              {profesional.localidad} · trabaja en {profesional.zonasTrabajoNombres.join(', ')}
             </div>
           </div>
         </div>

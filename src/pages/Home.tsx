@@ -1,18 +1,25 @@
 import { FileText, Search } from 'lucide-react'
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TarjetaProfesional } from '../components/directorio/TarjetaProfesional'
+import { LoadingState } from '../components/estado/LoadingState'
 import { Button } from '../components/ui/Button'
-import { CATEGORIAS, ZONAS } from '../features/directorio/categorias'
-import { PROFESIONALES_DEMO } from '../features/directorio/demoProfesionales'
 import { ordenarProfesionales } from '../features/directorio/filtrado'
-
-const DESTACADOS_DEMO = ordenarProfesionales(PROFESIONALES_DEMO).slice(0, 3)
+import { useCategorias, useProfesionales, useZonas } from '../features/directorio/queries'
 
 export function Home() {
   const navigate = useNavigate()
   const [categoria, setCategoria] = useState('')
   const [zona, setZona] = useState('')
+
+  const categorias = useCategorias()
+  const zonas = useZonas()
+  const profesionales = useProfesionales()
+
+  const destacados = useMemo(
+    () => ordenarProfesionales(profesionales.data ?? []).slice(0, 3),
+    [profesionales.data],
+  )
 
   function buscar(evento: FormEvent) {
     evento.preventDefault()
@@ -46,7 +53,7 @@ export function Home() {
                 className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
               >
                 <option value="">Cualquier oficio</option>
-                {CATEGORIAS.map((cat) => (
+                {(categorias.data ?? []).map((cat) => (
                   <option key={cat.slug} value={cat.slug}>
                     {cat.nombre}
                   </option>
@@ -62,7 +69,7 @@ export function Home() {
                 className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
               >
                 <option value="">Cualquier localidad</option>
-                {ZONAS.map((z) => (
+                {(zonas.data ?? []).map((z) => (
                   <option key={z.slug} value={z.slug}>
                     {z.nombre}
                   </option>
@@ -93,14 +100,20 @@ export function Home() {
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-neutral-900">Algunos profesionales del directorio</h2>
         </div>
-        <p className="mb-6 text-sm text-neutral-500">
-          Datos de demostración para probar el directorio — todavía no hay profesionales reales dados de alta.
-        </p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {DESTACADOS_DEMO.map((profesional) => (
-            <TarjetaProfesional key={profesional.id} profesional={profesional} />
-          ))}
-        </div>
+        {destacados.some((profesional) => profesional.esDemo) && (
+          <p className="mb-6 text-sm text-neutral-500">
+            Datos de demostración para probar el directorio — todavía no hay profesionales reales dados de alta.
+          </p>
+        )}
+        {profesionales.isLoading ? (
+          <LoadingState etiqueta="Cargando profesionales…" />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {destacados.map((profesional) => (
+              <TarjetaProfesional key={profesional.id} profesional={profesional} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )

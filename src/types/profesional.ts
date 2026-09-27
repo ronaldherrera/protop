@@ -49,9 +49,11 @@ export type Profesional = {
   slug: string
   nombreComercial: string
   oficioPrincipal: string
+  categoriaNombre: string
   especialidades: string[]
   localidad: string
   zonasTrabajo: string[]
+  zonasTrabajoNombres: string[]
   descripcionBreve: string
   descripcion: string
   fotoPerfilUrl?: string
@@ -63,4 +65,5 @@ export type Profesional = {
   desglosePorConcepto: DesgloseValoracion
   distintivos: Distintivo[]
   patrocinado: boolean
+  esDemo: boolean
 }
