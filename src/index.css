@@ -1,36 +1,43 @@
 @import 'tailwindcss';
-@import '@fontsource/inter/latin-400.css';
-@import '@fontsource/inter/latin-500.css';
-@import '@fontsource/inter/latin-600.css';
-@import '@fontsource/inter/latin-700.css';
+@import '@fontsource/roboto/latin-400.css';
+@import '@fontsource/roboto/latin-500.css';
+@import '@fontsource/roboto/latin-700.css';
+@import '@fontsource/montserrat/latin-700.css';
+@import '@fontsource/montserrat/latin-800.css';
 
 @theme {
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Roboto', system-ui, sans-serif;
+  --font-heading: 'Montserrat', system-ui, sans-serif;
 
-  /* Azul/verde petróleo: color primario de marca (confianza, profesionalismo) */
-  --color-brand-50: #eef6f6;
-  --color-brand-100: #d7e9ea;
-  --color-brand-200: #b0d3d4;
-  --color-brand-300: #82b7b9;
-  --color-brand-400: #4f9598;
-  --color-brand-500: #2c7679;
-  --color-brand-600: #1f5d60;
-  --color-brand-700: #1a4a4c;
-  --color-brand-800: #163c3e;
-  --color-brand-900: #123234;
-  --color-brand-950: #081c1d;
+  /* Naranja Top: color de marca primario (CTAs, enlaces, logo) */
+  --color-brand-50: #fdf0ed;
+  --color-brand-100: #fbdcd4;
+  --color-brand-200: #f6b8a9;
+  --color-brand-300: #f0947e;
+  --color-brand-400: #ec7b63;
+  --color-brand-500: #e86652;
+  --color-brand-600: #d34e3b;
+  --color-brand-700: #ad3e2f;
+  --color-brand-800: #873127;
+  --color-brand-900: #5f241c;
+  --color-brand-950: #3a160f;
 
-  /* Terracota: acento cálido ligado al sector reformas/hogar */
-  --color-accent-50: #fdf3ee;
-  --color-accent-100: #fbe3d6;
-  --color-accent-200: #f6c4ac;
-  --color-accent-300: #efa078;
-  --color-accent-400: #e57a48;
-  --color-accent-500: #cc5a2b;
-  --color-accent-600: #ab461f;
-  --color-accent-700: #85371a;
-  --color-accent-800: #632a15;
-  --color-accent-900: #472013;
+  /* Verde grisáceo: acento secundario (patrocinado, resaltes discretos) */
+  --color-accent-50: #eef2f2;
+  --color-accent-100: #dce5e4;
+  --color-accent-200: #b9cbca;
+  --color-accent-300: #96b1af;
+  --color-accent-400: #739795;
+  --color-accent-500: #546d6d;
+  --color-accent-600: #445756;
+  --color-accent-700: #344241;
+  --color-accent-800: #242d2d;
+  --color-accent-900: #141919;
+
+  /* Gris oscuro: texto fuerte y superficies invertidas de marca */
+  --color-ink: #212929;
+  /* Blanco roto: fondo general de la app */
+  --color-cream: #f1ede5;
 
   --color-success-500: #2e8b57;
   --color-success-100: #dcf3e6;
@@ -47,8 +54,18 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-neutral-50, #fafaf9);
-    color: var(--color-neutral-900, #1c1917);
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    font-weight: 800;
   }
 
   :focus-visible {

@@ -6,6 +6,7 @@ import { usePerfil } from '../../features/auth/queries'
 import { useAuth } from '../../features/auth/useAuth'
 import { useModo } from '../../features/modo/useModo'
 import { cn } from '../../lib/cn'
+import { Logo } from './Logo'
 
 const ENLACES_INVITADO = [
   { to: '/profesionales', etiqueta: 'Directorio' },
@@ -45,8 +46,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <NavLink to="/" className="shrink-0 text-xl font-bold text-brand-700" onClick={() => setMenuAbierto(false)}>
-          Protop
+        <NavLink to="/" className="shrink-0" onClick={() => setMenuAbierto(false)}>
+          <Logo />
         </NavLink>
 
         <nav className="hidden flex-1 items-center gap-6 md:flex" aria-label="Navegación principal">

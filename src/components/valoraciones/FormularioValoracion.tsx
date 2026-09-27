@@ -27,7 +27,7 @@ function SelectorConcepto({
             className="p-0.5"
           >
             <Star
-              className={`h-5 w-5 ${valor && n <= valor ? 'fill-accent-500 text-accent-500' : 'text-neutral-300'}`}
+              className={`h-5 w-5 ${valor && n <= valor ? 'fill-brand-500 text-brand-500' : 'text-neutral-300'}`}
             />
           </button>
         ))}
