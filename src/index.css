@@ -1,0 +1,58 @@
+@import 'tailwindcss';
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter/latin-700.css';
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  /* Azul/verde petróleo: color primario de marca (confianza, profesionalismo) */
+  --color-brand-50: #eef6f6;
+  --color-brand-100: #d7e9ea;
+  --color-brand-200: #b0d3d4;
+  --color-brand-300: #82b7b9;
+  --color-brand-400: #4f9598;
+  --color-brand-500: #2c7679;
+  --color-brand-600: #1f5d60;
+  --color-brand-700: #1a4a4c;
+  --color-brand-800: #163c3e;
+  --color-brand-900: #123234;
+  --color-brand-950: #081c1d;
+
+  /* Terracota: acento cálido ligado al sector reformas/hogar */
+  --color-accent-50: #fdf3ee;
+  --color-accent-100: #fbe3d6;
+  --color-accent-200: #f6c4ac;
+  --color-accent-300: #efa078;
+  --color-accent-400: #e57a48;
+  --color-accent-500: #cc5a2b;
+  --color-accent-600: #ab461f;
+  --color-accent-700: #85371a;
+  --color-accent-800: #632a15;
+  --color-accent-900: #472013;
+
+  --color-success-500: #2e8b57;
+  --color-success-100: #dcf3e6;
+  --color-warning-500: #b7791f;
+  --color-warning-100: #faecd2;
+  --color-danger-500: #c53030;
+  --color-danger-100: #fbdede;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-neutral-50, #fafaf9);
+    color: var(--color-neutral-900, #1c1917);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+}
