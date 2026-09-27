@@ -1,41 +1,102 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
-import { CONCEPTOS_VALORACION } from '../types/profesional'
-import { obtenerUrlFirmadaFactura } from '../lib/storage'
+import { useAbrirSolicitudManualmente, useSolicitudesPendientesPago } from '../features/solicitudes/queries'
 import { useRevisarValoracion, useValoracionesParaRevision } from '../features/valoraciones/queries'
 import type { ValoracionParaRevision } from '../features/valoraciones/types'
+import { obtenerUrlFirmadaFactura } from '../lib/storage'
+import { CONCEPTOS_VALORACION } from '../types/profesional'
 
 export function Admin() {
   const valoraciones = useValoracionesParaRevision()
 
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <h1 className="text-2xl font-bold text-neutral-900">Administración</h1>
+
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold text-neutral-900">Solicitudes pendientes de pago</h2>
+        <p className="mt-1 text-sm text-neutral-600">
+          El cobro real todavía no está activado (Fase 6). Ábrelas manualmente para que las vean los profesionales.
+        </p>
+        <SolicitudesPendientesPago />
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-lg font-semibold text-neutral-900">Revisión de valoraciones</h2>
+        <p className="mt-1 text-sm text-neutral-600">
+          Solo cuentan para la puntuación del profesional las valoraciones aprobadas. Revisa la factura antes de
+          decidir.
+        </p>
+        <ValoracionesRevision valoraciones={valoraciones} />
+      </section>
+    </div>
+  )
+}
+
+function SolicitudesPendientesPago() {
+  const solicitudes = useSolicitudesPendientesPago()
+  const abrir = useAbrirSolicitudManualmente()
+
+  if (solicitudes.isLoading) {
+    return <LoadingState etiqueta="Cargando…" />
+  }
+
+  if (solicitudes.isError) {
+    return <ErrorState descripcion="No hemos podido cargar las solicitudes pendientes de pago." />
+  }
+
+  if (!solicitudes.data || solicitudes.data.length === 0) {
+    return (
+      <div className="mt-3">
+        <EmptyState titulo="No hay solicitudes pendientes de pago" />
+      </div>
+    )
+  }
+
+  return (
+    <ul className="mt-3 flex flex-col gap-2">
+      {solicitudes.data.map((s) => (
+        <li
+          key={s.id}
+          className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 px-4 py-3"
+        >
+          <div>
+            <Link to={`/solicitudes/${s.id}`} className="text-sm font-medium text-brand-700 hover:underline">
+              {s.titulo}
+            </Link>
+            <p className="text-xs text-neutral-500">
+              {s.categoriaNombre} · {s.zonaNombre}
+            </p>
+          </div>
+          <Button type="button" onClick={() => abrir.mutate(s.id)} disabled={abrir.isPending}>
+            Marcar como pagada y abrir
+          </Button>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function ValoracionesRevision({ valoraciones }: { valoraciones: ReturnType<typeof useValoracionesParaRevision> }) {
   if (valoraciones.isLoading) {
     return <LoadingState etiqueta="Cargando valoraciones…" />
   }
 
   if (valoraciones.isError) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-        <ErrorState descripcion="No hemos podido cargar la cola de revisión." />
-      </div>
-    )
+    return <ErrorState descripcion="No hemos podido cargar la cola de revisión." />
   }
 
   const pendientes = valoraciones.data?.filter((v) => v.estado === 'pendiente') ?? []
   const revisadas = valoraciones.data?.filter((v) => v.estado !== 'pendiente') ?? []
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-neutral-900">Revisión de valoraciones</h1>
-      <p className="mt-1 text-sm text-neutral-600">
-        Solo cuentan para la puntuación del profesional las valoraciones aprobadas. Revisa la factura antes de
-        decidir.
-      </p>
-
-      <h2 className="mt-8 text-lg font-semibold text-neutral-900">Pendientes ({pendientes.length})</h2>
+    <>
+      <h3 className="mt-6 font-medium text-neutral-900">Pendientes ({pendientes.length})</h3>
       {pendientes.length === 0 ? (
         <div className="mt-3">
           <EmptyState titulo="No hay valoraciones pendientes" />
@@ -50,7 +111,7 @@ export function Admin() {
 
       {revisadas.length > 0 && (
         <>
-          <h2 className="mt-10 text-lg font-semibold text-neutral-900">Revisadas recientemente</h2>
+          <h3 className="mt-8 font-medium text-neutral-900">Revisadas recientemente</h3>
           <ul className="mt-3 flex flex-col gap-2">
             {revisadas.slice(0, 20).map((valoracion) => (
               <li
@@ -68,7 +129,7 @@ export function Admin() {
           </ul>
         </>
       )}
-    </div>
+    </>
   )
 }
 

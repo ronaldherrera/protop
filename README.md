@@ -2,7 +2,7 @@
 
 Directorio digital de profesionales de reformas, construcción y servicios para el hogar. Lanzamiento inicial en Santander y alrededores.
 
-Estado actual: **Fase 4 — facturas privadas, revisión y valoraciones**, con reputación calculada de verdad a partir de valoraciones aprobadas por administración.
+Estado actual: **Fase 5 — solicitudes de presupuestos, propuestas y comparación**, con el pago todavía sin activar (Fase 6).
 
 ## Stack y por qué
 
@@ -50,9 +50,12 @@ Tablas: `categorias` y `zonas` (datos reales de referencia, editables desde el T
 
 Tabla `valoraciones`: cada fila es una puntuación estructurada (6 conceptos, 1-5 o "no aplica") con su factura adjunta, en estado `pendiente` / `aprobada` / `rechazada`. Un trigger (`recalcular_reputacion_profesional`) recalcula automáticamente `puntuacion_global`, `trabajos_valorados` y `desglose_por_concepto` del profesional cada vez que cambia el estado de una valoración — con precisión completa, el redondeo a un decimal es solo de presentación (sección 7). Solo cuentan las aprobadas.
 
+Tablas `solicitudes`, `propuestas` y `aclaraciones` (secciones 8 y 9): una solicitud pasa por `borrador` → `pendiente_pago` → `abierta` → `cerrada`. Sin Stripe integrado todavía (Fase 6), el paso `pendiente_pago → abierta` lo hace manualmente una cuenta administradora desde `/admin` — no es un cobro real. Solo ven una solicitud `abierta` los profesionales cuya ficha coincide en categoría y zona (comprobado con usuarios de prueba reales: quien no coincide ni la ve ni puede proponer). Las aclaraciones son un hilo mínimo por solicitud, no una mensajería general.
+
 Buckets de Storage:
 - `fotos-profesionales` (público en lectura): cada usuario solo sube/borra en su propia carpeta (`{user_id}/...`).
 - `facturas` (**privado**, sin URL pública permanente): cada usuario solo sube en su propia carpeta; solo las cuentas con `perfiles.es_admin = true` pueden leer, y siempre mediante una URL firmada de 5 minutos (`createSignedUrl`), nunca una URL pública permanente. Límite de 8 MB y solo imagen/PDF, aplicado por el propio bucket.
+- `solicitudes-fotos` (**privado**): el dueño sube a su propia carpeta; puede leerlas el propio dueño, cualquier cuenta con ficha profesional (el filtrado real por categoría/zona ya ocurre al decidir qué solicitudes ve cada profesional) y administración. URLs firmadas de 1 hora.
 
 Para convertir una cuenta en administradora (no hay alta de administradores desde la interfaz todavía): `update perfiles set es_admin = true where id = '<uuid del usuario>';` desde el SQL Editor de Supabase.
 
@@ -92,14 +95,17 @@ src/
 - **Área del particular**: edición de datos básicos de la cuenta (nombre, teléfono).
 - Rutas `/particular` y `/profesional` protegidas: redirigen a `/acceso` si no hay sesión iniciada.
 - **Valorar un trabajo**: desde la ficha pública de un profesional real (no de demostración), cualquier cuenta puede puntuar los 6 conceptos estructurados (sin comentarios libres) y adjuntar la factura. Queda pendiente de revisión y no cuenta para la puntuación hasta que se apruebe.
-- **Consola de administración** (`/admin`, solo cuentas con `es_admin = true`): cola de valoraciones pendientes con acceso a la factura vía URL firmada, y aprobar/rechazar con motivo. La reputación del profesional se recalcula sola.
-- **Área del particular**: además de los datos básicos, ahora muestra "Mis valoraciones" con su estado (pendiente/aprobada/rechazada y motivo si fue rechazada).
+- **Consola de administración** (`/admin`, solo cuentas con `es_admin = true`): cola de valoraciones pendientes con acceso a la factura vía URL firmada, y aprobar/rechazar con motivo. La reputación del profesional se recalcula sola. También muestra, aparte, las solicitudes pendientes de pago para abrirlas manualmente.
+- **Área del particular**: además de los datos básicos, ahora muestra "Mis valoraciones" y "Mis solicitudes de presupuesto" (con enlace a crear una nueva y al detalle/comparación de cada una).
+- **Solicitar presupuesto** (`/solicitar-presupuesto`, requiere cuenta): formulario por pasos (qué necesitas → dónde y cuándo, con fotos opcionales → repaso) que guarda un borrador. Desde el detalle de la solicitud, el particular la envía a pago, ve las propuestas recibidas en formato comparable (alcance, importe, materiales, exclusiones, plazo, estimación vs. confirmado…) y puede cerrarla.
+- **Área del profesional**: además de la ficha, ahora muestra "Solicitudes disponibles" en su categoría y zona; desde el detalle de cada una puede enviar su propuesta (una por solicitud) o ver la que ya envió.
+- **Aclaraciones**: hilo de preguntas/respuestas dentro de cada solicitud, visible solo para el particular y los profesionales que han enviado propuesta ahí.
 
 ## Qué depende de configuración pendiente
 
 - **Despliegue real a Hostinger**: falta que añadas los secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` en GitHub (ver arriba) y que vacíes `public_html` del WordPress actual.
-- **Nadie es administrador todavía**: hay que marcar manualmente `es_admin = true` en Supabase para al menos una cuenta (ver arriba) antes de poder revisar ninguna valoración.
-- **Solicitudes/propuestas y Stripe**: no se han tocado todavía — llegan en las fases 5 y siguientes.
+- **Nadie es administrador todavía por defecto**: hay que marcar manualmente `es_admin = true` en Supabase para cada cuenta que deba serlo (ver arriba).
+- **Pagos reales (Stripe)**: no integrados todavía — llegan en la Fase 6. Hasta entonces, abrir una solicitud pendiente de pago es una acción manual de administración, sin cobro real.
 - El correo de confirmación de registro usa la plantilla y el remitente por defecto de Supabase (sin marca de Protop todavía); para producción conviene personalizarlo desde el dashboard de Supabase (Authentication → Email Templates).
 
 ## Decisiones comerciales todavía abiertas (documento de producto, sección 10)

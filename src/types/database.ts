@@ -39,6 +39,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      aclaraciones: {
+        Row: {
+          autor_id: string
+          created_at: string
+          id: string
+          mensaje: string
+          solicitud_id: string
+        }
+        Insert: {
+          autor_id: string
+          created_at?: string
+          id?: string
+          mensaje: string
+          solicitud_id: string
+        }
+        Update: {
+          autor_id?: string
+          created_at?: string
+          id?: string
+          mensaje?: string
+          solicitud_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aclaraciones_autor_id_fkey"
+            columns: ["autor_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aclaraciones_solicitud_id_fkey"
+            columns: ["solicitud_id"]
+            isOneToOne: false
+            referencedRelation: "solicitudes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categorias: {
         Row: {
           created_at: string
@@ -196,6 +235,148 @@ export type Database = {
             columns: ["categoria_id"]
             isOneToOne: false
             referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      propuestas: {
+        Row: {
+          alcance_trabajo: string
+          aspectos_pendientes: string | null
+          created_at: string
+          desglose: string | null
+          exclusiones: string | null
+          id: string
+          importe_orientativo: number
+          mano_obra: string | null
+          materiales_incluidos: string | null
+          necesita_visita: boolean
+          plazo_aproximado: string
+          profesional_id: string
+          solicitud_id: string
+          tipo: string
+          tratamiento_impuestos: string
+          valida_hasta: string
+        }
+        Insert: {
+          alcance_trabajo: string
+          aspectos_pendientes?: string | null
+          created_at?: string
+          desglose?: string | null
+          exclusiones?: string | null
+          id?: string
+          importe_orientativo: number
+          mano_obra?: string | null
+          materiales_incluidos?: string | null
+          necesita_visita?: boolean
+          plazo_aproximado: string
+          profesional_id: string
+          solicitud_id: string
+          tipo?: string
+          tratamiento_impuestos: string
+          valida_hasta: string
+        }
+        Update: {
+          alcance_trabajo?: string
+          aspectos_pendientes?: string | null
+          created_at?: string
+          desglose?: string | null
+          exclusiones?: string | null
+          id?: string
+          importe_orientativo?: number
+          mano_obra?: string | null
+          materiales_incluidos?: string | null
+          necesita_visita?: boolean
+          plazo_aproximado?: string
+          profesional_id?: string
+          solicitud_id?: string
+          tipo?: string
+          tratamiento_impuestos?: string
+          valida_hasta?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "propuestas_profesional_id_fkey"
+            columns: ["profesional_id"]
+            isOneToOne: false
+            referencedRelation: "profesionales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "propuestas_solicitud_id_fkey"
+            columns: ["solicitud_id"]
+            isOneToOne: false
+            referencedRelation: "solicitudes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      solicitudes: {
+        Row: {
+          categoria_id: string
+          created_at: string
+          descripcion: string
+          estado: string
+          fecha_deseada: string | null
+          fotos: string[]
+          id: string
+          informacion_adicional: string | null
+          medidas_cantidades: string | null
+          particular_id: string
+          titulo: string
+          updated_at: string
+          zona_id: string
+        }
+        Insert: {
+          categoria_id: string
+          created_at?: string
+          descripcion: string
+          estado?: string
+          fecha_deseada?: string | null
+          fotos?: string[]
+          id?: string
+          informacion_adicional?: string | null
+          medidas_cantidades?: string | null
+          particular_id: string
+          titulo: string
+          updated_at?: string
+          zona_id: string
+        }
+        Update: {
+          categoria_id?: string
+          created_at?: string
+          descripcion?: string
+          estado?: string
+          fecha_deseada?: string | null
+          fotos?: string[]
+          id?: string
+          informacion_adicional?: string | null
+          medidas_cantidades?: string | null
+          particular_id?: string
+          titulo?: string
+          updated_at?: string
+          zona_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitudes_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "solicitudes_particular_id_fkey"
+            columns: ["particular_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "solicitudes_zona_id_fkey"
+            columns: ["zona_id"]
+            isOneToOne: false
+            referencedRelation: "zonas"
             referencedColumns: ["id"]
           },
         ]

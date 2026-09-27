@@ -8,6 +8,8 @@ import { Button } from '../components/ui/Button'
 import { actualizarPerfil, type Perfil } from '../features/auth/api'
 import { useInvalidarPerfil, usePerfil } from '../features/auth/queries'
 import { useAuth } from '../features/auth/useAuth'
+import { useMisSolicitudes } from '../features/solicitudes/queries'
+import type { EstadoSolicitud } from '../features/solicitudes/types'
 import { useMisValoraciones } from '../features/valoraciones/queries'
 import type { EstadoValoracion } from '../features/valoraciones/types'
 
@@ -35,15 +37,74 @@ export function AreaParticular() {
       <FormularioPerfil key={perfil.data.id} userId={user.id} perfil={perfil.data} />
 
       <div className="mt-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-neutral-900">Mis solicitudes de presupuesto</h2>
+          <Link to="/solicitar-presupuesto" className="text-sm font-medium text-brand-700 hover:underline">
+            + Nueva solicitud
+          </Link>
+        </div>
+        <MisSolicitudes />
+      </div>
+
+      <div className="mt-10">
         <h2 className="text-lg font-semibold text-neutral-900">Mis valoraciones</h2>
         <MisValoraciones />
       </div>
-
-      <div className="mt-10 rounded-xl border border-dashed border-neutral-300 p-4 text-sm text-neutral-500">
-        Aquí verás tus solicitudes de presupuesto y las propuestas recibidas cuando esas funciones estén disponibles,
-        en próximas fases.
-      </div>
     </div>
+  )
+}
+
+const ETIQUETA_ESTADO_SOLICITUD: Record<EstadoSolicitud, { texto: string; tono: 'neutro' | 'aviso' | 'exito' | 'error' }> = {
+  borrador: { texto: 'Borrador', tono: 'neutro' },
+  pendiente_pago: { texto: 'Pendiente de pago', tono: 'aviso' },
+  abierta: { texto: 'Abierta', tono: 'exito' },
+  cerrada: { texto: 'Cerrada', tono: 'error' },
+}
+
+function MisSolicitudes() {
+  const solicitudes = useMisSolicitudes()
+
+  if (solicitudes.isLoading) {
+    return <LoadingState etiqueta="Cargando tus solicitudes…" />
+  }
+
+  if (solicitudes.isError) {
+    return <ErrorState descripcion="No hemos podido cargar tus solicitudes." />
+  }
+
+  if (!solicitudes.data || solicitudes.data.length === 0) {
+    return (
+      <div className="mt-3">
+        <EmptyState
+          titulo="Todavía no has creado ninguna solicitud"
+          descripcion="Describe el trabajo que necesitas y recibe propuestas de varios profesionales."
+        />
+      </div>
+    )
+  }
+
+  return (
+    <ul className="mt-3 flex flex-col gap-2">
+      {solicitudes.data.map((s) => {
+        const estado = ETIQUETA_ESTADO_SOLICITUD[s.estado]
+        return (
+          <li key={s.id}>
+            <Link
+              to={`/solicitudes/${s.id}`}
+              className="flex flex-col gap-1 rounded-lg border border-neutral-200 px-4 py-3 hover:bg-neutral-50 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="text-sm font-medium text-neutral-900">{s.titulo}</p>
+                <p className="text-xs text-neutral-500">
+                  {s.categoriaNombre} · {s.zonaNombre}
+                </p>
+              </div>
+              <Badge tono={estado.tono}>{estado.texto}</Badge>
+            </Link>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 

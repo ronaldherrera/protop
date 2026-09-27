@@ -10,6 +10,7 @@ import { FichaProfesional } from '../pages/FichaProfesional'
 import { Home } from '../pages/Home'
 import { NotFound } from '../pages/NotFound'
 import { SolicitarPresupuesto } from '../pages/SolicitarPresupuesto'
+import { SolicitudDetalle } from '../pages/SolicitudDetalle'
 import { Layout } from './Layout'
 
 export const router = createBrowserRouter([
@@ -20,6 +21,14 @@ export const router = createBrowserRouter([
       { path: '/profesionales', element: <Directorio /> },
       { path: '/profesionales/:slug', element: <FichaProfesional /> },
       { path: '/solicitar-presupuesto', element: <SolicitarPresupuesto /> },
+      {
+        path: '/solicitudes/:id',
+        element: (
+          <RutaProtegida>
+            <SolicitudDetalle />
+          </RutaProtegida>
+        ),
+      },
       {
         path: '/particular/*',
         element: (

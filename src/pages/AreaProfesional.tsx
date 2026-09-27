@@ -1,6 +1,7 @@
 import { Plus, X } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
 import { Button } from '../components/ui/Button'
@@ -11,6 +12,7 @@ import {
   useMiProfesional,
   useZonas,
 } from '../features/directorio/queries'
+import { useSolicitudesDisponibles } from '../features/solicitudes/queries'
 import { subirFoto } from '../lib/storage'
 import type { MediosContacto } from '../types/profesional'
 
@@ -57,7 +59,55 @@ export function AreaProfesional() {
         zonas={zonas.data ?? []}
         profesional={miProfesional.data ?? null}
       />
+
+      {miProfesional.data && (
+        <div className="mt-10">
+          <h2 className="text-lg font-semibold text-neutral-900">Solicitudes disponibles para ti</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Solicitudes abiertas en tu oficio y zona. Responder es gratis.
+          </p>
+          <SolicitudesDisponibles />
+        </div>
+      )}
     </div>
+  )
+}
+
+function SolicitudesDisponibles() {
+  const solicitudes = useSolicitudesDisponibles()
+
+  if (solicitudes.isLoading) {
+    return <LoadingState etiqueta="Cargando solicitudes…" />
+  }
+
+  if (solicitudes.isError) {
+    return <ErrorState descripcion="No hemos podido cargar las solicitudes disponibles." />
+  }
+
+  if (!solicitudes.data || solicitudes.data.length === 0) {
+    return (
+      <div className="mt-3">
+        <EmptyState titulo="No hay solicitudes disponibles ahora mismo" />
+      </div>
+    )
+  }
+
+  return (
+    <ul className="mt-3 flex flex-col gap-2">
+      {solicitudes.data.map((s) => (
+        <li key={s.id}>
+          <Link
+            to={`/solicitudes/${s.id}`}
+            className="block rounded-lg border border-neutral-200 px-4 py-3 hover:bg-neutral-50"
+          >
+            <p className="text-sm font-medium text-neutral-900">{s.titulo}</p>
+            <p className="text-xs text-neutral-500">
+              {s.categoriaNombre} · {s.zonaNombre}
+            </p>
+          </Link>
+        </li>
+      ))}
+    </ul>
   )
 }
 
