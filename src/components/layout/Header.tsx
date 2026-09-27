@@ -2,6 +2,7 @@ import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { cerrarSesion } from '../../features/auth/api'
+import { usePerfil } from '../../features/auth/queries'
 import { useAuth } from '../../features/auth/useAuth'
 import { cn } from '../../lib/cn'
 
@@ -13,6 +14,7 @@ const ENLACES = [
 export function Header() {
   const [menuAbierto, setMenuAbierto] = useState(false)
   const { user } = useAuth()
+  const perfil = usePerfil()
   const navigate = useNavigate()
 
   async function salir() {
@@ -25,6 +27,7 @@ export function Header() {
     ? [
         { to: '/particular', etiqueta: 'Área particular' },
         { to: '/profesional', etiqueta: 'Área profesional' },
+        ...(perfil.data?.esAdmin ? [{ to: '/admin', etiqueta: 'Administración' }] : []),
       ]
     : [{ to: '/acceso?rol=profesional', etiqueta: 'Para profesionales' }]
 
