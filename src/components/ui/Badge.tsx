@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 
-type Tono = 'neutro' | 'marca' | 'exito' | 'aviso' | 'patrocinado'
+type Tono = 'neutro' | 'marca' | 'exito' | 'aviso' | 'error' | 'patrocinado'
 
 const tonos: Record<Tono, string> = {
   neutro: 'bg-neutral-100 text-neutral-700',
   marca: 'bg-brand-100 text-brand-700',
   exito: 'bg-success-100 text-success-500',
   aviso: 'bg-warning-100 text-warning-500',
+  error: 'bg-danger-100 text-danger-500',
   patrocinado: 'bg-accent-100 text-accent-700',
 }
 

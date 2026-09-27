@@ -200,6 +200,78 @@ export type Database = {
           },
         ]
       }
+      valoraciones: {
+        Row: {
+          calidad_acabado: number | null
+          comunicacion: number | null
+          created_at: string
+          cumplimiento_plazos: number | null
+          descripcion_trabajo: string | null
+          estado: string
+          factura_ruta: string
+          id: string
+          limpieza_cuidado: number | null
+          motivo_revision: string | null
+          particular_id: string
+          profesional_id: string
+          puntualidad: number | null
+          respeto_presupuesto: number | null
+          revisado_en: string | null
+          revisado_por: string | null
+        }
+        Insert: {
+          calidad_acabado?: number | null
+          comunicacion?: number | null
+          created_at?: string
+          cumplimiento_plazos?: number | null
+          descripcion_trabajo?: string | null
+          estado?: string
+          factura_ruta: string
+          id?: string
+          limpieza_cuidado?: number | null
+          motivo_revision?: string | null
+          particular_id: string
+          profesional_id: string
+          puntualidad?: number | null
+          respeto_presupuesto?: number | null
+          revisado_en?: string | null
+          revisado_por?: string | null
+        }
+        Update: {
+          calidad_acabado?: number | null
+          comunicacion?: number | null
+          created_at?: string
+          cumplimiento_plazos?: number | null
+          descripcion_trabajo?: string | null
+          estado?: string
+          factura_ruta?: string
+          id?: string
+          limpieza_cuidado?: number | null
+          motivo_revision?: string | null
+          particular_id?: string
+          profesional_id?: string
+          puntualidad?: number | null
+          respeto_presupuesto?: number | null
+          revisado_en?: string | null
+          revisado_por?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valoraciones_particular_id_fkey"
+            columns: ["particular_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "valoraciones_profesional_id_fkey"
+            columns: ["profesional_id"]
+            isOneToOne: false
+            referencedRelation: "profesionales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       zonas: {
         Row: {
           created_at: string
@@ -229,7 +301,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      es_admin_actual: { Args: never; Returns: boolean }
+      recalcular_reputacion_profesional: {
+        Args: { target_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

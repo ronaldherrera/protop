@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { RutaAdmin } from '../features/auth/RutaAdmin'
 import { RutaProtegida } from '../features/auth/RutaProtegida'
 import { Acceso } from '../pages/Acceso'
 import { Admin } from '../pages/Admin'
@@ -35,7 +36,14 @@ export const router = createBrowserRouter([
           </RutaProtegida>
         ),
       },
-      { path: '/admin/*', element: <Admin /> },
+      {
+        path: '/admin/*',
+        element: (
+          <RutaAdmin>
+            <Admin />
+          </RutaAdmin>
+        ),
+      },
       { path: '/acceso', element: <Acceso /> },
       { path: '*', element: <NotFound /> },
     ],

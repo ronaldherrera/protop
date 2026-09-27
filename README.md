@@ -2,7 +2,7 @@
 
 Directorio digital de profesionales de reformas, construcción y servicios para el hogar. Lanzamiento inicial en Santander y alrededores.
 
-Estado actual: **Fase 3 — registro, permisos y edición de perfiles**, con autenticación real (Supabase Auth) y fichas de profesional editables por su dueño.
+Estado actual: **Fase 4 — facturas privadas, revisión y valoraciones**, con reputación calculada de verdad a partir de valoraciones aprobadas por administración.
 
 ## Stack y por qué
 
@@ -48,7 +48,13 @@ supabase gen types typescript --linked > src/types/database.ts
 
 Tablas: `categorias` y `zonas` (datos reales de referencia, editables desde el Table Editor sin tocar código), `profesionales` + `profesional_zonas` (mezcla de datos de demostración con `es_demo = true` y fichas reales creadas por usuarios registrados, vinculadas por `user_id`), y `perfiles` (1:1 con cada cuenta de `auth.users`, se crea sola vía trigger al registrarse). RLS: lectura pública de categorías/zonas/profesionales publicados; cada usuario solo puede crear/editar su propia ficha profesional y su propio perfil — nunca los de otra cuenta ni desde un cliente anónimo.
 
-Bucket de Storage `fotos-profesionales` (público en lectura): cada usuario autenticado solo puede subir/borrar archivos dentro de su propia carpeta (`{user_id}/...`), aplicado también por RLS sobre `storage.objects`. Las facturas privadas (Fase 4) usarán un bucket aparte, no público.
+Tabla `valoraciones`: cada fila es una puntuación estructurada (6 conceptos, 1-5 o "no aplica") con su factura adjunta, en estado `pendiente` / `aprobada` / `rechazada`. Un trigger (`recalcular_reputacion_profesional`) recalcula automáticamente `puntuacion_global`, `trabajos_valorados` y `desglose_por_concepto` del profesional cada vez que cambia el estado de una valoración — con precisión completa, el redondeo a un decimal es solo de presentación (sección 7). Solo cuentan las aprobadas.
+
+Buckets de Storage:
+- `fotos-profesionales` (público en lectura): cada usuario solo sube/borra en su propia carpeta (`{user_id}/...`).
+- `facturas` (**privado**, sin URL pública permanente): cada usuario solo sube en su propia carpeta; solo las cuentas con `perfiles.es_admin = true` pueden leer, y siempre mediante una URL firmada de 5 minutos (`createSignedUrl`), nunca una URL pública permanente. Límite de 8 MB y solo imagen/PDF, aplicado por el propio bucket.
+
+Para convertir una cuenta en administradora (no hay alta de administradores desde la interfaz todavía): `update perfiles set es_admin = true where id = '<uuid del usuario>';` desde el SQL Editor de Supabase.
 
 ## Despliegue a Hostinger
 
@@ -85,11 +91,15 @@ src/
 - **Área del profesional**: crear y editar la propia ficha (datos, especialidades, zonas, contacto, foto de perfil y fotos de trabajos con subida real a Supabase Storage). Solo el dueño de la cuenta puede editar su ficha; se aplica por RLS en el servidor, no solo en la interfaz.
 - **Área del particular**: edición de datos básicos de la cuenta (nombre, teléfono).
 - Rutas `/particular` y `/profesional` protegidas: redirigen a `/acceso` si no hay sesión iniciada.
+- **Valorar un trabajo**: desde la ficha pública de un profesional real (no de demostración), cualquier cuenta puede puntuar los 6 conceptos estructurados (sin comentarios libres) y adjuntar la factura. Queda pendiente de revisión y no cuenta para la puntuación hasta que se apruebe.
+- **Consola de administración** (`/admin`, solo cuentas con `es_admin = true`): cola de valoraciones pendientes con acceso a la factura vía URL firmada, y aprobar/rechazar con motivo. La reputación del profesional se recalcula sola.
+- **Área del particular**: además de los datos básicos, ahora muestra "Mis valoraciones" con su estado (pendiente/aprobada/rechazada y motivo si fue rechazada).
 
 ## Qué depende de configuración pendiente
 
 - **Despliegue real a Hostinger**: falta que añadas los secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` en GitHub (ver arriba) y que vacíes `public_html` del WordPress actual.
-- **Facturas privadas, revisión de valoraciones y Stripe**: no se han tocado todavía — llegan en las fases 4 y siguientes.
+- **Nadie es administrador todavía**: hay que marcar manualmente `es_admin = true` en Supabase para al menos una cuenta (ver arriba) antes de poder revisar ninguna valoración.
+- **Solicitudes/propuestas y Stripe**: no se han tocado todavía — llegan en las fases 5 y siguientes.
 - El correo de confirmación de registro usa la plantilla y el remitente por defecto de Supabase (sin marca de Protop todavía); para producción conviene personalizarlo desde el dashboard de Supabase (Authentication → Email Templates).
 
 ## Decisiones comerciales todavía abiertas (documento de producto, sección 10)

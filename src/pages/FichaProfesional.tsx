@@ -1,4 +1,5 @@
 import { Globe, Mail, MapPin, Phone } from 'lucide-react'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { DesgloseValoraciones } from '../components/directorio/DesgloseValoraciones'
 import { EmptyState } from '../components/estado/EmptyState'
@@ -6,7 +7,9 @@ import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
 import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
+import { Button } from '../components/ui/Button'
 import { Puntuacion } from '../components/ui/Puntuacion'
+import { FormularioValoracion } from '../components/valoraciones/FormularioValoracion'
 import { useAuth } from '../features/auth/useAuth'
 import { useMiProfesional, useProfesional } from '../features/directorio/queries'
 
@@ -16,6 +19,7 @@ export function FichaProfesional() {
   const { user } = useAuth()
   const miProfesional = useMiProfesional()
   const esPropia = Boolean(user && profesional && miProfesional.data?.slug === profesional.slug)
+  const [valorando, setValorando] = useState(false)
 
   if (isLoading) {
     return <LoadingState etiqueta="Cargando ficha…" />
@@ -119,7 +123,25 @@ export function FichaProfesional() {
         <div className="mt-4">
           <DesgloseValoraciones desglose={profesional.desglosePorConcepto} />
         </div>
+
+        {!profesional.esDemo && !esPropia && (
+          <div className="mt-4">
+            {user ? (
+              <Button type="button" variante="secundario" onClick={() => setValorando(true)}>
+                Valorar este trabajo
+              </Button>
+            ) : (
+              <Link to="/acceso" className="text-sm font-medium text-brand-700 hover:underline">
+                Inicia sesión para valorar un trabajo con este profesional →
+              </Link>
+            )}
+          </div>
+        )}
       </section>
+
+      {valorando && (
+        <FormularioValoracion profesionalId={profesional.id} onCerrar={() => setValorando(false)} />
+      )}
 
       {profesional.distintivos.length > 0 && (
         <section className="mt-8">
