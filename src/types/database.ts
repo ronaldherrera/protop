@@ -63,6 +63,33 @@ export type Database = {
         }
         Relationships: []
       }
+      perfiles: {
+        Row: {
+          created_at: string
+          es_admin: boolean
+          id: string
+          nombre: string
+          telefono: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          es_admin?: boolean
+          id: string
+          nombre: string
+          telefono?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          es_admin?: boolean
+          id?: string
+          nombre?: string
+          telefono?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profesional_zonas: {
         Row: {
           profesional_id: string
@@ -115,6 +142,7 @@ export type Database = {
           slug: string
           trabajos_valorados: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           categoria_id: string
@@ -137,6 +165,7 @@ export type Database = {
           slug: string
           trabajos_valorados?: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           categoria_id?: string
@@ -159,6 +188,7 @@ export type Database = {
           slug?: string
           trabajos_valorados?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {

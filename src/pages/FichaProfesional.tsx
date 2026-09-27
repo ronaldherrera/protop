@@ -7,11 +7,15 @@ import { LoadingState } from '../components/estado/LoadingState'
 import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
 import { Puntuacion } from '../components/ui/Puntuacion'
-import { useProfesional } from '../features/directorio/queries'
+import { useAuth } from '../features/auth/useAuth'
+import { useMiProfesional, useProfesional } from '../features/directorio/queries'
 
 export function FichaProfesional() {
   const { slug } = useParams<{ slug: string }>()
   const { data: profesional, isLoading, isError } = useProfesional(slug)
+  const { user } = useAuth()
+  const miProfesional = useMiProfesional()
+  const esPropia = Boolean(user && profesional && miProfesional.data?.slug === profesional.slug)
 
   if (isLoading) {
     return <LoadingState etiqueta="Cargando ficha…" />
@@ -46,6 +50,15 @@ export function FichaProfesional() {
       {profesional.esDemo && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
           Ficha de demostración — este profesional todavía no es real.
+        </div>
+      )}
+
+      {esPropia && (
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-brand-200 bg-brand-50 px-4 py-2 text-sm text-brand-800">
+          Esta es tu ficha pública.
+          <Link to="/profesional" className="font-medium hover:underline">
+            Editarla →
+          </Link>
         </div>
       )}
 

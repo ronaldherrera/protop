@@ -76,3 +76,80 @@ export async function obtenerProfesionalPorSlug(slug: string): Promise<Profesion
   if (error) throw error
   return data ? mapearProfesional(data as unknown as FilaProfesional) : null
 }
+
+export async function obtenerMiProfesional(userId: string): Promise<Profesional | null> {
+  const { data, error } = await supabase
+    .from('profesionales')
+    .select(SELECT_PROFESIONAL)
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (error) throw error
+  return data ? mapearProfesional(data as unknown as FilaProfesional) : null
+}
+
+export type DatosFormularioProfesional = {
+  nombreComercial: string
+  categoriaId: string
+  especialidades: string[]
+  localidad: string
+  zonaIds: string[]
+  descripcionBreve: string
+  descripcion: string
+  fotoPerfilUrl: string | null
+  fotosTrabajos: string[]
+  contacto: MediosContacto
+}
+
+function slugificar(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+export async function guardarMiProfesional(
+  userId: string,
+  idExistente: string | null,
+  datos: DatosFormularioProfesional,
+): Promise<void> {
+  const fila = {
+    nombre_comercial: datos.nombreComercial,
+    categoria_id: datos.categoriaId,
+    especialidades: datos.especialidades,
+    localidad: datos.localidad,
+    descripcion_breve: datos.descripcionBreve,
+    descripcion: datos.descripcion,
+    foto_perfil_url: datos.fotoPerfilUrl,
+    fotos_trabajos: datos.fotosTrabajos,
+    contacto: datos.contacto,
+  }
+
+  let profesionalId = idExistente
+
+  if (profesionalId) {
+    const { error } = await supabase.from('profesionales').update(fila).eq('id', profesionalId)
+    if (error) throw error
+  } else {
+    const slugBase = slugificar(datos.nombreComercial) || 'profesional'
+    const slug = `${slugBase}-${Math.random().toString(36).slice(2, 7)}`
+    const { data, error } = await supabase
+      .from('profesionales')
+      .insert({ ...fila, slug, user_id: userId })
+      .select('id')
+      .single()
+    if (error) throw error
+    profesionalId = data.id
+  }
+
+  const { error: errorBorrado } = await supabase.from('profesional_zonas').delete().eq('profesional_id', profesionalId)
+  if (errorBorrado) throw errorBorrado
+
+  if (datos.zonaIds.length > 0) {
+    const { error: errorInsercion } = await supabase
+      .from('profesional_zonas')
+      .insert(datos.zonaIds.map((zonaId) => ({ profesional_id: profesionalId as string, zona_id: zonaId })))
+    if (errorInsercion) throw errorInsercion
+  }
+}

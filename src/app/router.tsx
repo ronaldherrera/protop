@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { RutaProtegida } from '../features/auth/RutaProtegida'
 import { Acceso } from '../pages/Acceso'
 import { Admin } from '../pages/Admin'
 import { AreaParticular } from '../pages/AreaParticular'
@@ -18,8 +19,22 @@ export const router = createBrowserRouter([
       { path: '/profesionales', element: <Directorio /> },
       { path: '/profesionales/:slug', element: <FichaProfesional /> },
       { path: '/solicitar-presupuesto', element: <SolicitarPresupuesto /> },
-      { path: '/particular/*', element: <AreaParticular /> },
-      { path: '/profesional/*', element: <AreaProfesional /> },
+      {
+        path: '/particular/*',
+        element: (
+          <RutaProtegida>
+            <AreaParticular />
+          </RutaProtegida>
+        ),
+      },
+      {
+        path: '/profesional/*',
+        element: (
+          <RutaProtegida>
+            <AreaProfesional />
+          </RutaProtegida>
+        ),
+      },
       { path: '/admin/*', element: <Admin /> },
       { path: '/acceso', element: <Acceso /> },
       { path: '*', element: <NotFound /> },
