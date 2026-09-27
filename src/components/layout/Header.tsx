@@ -49,31 +49,6 @@ export function Header() {
           Protop
         </NavLink>
 
-        {user && (
-          <div className="hidden shrink-0 gap-1 rounded-lg bg-neutral-100 p-1 text-sm font-medium md:flex">
-            <button
-              type="button"
-              onClick={() => cambiarModo('particular')}
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5',
-                modo === 'particular' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
-              )}
-            >
-              <User className="h-4 w-4" /> Particular
-            </button>
-            <button
-              type="button"
-              onClick={() => cambiarModo('profesional')}
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5',
-                modo === 'profesional' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
-              )}
-            >
-              <Briefcase className="h-4 w-4" /> Profesional
-            </button>
-          </div>
-        )}
-
         <nav className="hidden flex-1 items-center gap-6 md:flex" aria-label="Navegación principal">
           {enlacesFinal.map((enlace) => (
             <NavLink
@@ -96,6 +71,30 @@ export function Header() {
             <NavLink to="/acceso?rol=profesional" className="text-sm font-medium text-neutral-700 hover:text-brand-700">
               Para profesionales
             </NavLink>
+          )}
+          {user && (
+            <div className="flex gap-1 rounded-lg bg-neutral-100 p-1 text-sm font-medium">
+              <button
+                type="button"
+                onClick={() => cambiarModo('particular')}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5',
+                  modo === 'particular' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
+                )}
+              >
+                <User className="h-4 w-4" /> Particular
+              </button>
+              <button
+                type="button"
+                onClick={() => cambiarModo('profesional')}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5',
+                  modo === 'profesional' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
+                )}
+              >
+                <Briefcase className="h-4 w-4" /> Profesional
+              </button>
+            </div>
           )}
           {user ? (
             <button
