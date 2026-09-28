@@ -286,7 +286,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
                 required
                 value={nombreComercial}
                 onChange={(e) => setNombreComercial(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
               />
             </label>
 
@@ -335,7 +335,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
                 required
                 value={localidad}
                 onChange={(e) => setLocalidad(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
               />
             </label>
 
@@ -349,7 +349,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
                 maxLength={140}
                 value={descripcionBreve}
                 onChange={(e) => setDescripcionBreve(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
               />
             </label>
 
@@ -360,28 +360,28 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
                 placeholder="Teléfono"
                 value={contacto.telefono ?? ''}
                 onChange={(e) => setContacto({ ...contacto, telefono: e.target.value || undefined })}
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
+                className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
               />
               <input
                 type="tel"
                 placeholder="WhatsApp"
                 value={contacto.whatsapp ?? ''}
                 onChange={(e) => setContacto({ ...contacto, whatsapp: e.target.value || undefined })}
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
+                className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
               />
               <input
                 type="email"
                 placeholder="Correo electrónico"
                 value={contacto.email ?? ''}
                 onChange={(e) => setContacto({ ...contacto, email: e.target.value || undefined })}
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
+                className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
               />
               <input
                 type="url"
                 placeholder="Sitio web"
                 value={contacto.web ?? ''}
                 onChange={(e) => setContacto({ ...contacto, web: e.target.value || undefined })}
-                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
+                className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
               />
             </fieldset>
           </>
@@ -424,7 +424,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
                     }
                   }}
                   placeholder="Ej. Reforma de baños"
-                  className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+                  className="flex-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
                 />
                 <button
                   type="button"
@@ -442,7 +442,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
                 rows={4}
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
               />
             </label>
           </>
