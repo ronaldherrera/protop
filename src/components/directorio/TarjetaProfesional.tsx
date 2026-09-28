@@ -22,6 +22,9 @@ export function TarjetaProfesional({ profesional }: { profesional: Profesional }
           <p className="flex items-center gap-1.5 text-sm text-neutral-500">
             <IconoCategoria iconoUrl={profesional.categoriaIconoUrl} nombre={profesional.categoriaNombre} className="h-4 w-4" />
             {profesional.categoriaNombre}
+            {profesional.oficios.length > 1 && (
+              <span className="text-neutral-400">+{profesional.oficios.length - 1}</span>
+            )}
           </p>
         </div>
       </div>

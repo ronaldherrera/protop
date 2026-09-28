@@ -1,7 +1,7 @@
 import { Plus, X } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
+import { SelectorChipsCategoria } from '../components/directorio/SelectorChipsCategoria'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
@@ -148,9 +148,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
 
   const [paso, setPaso] = useState(1)
   const [nombreComercial, setNombreComercial] = useState(profesional?.nombreComercial ?? '')
-  const [categoriaId, setCategoriaId] = useState(
-    () => categorias.find((c) => c.slug === profesional?.oficioPrincipal)?.id ?? '',
-  )
+  const [categoriaIds, setCategoriaIds] = useState<string[]>(() => profesional?.oficios.map((o) => o.id) ?? [])
   const [zonaIds, setZonaIds] = useState<string[]>(() =>
     zonas.filter((z) => profesional?.zonasTrabajo.includes(z.slug)).map((z) => z.id),
   )
@@ -210,8 +208,14 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
   })
 
   function datosEsencialesValidos(): boolean {
-    if (!nombreComercial.trim() || !categoriaId || zonaIds.length === 0 || !localidad.trim() || !descripcionBreve.trim()) {
-      setError('Rellena el nombre, el oficio, al menos una zona, la localidad y una descripción breve.')
+    if (
+      !nombreComercial.trim() ||
+      categoriaIds.length === 0 ||
+      zonaIds.length === 0 ||
+      !localidad.trim() ||
+      !descripcionBreve.trim()
+    ) {
+      setError('Rellena el nombre, al menos un oficio, al menos una zona, la localidad y una descripción breve.')
       return false
     }
     if (!contacto.telefono && !contacto.whatsapp && !contacto.email && !contacto.web) {
@@ -242,7 +246,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
         idExistente: profesional?.id ?? null,
         datos: {
           nombreComercial,
-          categoriaId,
+          categoriaIds,
           especialidades,
           localidad,
           zonaIds,
@@ -286,18 +290,18 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
               />
             </label>
 
-            <label className="text-sm">
-              <span className="mb-1 block font-medium text-neutral-700">Oficio principal</span>
-              <SelectorCategoria
+            <div className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">Oficios</span>
+              <p className="mb-2 text-xs text-neutral-500">
+                Elige uno o varios. El primero que marques se usará como tu oficio principal.
+              </p>
+              <SelectorChipsCategoria
                 familias={familias}
                 categorias={categorias}
-                value={categoriaId}
-                onChange={setCategoriaId}
-                campoValor="id"
-                opcionVacia="Selecciona un oficio"
-                required
+                valores={categoriaIds}
+                onChange={setCategoriaIds}
               />
-            </label>
+            </div>
 
             <fieldset className="text-sm">
               <legend className="mb-1 font-medium text-neutral-700">Zonas donde trabajas</legend>

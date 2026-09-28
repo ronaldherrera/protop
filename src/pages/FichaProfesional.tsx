@@ -83,10 +83,17 @@ export function FichaProfesional() {
               <h1 className="text-2xl font-bold text-neutral-900">{profesional.nombreComercial}</h1>
               {profesional.patrocinado && <Badge tono="patrocinado">Patrocinado</Badge>}
             </div>
-            <p className="flex items-center gap-2 text-neutral-600">
-              <IconoCategoria iconoUrl={profesional.categoriaIconoUrl} nombre={profesional.categoriaNombre} className="h-5 w-5" />
-              {profesional.categoriaNombre}
-            </p>
+            <div className="flex flex-wrap items-center gap-2 text-neutral-600">
+              {profesional.oficios.map((oficio) => (
+                <span
+                  key={oficio.id}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-sm"
+                >
+                  <IconoCategoria iconoUrl={oficio.iconoUrl} nombre={oficio.nombre} className="h-4 w-4" />
+                  {oficio.nombre}
+                </span>
+              ))}
+            </div>
             <div className="mt-1 flex items-center gap-1.5 text-sm text-neutral-500">
               <MapPin className="h-4 w-4" aria-hidden="true" />
               {profesional.localidad} · trabaja en {profesional.zonasTrabajoNombres.join(', ')}

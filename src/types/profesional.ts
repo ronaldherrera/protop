@@ -53,6 +53,13 @@ export type MediosContacto = {
   web?: string
 }
 
+export type OficioProfesional = {
+  id: string
+  slug: string
+  nombre: string
+  iconoUrl: string | null
+}
+
 export type Profesional = {
   id: string
   slug: string
@@ -60,6 +67,8 @@ export type Profesional = {
   oficioPrincipal: string
   categoriaNombre: string
   categoriaIconoUrl: string | null
+  /** Todos los oficios del profesional (chips); el primero es el oficio principal. */
+  oficios: OficioProfesional[]
   especialidades: string[]
   localidad: string
   zonasTrabajo: string[]

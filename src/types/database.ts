@@ -170,6 +170,36 @@ export type Database = {
         }
         Relationships: []
       }
+      profesional_categorias: {
+        Row: {
+          categoria_id: string
+          profesional_id: string
+        }
+        Insert: {
+          categoria_id: string
+          profesional_id: string
+        }
+        Update: {
+          categoria_id?: string
+          profesional_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profesional_categorias_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profesional_categorias_profesional_id_fkey"
+            columns: ["profesional_id"]
+            isOneToOne: false
+            referencedRelation: "profesionales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profesional_zonas: {
         Row: {
           profesional_id: string

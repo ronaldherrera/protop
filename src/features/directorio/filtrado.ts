@@ -16,11 +16,13 @@ export function filtrarProfesionales(
   const texto = filtros.texto?.trim().toLowerCase()
 
   return profesionales.filter((profesional) => {
-    if (filtros.categoria && profesional.oficioPrincipal !== filtros.categoria) {
+    const slugsOficios = profesional.oficios.map((oficio) => oficio.slug)
+
+    if (filtros.categoria && !slugsOficios.includes(filtros.categoria)) {
       return false
     }
 
-    if (filtros.categoriaSlugsFamilia && !filtros.categoriaSlugsFamilia.includes(profesional.oficioPrincipal)) {
+    if (filtros.categoriaSlugsFamilia && !slugsOficios.some((slug) => filtros.categoriaSlugsFamilia?.includes(slug))) {
       return false
     }
 

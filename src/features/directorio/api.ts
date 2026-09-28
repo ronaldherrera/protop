@@ -9,9 +9,12 @@ import type {
 } from '../../types/profesional'
 import type { Database } from '../../types/database'
 
+type CategoriaEmbebida = Pick<Database['public']['Tables']['categorias']['Row'], 'id' | 'slug' | 'nombre' | 'icono_url'>
+
 type FilaProfesional = Database['public']['Tables']['profesionales']['Row'] & {
   categorias: Pick<Database['public']['Tables']['categorias']['Row'], 'slug' | 'nombre' | 'icono_url'> | null
   profesional_zonas: { zonas: Pick<Database['public']['Tables']['zonas']['Row'], 'slug' | 'nombre'> | null }[]
+  profesional_categorias: { categorias: CategoriaEmbebida | null }[]
 }
 
 const SELECT_PROFESIONAL = `
@@ -19,12 +22,28 @@ const SELECT_PROFESIONAL = `
   descripcion_breve, descripcion, foto_perfil_url, fotos_trabajos,
   contacto, puntuacion_global, trabajos_valorados, desglose_por_concepto,
   distintivos, patrocinado, es_demo,
-  categorias ( slug, nombre, icono_url ),
-  profesional_zonas ( zonas ( slug, nombre ) )
+  categorias!profesionales_categoria_id_fkey ( slug, nombre, icono_url ),
+  profesional_zonas ( zonas ( slug, nombre ) ),
+  profesional_categorias ( categorias!profesional_categorias_categoria_id_fkey ( id, slug, nombre, icono_url ) )
 `
 
 function mapearProfesional(fila: FilaProfesional): Profesional {
   const zonas = fila.profesional_zonas.map((pz) => pz.zonas).filter((zona): zona is { slug: string; nombre: string } => Boolean(zona))
+
+  const oficiosSinOrdenar = fila.profesional_categorias
+    .map((pc) => pc.categorias)
+    .filter((categoria): categoria is CategoriaEmbebida => Boolean(categoria))
+    .map((categoria) => ({
+      id: categoria.id,
+      slug: categoria.slug,
+      nombre: categoria.nombre,
+      iconoUrl: categoria.icono_url,
+    }))
+  // El oficio principal (categoria_id) siempre va primero, si está entre los oficios.
+  const oficios = [
+    ...oficiosSinOrdenar.filter((o) => o.slug === fila.categorias?.slug),
+    ...oficiosSinOrdenar.filter((o) => o.slug !== fila.categorias?.slug),
+  ]
 
   return {
     id: fila.id,
@@ -33,6 +52,7 @@ function mapearProfesional(fila: FilaProfesional): Profesional {
     oficioPrincipal: fila.categorias?.slug ?? '',
     categoriaNombre: fila.categorias?.nombre ?? '',
     categoriaIconoUrl: fila.categorias?.icono_url ?? null,
+    oficios,
     especialidades: fila.especialidades,
     localidad: fila.localidad,
     zonasTrabajo: zonas.map((zona) => zona.slug),
@@ -106,7 +126,8 @@ export async function obtenerMiProfesional(userId: string): Promise<Profesional 
 
 export type DatosFormularioProfesional = {
   nombreComercial: string
-  categoriaId: string
+  /** Oficios del profesional (chips); el primero se guarda como oficio principal. */
+  categoriaIds: string[]
   especialidades: string[]
   localidad: string
   zonaIds: string[]
@@ -133,7 +154,7 @@ export async function guardarMiProfesional(
 ): Promise<void> {
   const fila = {
     nombre_comercial: datos.nombreComercial,
-    categoria_id: datos.categoriaId,
+    categoria_id: datos.categoriaIds[0],
     especialidades: datos.especialidades,
     localidad: datos.localidad,
     descripcion_breve: datos.descripcionBreve,
@@ -168,5 +189,18 @@ export async function guardarMiProfesional(
       .from('profesional_zonas')
       .insert(datos.zonaIds.map((zonaId) => ({ profesional_id: profesionalId as string, zona_id: zonaId })))
     if (errorInsercion) throw errorInsercion
+  }
+
+  const { error: errorBorradoCategorias } = await supabase
+    .from('profesional_categorias')
+    .delete()
+    .eq('profesional_id', profesionalId)
+  if (errorBorradoCategorias) throw errorBorradoCategorias
+
+  if (datos.categoriaIds.length > 0) {
+    const { error: errorInsercionCategorias } = await supabase
+      .from('profesional_categorias')
+      .insert(datos.categoriaIds.map((categoriaId) => ({ profesional_id: profesionalId as string, categoria_id: categoriaId })))
+    if (errorInsercionCategorias) throw errorInsercionCategorias
   }
 }
