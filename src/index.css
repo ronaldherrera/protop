@@ -9,35 +9,35 @@
   --font-sans: 'Roboto', system-ui, sans-serif;
   --font-heading: 'Montserrat', system-ui, sans-serif;
 
-  /* Naranja Top: color de marca primario (CTAs, enlaces, logo) */
-  --color-brand-50: #fdf0ed;
-  --color-brand-100: #fbdcd4;
-  --color-brand-200: #f6b8a9;
-  --color-brand-300: #f0947e;
-  --color-brand-400: #ec7b63;
-  --color-brand-500: #e86652;
-  --color-brand-600: #d34e3b;
-  --color-brand-700: #ad3e2f;
-  --color-brand-800: #873127;
-  --color-brand-900: #5f241c;
-  --color-brand-950: #3a160f;
+  /* Naranja Top (#D45A1B): color de marca primario (CTAs, enlaces, logo) */
+  --color-brand-50: #fceee7;
+  --color-brand-100: #f8d7c4;
+  --color-brand-200: #f0ae89;
+  --color-brand-300: #e8854e;
+  --color-brand-400: #de6c2f;
+  --color-brand-500: #d45a1b;
+  --color-brand-600: #b44a16;
+  --color-brand-700: #8f3b12;
+  --color-brand-800: #6b2c0d;
+  --color-brand-900: #481d09;
+  --color-brand-950: #2c1105;
 
-  /* Verde grisáceo: acento secundario (patrocinado, resaltes discretos) */
-  --color-accent-50: #eef2f2;
-  --color-accent-100: #dce5e4;
-  --color-accent-200: #b9cbca;
-  --color-accent-300: #96b1af;
-  --color-accent-400: #739795;
-  --color-accent-500: #546d6d;
-  --color-accent-600: #445756;
-  --color-accent-700: #344241;
-  --color-accent-800: #242d2d;
-  --color-accent-900: #141919;
+  /* Verde grisáceo (#717E76): acento secundario (patrocinado, resaltes discretos) */
+  --color-accent-50: #eef1ef;
+  --color-accent-100: #dce1de;
+  --color-accent-200: #b9c3bc;
+  --color-accent-300: #96a59b;
+  --color-accent-400: #838f82;
+  --color-accent-500: #717e76;
+  --color-accent-600: #5a6560;
+  --color-accent-700: #444c49;
+  --color-accent-800: #2d3331;
+  --color-accent-900: #171a19;
 
-  /* Gris oscuro: texto fuerte y superficies invertidas de marca */
-  --color-ink: #212929;
-  /* Blanco roto: fondo general de la app */
-  --color-cream: #f1ede5;
+  /* Gris oscuro (#333334): texto fuerte y superficies invertidas de marca */
+  --color-ink: #333334;
+  /* Blanco roto (#F7F3EA): fondo general de la app */
+  --color-cream: #f7f3ea;
 
   --color-success-500: #2e8b57;
   --color-success-100: #dcf3e6;

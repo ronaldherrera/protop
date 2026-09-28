@@ -2,6 +2,7 @@ import { supabase } from '../../lib/supabaseClient'
 import type {
   Categoria,
   Distintivo,
+  Familia,
   MediosContacto,
   Profesional,
   Zona,
@@ -9,7 +10,7 @@ import type {
 import type { Database } from '../../types/database'
 
 type FilaProfesional = Database['public']['Tables']['profesionales']['Row'] & {
-  categorias: Pick<Database['public']['Tables']['categorias']['Row'], 'slug' | 'nombre'> | null
+  categorias: Pick<Database['public']['Tables']['categorias']['Row'], 'slug' | 'nombre' | 'icono_url'> | null
   profesional_zonas: { zonas: Pick<Database['public']['Tables']['zonas']['Row'], 'slug' | 'nombre'> | null }[]
 }
 
@@ -18,7 +19,7 @@ const SELECT_PROFESIONAL = `
   descripcion_breve, descripcion, foto_perfil_url, fotos_trabajos,
   contacto, puntuacion_global, trabajos_valorados, desglose_por_concepto,
   distintivos, patrocinado, es_demo,
-  categorias ( slug, nombre ),
+  categorias ( slug, nombre, icono_url ),
   profesional_zonas ( zonas ( slug, nombre ) )
 `
 
@@ -31,6 +32,7 @@ function mapearProfesional(fila: FilaProfesional): Profesional {
     nombreComercial: fila.nombre_comercial,
     oficioPrincipal: fila.categorias?.slug ?? '',
     categoriaNombre: fila.categorias?.nombre ?? '',
+    categoriaIconoUrl: fila.categorias?.icono_url ?? null,
     especialidades: fila.especialidades,
     localidad: fila.localidad,
     zonasTrabajo: zonas.map((zona) => zona.slug),
@@ -49,10 +51,25 @@ function mapearProfesional(fila: FilaProfesional): Profesional {
   }
 }
 
-export async function obtenerCategorias(): Promise<Categoria[]> {
-  const { data, error } = await supabase.from('categorias').select('id, nombre, slug').order('orden')
+export async function obtenerFamilias(): Promise<Familia[]> {
+  const { data, error } = await supabase.from('familias').select('id, nombre, slug, icono_url').order('orden')
   if (error) throw error
-  return data
+  return data.map((f) => ({ id: f.id, nombre: f.nombre, slug: f.slug, iconoUrl: f.icono_url }))
+}
+
+export async function obtenerCategorias(): Promise<Categoria[]> {
+  const { data, error } = await supabase
+    .from('categorias')
+    .select('id, nombre, slug, icono_url, familia_id')
+    .order('orden')
+  if (error) throw error
+  return data.map((c) => ({
+    id: c.id,
+    nombre: c.nombre,
+    slug: c.slug,
+    iconoUrl: c.icono_url,
+    familiaId: c.familia_id,
+  }))
 }
 
 export async function obtenerZonas(): Promise<Zona[]> {

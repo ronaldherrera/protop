@@ -1,28 +1,36 @@
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { TarjetaProfesional } from '../components/directorio/TarjetaProfesional'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
-import { useCategorias, useProfesionales, useZonas } from '../features/directorio/queries'
 import { filtrarProfesionales, ordenarProfesionales } from '../features/directorio/filtrado'
+import { useCategorias, useFamilias, useProfesionales, useZonas } from '../features/directorio/queries'
 
 export function Directorio() {
   const [parametros, setParametros] = useSearchParams()
   const categoria = parametros.get('categoria') ?? ''
+  const familiaSlug = parametros.get('familia') ?? ''
   const zona = parametros.get('zona') ?? ''
   const texto = parametros.get('q') ?? ''
 
+  const familias = useFamilias()
   const categorias = useCategorias()
   const zonas = useZonas()
   const profesionales = useProfesionales()
 
+  const familiaActiva = familias.data?.find((f) => f.slug === familiaSlug)
+  const categoriaSlugsFamilia = familiaActiva
+    ? (categorias.data ?? []).filter((c) => c.familiaId === familiaActiva.id).map((c) => c.slug)
+    : undefined
+
   const resultados = useMemo(
     () =>
       ordenarProfesionales(
-        filtrarProfesionales(profesionales.data ?? [], { categoria, zona, texto }),
+        filtrarProfesionales(profesionales.data ?? [], { categoria, categoriaSlugsFamilia, zona, texto }),
       ),
-    [profesionales.data, categoria, zona, texto],
+    [profesionales.data, categoria, categoriaSlugsFamilia, zona, texto],
   )
 
   function actualizarFiltro(clave: string, valor: string) {
@@ -32,12 +40,15 @@ export function Directorio() {
     } else {
       nuevos.delete(clave)
     }
+    if (clave === 'categoria') {
+      nuevos.delete('familia')
+    }
     setParametros(nuevos, { replace: true })
   }
 
-  const hayFiltrosActivos = Boolean(categoria || zona || texto)
-  const cargando = profesionales.isLoading || categorias.isLoading || zonas.isLoading
-  const hayError = profesionales.isError || categorias.isError || zonas.isError
+  const hayFiltrosActivos = Boolean(categoria || familiaSlug || zona || texto)
+  const cargando = profesionales.isLoading || categorias.isLoading || zonas.isLoading || familias.isLoading
+  const hayError = profesionales.isError || categorias.isError || zonas.isError || familias.isError
   const hayDemo = (profesionales.data ?? []).some((profesional) => profesional.esDemo)
 
   return (
@@ -49,21 +60,22 @@ export function Directorio() {
         </p>
       )}
 
+      {familiaActiva && (
+        <div className="mt-3 flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
+          {familiaActiva.iconoUrl && <img src={familiaActiva.iconoUrl} alt="" className="h-6 w-6" />}
+          Mostrando la familia "{familiaActiva.nombre}"
+        </div>
+      )}
+
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end">
         <label className="flex-1 text-sm">
           <span className="mb-1 block font-medium text-neutral-700">Oficio o servicio</span>
-          <select
+          <SelectorCategoria
+            familias={familias.data ?? []}
+            categorias={categorias.data ?? []}
             value={categoria}
-            onChange={(evento) => actualizarFiltro('categoria', evento.target.value)}
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-          >
-            <option value="">Cualquier oficio</option>
-            {(categorias.data ?? []).map((cat) => (
-              <option key={cat.slug} value={cat.slug}>
-                {cat.nombre}
-              </option>
-            ))}
-          </select>
+            onChange={(valor) => actualizarFiltro('categoria', valor)}
+          />
         </label>
 
         <label className="flex-1 text-sm">

@@ -2,7 +2,7 @@
 
 Directorio digital de profesionales de reformas, construcción y servicios para el hogar. Lanzamiento inicial en Santander y alrededores.
 
-Estado actual: **Fase 5 — solicitudes de presupuestos, propuestas y comparación**, con el pago todavía sin activar (Fase 6). Además, el perfil de profesional incorpora un portfolio de trabajos publicados, independiente del sistema oficial de valoraciones.
+Estado actual: **Fase 5 — solicitudes de presupuestos, propuestas y comparación**, con el pago todavía sin activar (Fase 6). Además, el perfil de profesional incorpora un portfolio de trabajos publicados, independiente del sistema oficial de valoraciones. Identidad de marca real (logo, colores, tipografía) y directorio de oficios en dos niveles (familias → categorías), con iconos propios en cada nivel.
 
 ## Stack y por qué
 
@@ -46,7 +46,7 @@ Tras cambiar el esquema, regenera los tipos TypeScript:
 supabase gen types typescript --linked > src/types/database.ts
 ```
 
-Tablas: `categorias` y `zonas` (datos reales de referencia, editables desde el Table Editor sin tocar código), `profesionales` + `profesional_zonas` (mezcla de datos de demostración con `es_demo = true` y fichas reales creadas por usuarios registrados, vinculadas por `user_id`), y `perfiles` (1:1 con cada cuenta de `auth.users`, se crea sola vía trigger al registrarse). RLS: lectura pública de categorías/zonas/profesionales publicados; cada usuario solo puede crear/editar su propia ficha profesional y su propio perfil — nunca los de otra cuenta ni desde un cliente anónimo.
+Tablas: `familias` (5 grupos amplios: Reformas integrales, Instalaciones, Carpintería y cerramientos, Mantenimiento y exterior, Especialidades y otros) y `categorias` (22 oficios concretos, cada uno con `familia_id`), ambas con `icono_url` apuntando a `/iconos/*.svg`; `zonas`; `profesionales` + `profesional_zonas` (mezcla de datos de demostración con `es_demo = true` y fichas reales creadas por usuarios registrados, vinculadas por `user_id`); y `perfiles` (1:1 con cada cuenta de `auth.users`, se crea sola vía trigger al registrarse). RLS: lectura pública de familias/categorías/zonas/profesionales publicados; cada usuario solo puede crear/editar su propia ficha profesional y su propio perfil — nunca los de otra cuenta ni desde un cliente anónimo.
 
 Tabla `valoraciones`: cada fila es una puntuación estructurada (6 conceptos, 1-5 o "no aplica") con su factura adjunta, en estado `pendiente` / `aprobada` / `rechazada`. Un trigger (`recalcular_reputacion_profesional`) recalcula automáticamente `puntuacion_global`, `trabajos_valorados` y `desglose_por_concepto` del profesional cada vez que cambia el estado de una valoración — con precisión completa, el redondeo a un decimal es solo de presentación (sección 7). Solo cuentan las aprobadas.
 
@@ -84,7 +84,13 @@ src/
   features/     lógica de negocio por dominio (directorio/ por ahora)
   lib/          acceso a datos y configuración (cliente Supabase, env)
   types/
+public/
+  iconos/       logo real, icono de marca (favicon) e iconos de familias/categorías (SVG)
 ```
+
+## Identidad de marca
+
+Logo, tipografía (Montserrat para encabezados, Roboto para texto) y paleta (`--color-brand-*` naranja #D45A1B, `--color-accent-*` verde grisáceo #717E76, `--color-ink` gris oscuro #333334, `--color-cream` blanco roto #F7F3EA) definidos en `src/index.css`. El logo real vive en `public/iconos/logotipo.svg` (claro) y `logotipo-negativo.svg` (para fondos oscuros, como el pie de página); el icono de marca (favicon/PWA) es `public/iconos/icono-protop-color.svg`.
 
 ## Qué funciona ahora mismo
 

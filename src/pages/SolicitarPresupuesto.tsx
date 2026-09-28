@@ -1,8 +1,9 @@
 import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { LoadingState } from '../components/estado/LoadingState'
 import { Button } from '../components/ui/Button'
-import { useCategorias, useZonas } from '../features/directorio/queries'
+import { useCategorias, useFamilias, useZonas } from '../features/directorio/queries'
 import { useCrearBorradorSolicitud } from '../features/solicitudes/queries'
 import { subirFotoSolicitud } from '../lib/storage'
 import { useAuth } from '../features/auth/useAuth'
@@ -12,6 +13,7 @@ const TOTAL_PASOS = 3
 export function SolicitarPresupuesto() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const familias = useFamilias()
   const categorias = useCategorias()
   const zonas = useZonas()
   const crear = useCrearBorradorSolicitud()
@@ -94,7 +96,7 @@ export function SolicitarPresupuesto() {
     )
   }
 
-  if (categorias.isLoading || zonas.isLoading) {
+  if (familias.isLoading || categorias.isLoading || zonas.isLoading) {
     return <LoadingState etiqueta="Cargando…" />
   }
 
@@ -127,19 +129,15 @@ export function SolicitarPresupuesto() {
 
             <label className="text-sm">
               <span className="mb-1 block font-medium text-neutral-700">Oficio</span>
-              <select
-                required
+              <SelectorCategoria
+                familias={familias.data ?? []}
+                categorias={categorias.data ?? []}
                 value={categoriaId}
-                onChange={(e) => setCategoriaId(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-              >
-                <option value="">Selecciona un oficio</option>
-                {(categorias.data ?? []).map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.nombre}
-                  </option>
-                ))}
-              </select>
+                onChange={setCategoriaId}
+                campoValor="id"
+                opcionVacia="Selecciona un oficio"
+                required
+              />
             </label>
 
             <label className="text-sm">

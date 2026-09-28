@@ -4,6 +4,7 @@ import type { Profesional } from '../../types/profesional'
 import { Avatar } from '../ui/Avatar'
 import { Badge } from '../ui/Badge'
 import { Puntuacion } from '../ui/Puntuacion'
+import { IconoCategoria } from './IconoCategoria'
 
 export function TarjetaProfesional({ profesional }: { profesional: Profesional }) {
   return (
@@ -18,7 +19,10 @@ export function TarjetaProfesional({ profesional }: { profesional: Profesional }
             <h3 className="truncate font-semibold text-neutral-900">{profesional.nombreComercial}</h3>
             {profesional.patrocinado && <Badge tono="patrocinado">Patrocinado</Badge>}
           </div>
-          <p className="text-sm text-neutral-500">{profesional.categoriaNombre}</p>
+          <p className="flex items-center gap-1.5 text-sm text-neutral-500">
+            <IconoCategoria iconoUrl={profesional.categoriaIconoUrl} nombre={profesional.categoriaNombre} className="h-4 w-4" />
+            {profesional.categoriaNombre}
+          </p>
         </div>
       </div>
 

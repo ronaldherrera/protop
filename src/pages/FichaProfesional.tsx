@@ -2,6 +2,7 @@ import { Globe, Mail, MapPin, Phone } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { DesgloseValoraciones } from '../components/directorio/DesgloseValoraciones'
+import { IconoCategoria } from '../components/directorio/IconoCategoria'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
@@ -82,7 +83,10 @@ export function FichaProfesional() {
               <h1 className="text-2xl font-bold text-neutral-900">{profesional.nombreComercial}</h1>
               {profesional.patrocinado && <Badge tono="patrocinado">Patrocinado</Badge>}
             </div>
-            <p className="text-neutral-600">{profesional.categoriaNombre}</p>
+            <p className="flex items-center gap-2 text-neutral-600">
+              <IconoCategoria iconoUrl={profesional.categoriaIconoUrl} nombre={profesional.categoriaNombre} className="h-5 w-5" />
+              {profesional.categoriaNombre}
+            </p>
             <div className="mt-1 flex items-center gap-1.5 text-sm text-neutral-500">
               <MapPin className="h-4 w-4" aria-hidden="true" />
               {profesional.localidad} · trabaja en {profesional.zonasTrabajoNombres.join(', ')}

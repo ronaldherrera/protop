@@ -81,6 +81,8 @@ export type Database = {
       categorias: {
         Row: {
           created_at: string
+          familia_id: string
+          icono_url: string | null
           id: string
           nombre: string
           orden: number
@@ -88,6 +90,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          familia_id: string
+          icono_url?: string | null
           id?: string
           nombre: string
           orden?: number
@@ -95,6 +99,43 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          familia_id?: string
+          icono_url?: string | null
+          id?: string
+          nombre?: string
+          orden?: number
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categorias_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "familias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      familias: {
+        Row: {
+          created_at: string
+          icono_url: string | null
+          id: string
+          nombre: string
+          orden: number
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          icono_url?: string | null
+          id?: string
+          nombre: string
+          orden?: number
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          icono_url?: string | null
           id?: string
           nombre?: string
           orden?: number

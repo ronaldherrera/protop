@@ -1,7 +1,16 @@
+export type Familia = {
+  id: string
+  nombre: string
+  slug: string
+  iconoUrl: string | null
+}
+
 export type Categoria = {
   id: string
   nombre: string
   slug: string
+  iconoUrl: string | null
+  familiaId: string
 }
 
 export type Zona = {
@@ -50,6 +59,7 @@ export type Profesional = {
   nombreComercial: string
   oficioPrincipal: string
   categoriaNombre: string
+  categoriaIconoUrl: string | null
   especialidades: string[]
   localidad: string
   zonasTrabajo: string[]

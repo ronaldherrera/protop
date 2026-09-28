@@ -1,6 +1,7 @@
 import { Plus, X } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
@@ -9,25 +10,27 @@ import { Button } from '../components/ui/Button'
 import { useAuth } from '../features/auth/useAuth'
 import {
   useCategorias,
+  useFamilias,
   useGuardarMiProfesional,
   useMiProfesional,
   useZonas,
 } from '../features/directorio/queries'
 import { useSolicitudesDisponibles } from '../features/solicitudes/queries'
 import { subirFoto } from '../lib/storage'
-import type { MediosContacto } from '../types/profesional'
+import type { Categoria, Familia, MediosContacto } from '../types/profesional'
 
 export function AreaProfesional() {
   const { user } = useAuth()
   const miProfesional = useMiProfesional()
+  const familias = useFamilias()
   const categorias = useCategorias()
   const zonas = useZonas()
 
-  if (miProfesional.isLoading || categorias.isLoading || zonas.isLoading) {
+  if (miProfesional.isLoading || familias.isLoading || categorias.isLoading || zonas.isLoading) {
     return <LoadingState etiqueta="Cargando tu ficha…" />
   }
 
-  if (miProfesional.isError || categorias.isError || zonas.isError || !user) {
+  if (miProfesional.isError || familias.isError || categorias.isError || zonas.isError || !user) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
         <ErrorState descripcion="No hemos podido cargar tu área profesional. Inténtalo de nuevo en unos segundos." />
@@ -56,6 +59,7 @@ export function AreaProfesional() {
       <FormularioFicha
         key={miProfesional.data?.id ?? 'nueva'}
         userId={user.id}
+        familias={familias.data ?? []}
         categorias={categorias.data ?? []}
         zonas={zonas.data ?? []}
         profesional={miProfesional.data ?? null}
@@ -127,12 +131,13 @@ function SolicitudesDisponibles() {
 
 type Props = {
   userId: string
-  categorias: { id: string; slug: string; nombre: string }[]
+  familias: Familia[]
+  categorias: Categoria[]
   zonas: { id: string; slug: string; nombre: string }[]
   profesional: ReturnType<typeof useMiProfesional>['data'] | null
 }
 
-function FormularioFicha({ userId, categorias, zonas, profesional }: Props) {
+function FormularioFicha({ userId, familias, categorias, zonas, profesional }: Props) {
   const guardar = useGuardarMiProfesional()
 
   const [nombreComercial, setNombreComercial] = useState(profesional?.nombreComercial ?? '')
@@ -244,19 +249,15 @@ function FormularioFicha({ userId, categorias, zonas, profesional }: Props) {
 
       <label className="text-sm">
         <span className="mb-1 block font-medium text-neutral-700">Oficio principal</span>
-        <select
-          required
+        <SelectorCategoria
+          familias={familias}
+          categorias={categorias}
           value={categoriaId}
-          onChange={(e) => setCategoriaId(e.target.value)}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-        >
-          <option value="">Selecciona un oficio</option>
-          {categorias.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.nombre}
-            </option>
-          ))}
-        </select>
+          onChange={setCategoriaId}
+          campoValor="id"
+          opcionVacia="Selecciona un oficio"
+          required
+        />
       </label>
 
       <fieldset className="text-sm">

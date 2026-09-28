@@ -1,17 +1,19 @@
 import { CheckCircle2, FileText, Percent, Search, ShieldCheck, Star } from 'lucide-react'
 import { type FormEvent, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { TarjetaProfesional } from '../components/directorio/TarjetaProfesional'
 import { LoadingState } from '../components/estado/LoadingState'
 import { Button } from '../components/ui/Button'
 import { ordenarProfesionales } from '../features/directorio/filtrado'
-import { useCategorias, useProfesionales, useZonas } from '../features/directorio/queries'
+import { useCategorias, useFamilias, useProfesionales, useZonas } from '../features/directorio/queries'
 
 export function Home() {
   const navigate = useNavigate()
   const [categoria, setCategoria] = useState('')
   const [zona, setZona] = useState('')
 
+  const familias = useFamilias()
   const categorias = useCategorias()
   const zonas = useZonas()
   const profesionales = useProfesionales()
@@ -47,18 +49,12 @@ export function Home() {
           >
             <label className="flex-1 text-sm">
               <span className="mb-1 block font-medium text-neutral-700">Oficio o servicio</span>
-              <select
+              <SelectorCategoria
+                familias={familias.data ?? []}
+                categorias={categorias.data ?? []}
                 value={categoria}
-                onChange={(evento) => setCategoria(evento.target.value)}
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-              >
-                <option value="">Cualquier oficio</option>
-                {(categorias.data ?? []).map((cat) => (
-                  <option key={cat.slug} value={cat.slug}>
-                    {cat.nombre}
-                  </option>
-                ))}
-              </select>
+                onChange={setCategoria}
+              />
             </label>
 
             <label className="flex-1 text-sm">
@@ -93,6 +89,22 @@ export function Home() {
               Solicitar presupuestos
             </Button>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <h2 className="text-xl font-semibold text-neutral-900">Explora por familia de servicios</h2>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {(familias.data ?? []).map((familia) => (
+            <Link
+              key={familia.id}
+              to={`/profesionales?familia=${familia.slug}`}
+              className="flex flex-col items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 text-center hover:shadow-md"
+            >
+              {familia.iconoUrl && <img src={familia.iconoUrl} alt="" className="h-10 w-10" />}
+              <span className="text-sm font-medium text-neutral-800">{familia.nombre}</span>
+            </Link>
+          ))}
         </div>
       </section>
 

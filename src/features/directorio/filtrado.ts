@@ -2,6 +2,8 @@ import type { Profesional } from '../../types/profesional'
 
 export type FiltrosDirectorio = {
   categoria?: string
+  /** Slugs de todas las categorías de una familia; se combina con `categoria` (AND). */
+  categoriaSlugsFamilia?: string[]
   zona?: string
   texto?: string
 }
@@ -14,6 +16,10 @@ export function filtrarProfesionales(
 
   return profesionales.filter((profesional) => {
     if (filtros.categoria && profesional.oficioPrincipal !== filtros.categoria) {
+      return false
+    }
+
+    if (filtros.categoriaSlugsFamilia && !filtros.categoriaSlugsFamilia.includes(profesional.oficioPrincipal)) {
       return false
     }
 

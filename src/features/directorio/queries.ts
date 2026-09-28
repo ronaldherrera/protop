@@ -4,11 +4,16 @@ import {
   type DatosFormularioProfesional,
   guardarMiProfesional,
   obtenerCategorias,
+  obtenerFamilias,
   obtenerMiProfesional,
   obtenerProfesionalPorSlug,
   obtenerProfesionales,
   obtenerZonas,
 } from './api'
+
+export function useFamilias() {
+  return useQuery({ queryKey: ['familias'], queryFn: obtenerFamilias, staleTime: 5 * 60 * 1000 })
+}
 
 export function useCategorias() {
   return useQuery({ queryKey: ['categorias'], queryFn: obtenerCategorias, staleTime: 5 * 60 * 1000 })
