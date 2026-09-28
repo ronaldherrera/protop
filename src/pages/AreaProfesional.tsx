@@ -1,5 +1,5 @@
 import { Plus, X } from 'lucide-react'
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
 import { SelectorChipsCategoria } from '../components/directorio/SelectorChipsCategoria'
@@ -144,26 +144,103 @@ type Props = {
 const TOTAL_PASOS = 3
 const TITULOS_PASO = ['Lo esencial', 'Cuéntanos más', 'Fotos']
 
+type BorradorFicha = {
+  paso: number
+  nombreComercial: string
+  categoriaIds: string[]
+  zonaIds: string[]
+  especialidades: string[]
+  localidad: string
+  descripcionBreve: string
+  descripcion: string
+  contacto: MediosContacto
+  fotoPerfilUrl: string | null
+  fotosTrabajos: string[]
+}
+
+function claveBorrador(userId: string): string {
+  return `protop-ficha-borrador-${userId}`
+}
+
+function leerBorrador(userId: string): BorradorFicha | null {
+  try {
+    const guardado = localStorage.getItem(claveBorrador(userId))
+    return guardado ? (JSON.parse(guardado) as BorradorFicha) : null
+  } catch {
+    return null
+  }
+}
+
+function guardarBorrador(userId: string, borrador: BorradorFicha) {
+  try {
+    localStorage.setItem(claveBorrador(userId), JSON.stringify(borrador))
+  } catch {
+    // localStorage puede no estar disponible (ventana privada, etc.); no es crítico.
+  }
+}
+
+function borrarBorrador(userId: string) {
+  try {
+    localStorage.removeItem(claveBorrador(userId))
+  } catch {
+    // ver arriba
+  }
+}
+
 function FormularioFicha({ userId, familias, categorias, zonas, profesional }: Props) {
   const guardar = useGuardarMiProfesional()
+  const borrador = useState(() => leerBorrador(userId))[0]
 
-  const [paso, setPaso] = useState(1)
-  const [nombreComercial, setNombreComercial] = useState(profesional?.nombreComercial ?? '')
-  const [categoriaIds, setCategoriaIds] = useState<string[]>(() => profesional?.oficios.map((o) => o.id) ?? [])
-  const [zonaIds, setZonaIds] = useState<string[]>(() =>
-    zonas.filter((z) => profesional?.zonasTrabajo.includes(z.slug)).map((z) => z.id),
+  const [paso, setPaso] = useState(borrador?.paso ?? 1)
+  const [nombreComercial, setNombreComercial] = useState(borrador?.nombreComercial ?? profesional?.nombreComercial ?? '')
+  const [categoriaIds, setCategoriaIds] = useState<string[]>(
+    () => borrador?.categoriaIds ?? profesional?.oficios.map((o) => o.id) ?? [],
   )
-  const [especialidades, setEspecialidades] = useState<string[]>(profesional?.especialidades ?? [])
+  const [zonaIds, setZonaIds] = useState<string[]>(
+    () => borrador?.zonaIds ?? zonas.filter((z) => profesional?.zonasTrabajo.includes(z.slug)).map((z) => z.id),
+  )
+  const [especialidades, setEspecialidades] = useState<string[]>(borrador?.especialidades ?? profesional?.especialidades ?? [])
   const [especialidadNueva, setEspecialidadNueva] = useState('')
-  const [localidad, setLocalidad] = useState(profesional?.localidad ?? '')
-  const [descripcionBreve, setDescripcionBreve] = useState(profesional?.descripcionBreve ?? '')
-  const [descripcion, setDescripcion] = useState(profesional?.descripcion ?? '')
-  const [contacto, setContacto] = useState<MediosContacto>(profesional?.contacto ?? {})
-  const [fotoPerfilUrl, setFotoPerfilUrl] = useState<string | null>(profesional?.fotoPerfilUrl ?? null)
-  const [fotosTrabajos, setFotosTrabajos] = useState<string[]>(profesional?.fotosTrabajos ?? [])
+  const [localidad, setLocalidad] = useState(borrador?.localidad ?? profesional?.localidad ?? '')
+  const [descripcionBreve, setDescripcionBreve] = useState(borrador?.descripcionBreve ?? profesional?.descripcionBreve ?? '')
+  const [descripcion, setDescripcion] = useState(borrador?.descripcion ?? profesional?.descripcion ?? '')
+  const [contacto, setContacto] = useState<MediosContacto>(borrador?.contacto ?? profesional?.contacto ?? {})
+  const [fotoPerfilUrl, setFotoPerfilUrl] = useState<string | null>(
+    borrador?.fotoPerfilUrl ?? profesional?.fotoPerfilUrl ?? null,
+  )
+  const [fotosTrabajos, setFotosTrabajos] = useState<string[]>(borrador?.fotosTrabajos ?? profesional?.fotosTrabajos ?? [])
   const [subiendoFoto, setSubiendoFoto] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [guardadoOk, setGuardadoOk] = useState(false)
+
+  useEffect(() => {
+    guardarBorrador(userId, {
+      paso,
+      nombreComercial,
+      categoriaIds,
+      zonaIds,
+      especialidades,
+      localidad,
+      descripcionBreve,
+      descripcion,
+      contacto,
+      fotoPerfilUrl,
+      fotosTrabajos,
+    })
+  }, [
+    userId,
+    paso,
+    nombreComercial,
+    categoriaIds,
+    zonaIds,
+    especialidades,
+    localidad,
+    descripcionBreve,
+    descripcion,
+    contacto,
+    fotoPerfilUrl,
+    fotosTrabajos,
+  ])
 
   function anadirEspecialidad() {
     const valor = especialidadNueva.trim()
@@ -258,6 +335,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
           contacto,
         },
       })
+      borrarBorrador(userId)
       setGuardadoOk(true)
     } catch {
       setError('No se ha podido guardar la ficha. Inténtalo de nuevo.')
