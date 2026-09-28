@@ -331,6 +331,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
                 type="text"
                 required
                 maxLength={140}
+                placeholder="Ej. Fontanero con 10 años de experiencia en reformas de baños y cocinas"
                 value={descripcionBreve}
                 onChange={(e) => setDescripcionBreve(e.target.value)}
                 className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
