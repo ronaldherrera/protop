@@ -1,5 +1,5 @@
-import { X } from 'lucide-react'
-import { useState } from 'react'
+import { ChevronDown, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import type { Categoria, Familia } from '../../types/profesional'
 import { cn } from '../../lib/cn'
 import { IconoCategoria } from './IconoCategoria'
@@ -9,6 +9,75 @@ type Props = {
   categorias: Categoria[]
   valores: string[]
   onChange: (valores: string[]) => void
+}
+
+function SelectorFamilia({
+  disponibles,
+  placeholder,
+  onSeleccionar,
+}: {
+  disponibles: Familia[]
+  placeholder: string
+  onSeleccionar: (familiaId: string) => void
+}) {
+  const [abierto, setAbierto] = useState(false)
+  const contenedorRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function alClicarFuera(evento: MouseEvent) {
+      if (contenedorRef.current && !contenedorRef.current.contains(evento.target as Node)) {
+        setAbierto(false)
+      }
+    }
+    function alPulsarTecla(evento: KeyboardEvent) {
+      if (evento.key === 'Escape') setAbierto(false)
+    }
+    document.addEventListener('mousedown', alClicarFuera)
+    document.addEventListener('keydown', alPulsarTecla)
+    return () => {
+      document.removeEventListener('mousedown', alClicarFuera)
+      document.removeEventListener('keydown', alPulsarTecla)
+    }
+  }, [])
+
+  return (
+    <div ref={contenedorRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setAbierto((a) => !a)}
+        aria-haspopup="listbox"
+        aria-expanded={abierto}
+        className="flex w-full items-center justify-between gap-2 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-left text-sm text-neutral-700 hover:border-neutral-400"
+      >
+        {placeholder}
+        <ChevronDown className={cn('h-4 w-4 shrink-0 text-neutral-500 transition-transform', abierto && 'rotate-180')} />
+      </button>
+
+      {abierto && (
+        <ul
+          role="listbox"
+          aria-label={placeholder}
+          className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-neutral-200 bg-white py-1 shadow-lg"
+        >
+          {disponibles.map((familia) => (
+            <li key={familia.id} role="option" aria-selected={false}>
+              <button
+                type="button"
+                onClick={() => {
+                  onSeleccionar(familia.id)
+                  setAbierto(false)
+                }}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-neutral-700 hover:bg-brand-50 hover:text-brand-700"
+              >
+                <IconoCategoria iconoUrl={familia.iconoUrl} nombre={familia.nombre} className="h-5 w-5" />
+                {familia.nombre}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
 }
 
 export function SelectorChipsCategoria({ familias, categorias, valores, onChange }: Props) {
@@ -88,19 +157,11 @@ export function SelectorChipsCategoria({ familias, categorias, valores, onChange
       })}
 
       {disponibles.length > 0 && (
-        <select
-          value=""
-          onChange={(e) => anadirFamilia(e.target.value)}
-          aria-label="Añadir una categoría"
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
-        >
-          <option value="">{abiertas.length === 0 ? 'Elige una categoría…' : 'Añadir otra categoría…'}</option>
-          {disponibles.map((familia) => (
-            <option key={familia.id} value={familia.id}>
-              {familia.nombre}
-            </option>
-          ))}
-        </select>
+        <SelectorFamilia
+          disponibles={disponibles}
+          placeholder={abiertas.length === 0 ? 'Elige una categoría…' : 'Añadir otra categoría…'}
+          onSeleccionar={anadirFamilia}
+        />
       )}
     </div>
   )
