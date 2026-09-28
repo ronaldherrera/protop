@@ -375,7 +375,9 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
         {paso === 2 && (
           <>
             <p className="text-sm text-neutral-500">
-              Todo esto es opcional — puedes saltarlo y añadirlo más adelante desde aquí mismo.
+              Opcional, pero merece la pena: las especialidades aparecen en las búsquedas del directorio, y la
+              descripción es lo primero que lee un cliente al entrar en tu ficha. Puedes saltarlo y añadirlo más
+              adelante desde aquí mismo.
             </p>
 
             <div className="text-sm">
