@@ -293,7 +293,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
             <div className="text-sm">
               <span className="mb-1 block font-medium text-neutral-700">Oficios</span>
               <p className="mb-2 text-xs text-neutral-500">
-                Elige una categoría y marca los oficios que haces. El primero que marques será tu oficio principal.
+                Elige una categoría y desmarca los oficios que no haces. El primero de la lista será tu oficio principal.
               </p>
               <SelectorChipsCategoria
                 familias={familias}

@@ -24,6 +24,13 @@ export function SelectorChipsCategoria({ familias, categorias, valores, onChange
     onChange(valores.includes(id) ? valores.filter((v) => v !== id) : [...valores, id])
   }
 
+  function anadirFamilia(familiaId: string) {
+    if (!familiaId) return
+    const idsFamilia = categorias.filter((c) => c.familiaId === familiaId).map((c) => c.id)
+    setAbiertas((actuales) => [...actuales, familiaId])
+    onChange([...valores, ...idsFamilia.filter((id) => !valores.includes(id))])
+  }
+
   function quitarFamilia(familiaId: string) {
     const idsFamilia = categorias.filter((c) => c.familiaId === familiaId).map((c) => c.id)
     setAbiertas((actuales) => actuales.filter((id) => id !== familiaId))
@@ -83,7 +90,7 @@ export function SelectorChipsCategoria({ familias, categorias, valores, onChange
       {disponibles.length > 0 && (
         <select
           value=""
-          onChange={(e) => e.target.value && setAbiertas((actuales) => [...actuales, e.target.value])}
+          onChange={(e) => anadirFamilia(e.target.value)}
           aria-label="Añadir una categoría"
           className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
         >
