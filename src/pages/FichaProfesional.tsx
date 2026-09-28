@@ -167,14 +167,18 @@ export function FichaProfesional() {
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-neutral-900">Sobre {profesional.nombreComercial}</h2>
-        <p className="mt-2 max-w-2xl text-sm text-neutral-700">{profesional.descripcion}</p>
-        <ul className="mt-3 flex flex-wrap gap-2">
-          {profesional.especialidades.map((especialidad) => (
-            <li key={especialidad}>
-              <Badge tono="marca">{especialidad}</Badge>
-            </li>
-          ))}
-        </ul>
+        <p className="mt-2 max-w-2xl text-sm text-neutral-700">
+          {profesional.descripcion || profesional.descripcionBreve}
+        </p>
+        {profesional.especialidades.length > 0 && (
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {profesional.especialidades.map((especialidad) => (
+              <li key={especialidad}>
+                <Badge tono="marca">{especialidad}</Badge>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {trabajos.data && trabajos.data.length > 0 && (
