@@ -7,6 +7,9 @@ import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
 import { GestionTrabajos } from '../components/trabajos/GestionTrabajos'
 import { Button } from '../components/ui/Button'
+import { MedidorCompletitud } from '../components/ui/MedidorCompletitud'
+import { Stepper } from '../components/ui/Stepper'
+import { calcularCompletitudPorcentaje } from '../features/directorio/completitud'
 import { useAuth } from '../features/auth/useAuth'
 import {
   useCategorias,
@@ -137,9 +140,13 @@ type Props = {
   profesional: ReturnType<typeof useMiProfesional>['data'] | null
 }
 
+const TOTAL_PASOS = 3
+const TITULOS_PASO = ['Lo esencial', 'Cuéntanos más', 'Fotos']
+
 function FormularioFicha({ userId, familias, categorias, zonas, profesional }: Props) {
   const guardar = useGuardarMiProfesional()
 
+  const [paso, setPaso] = useState(1)
   const [nombreComercial, setNombreComercial] = useState(profesional?.nombreComercial ?? '')
   const [categoriaId, setCategoriaId] = useState(
     () => categorias.find((c) => c.slug === profesional?.oficioPrincipal)?.id ?? '',
@@ -194,19 +201,41 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
     }
   }
 
-  async function enviar(evento: FormEvent) {
-    evento.preventDefault()
-    setError(null)
-    setGuardadoOk(false)
+  const porcentajeCompletitud = calcularCompletitudPorcentaje({
+    fotoPerfilUrl,
+    descripcion,
+    especialidades,
+    fotosTrabajos,
+    contacto,
+  })
 
+  function datosEsencialesValidos(): boolean {
     if (!nombreComercial.trim() || !categoriaId || zonaIds.length === 0 || !localidad.trim() || !descripcionBreve.trim()) {
       setError('Rellena el nombre, el oficio, al menos una zona, la localidad y una descripción breve.')
-      return
+      return false
     }
     if (!contacto.telefono && !contacto.whatsapp && !contacto.email && !contacto.web) {
       setError('Añade al menos un medio de contacto.')
-      return
+      return false
     }
+    return true
+  }
+
+  function siguiente() {
+    setError(null)
+    if (paso === 1 && !datosEsencialesValidos()) return
+    setPaso((p) => Math.min(p + 1, TOTAL_PASOS))
+  }
+
+  function atras() {
+    setError(null)
+    setPaso((p) => Math.max(p - 1, 1))
+  }
+
+  async function guardarFicha() {
+    setError(null)
+    setGuardadoOk(false)
+    if (!datosEsencialesValidos()) return
 
     try {
       await guardar.mutateAsync({
@@ -230,219 +259,262 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
     }
   }
 
+  function enviar(evento: FormEvent) {
+    evento.preventDefault()
+    guardarFicha()
+  }
+
   return (
-    <form onSubmit={enviar} className="mt-6 flex flex-col gap-8">
-      <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">Datos básicos</h2>
+    <div className="mt-6">
+      <Stepper pasoActual={paso} titulos={TITULOS_PASO} />
 
-        <label className="text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Nombre comercial</span>
-          <input
-            type="text"
-            required
-            value={nombreComercial}
-            onChange={(e) => setNombreComercial(e.target.value)}
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-          />
-        </label>
+      <div className="mt-4">
+        <MedidorCompletitud porcentaje={porcentajeCompletitud} />
+      </div>
 
-        <label className="text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Oficio principal</span>
-          <SelectorCategoria
-            familias={familias}
-            categorias={categorias}
-            value={categoriaId}
-            onChange={setCategoriaId}
-            campoValor="id"
-            opcionVacia="Selecciona un oficio"
-            required
-          />
-        </label>
+      <form onSubmit={enviar} className="mt-6 flex flex-col gap-5">
+        {paso === 1 && (
+          <>
+            <label className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">Nombre comercial</span>
+              <input
+                type="text"
+                required
+                value={nombreComercial}
+                onChange={(e) => setNombreComercial(e.target.value)}
+                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+              />
+            </label>
 
-        <fieldset className="text-sm">
-          <legend className="mb-1 font-medium text-neutral-700">Zonas donde trabajas</legend>
-          <div className="flex flex-wrap gap-2">
-            {zonas.map((zona) => {
-              const activa = zonaIds.includes(zona.id)
-              return (
+            <label className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">Oficio principal</span>
+              <SelectorCategoria
+                familias={familias}
+                categorias={categorias}
+                value={categoriaId}
+                onChange={setCategoriaId}
+                campoValor="id"
+                opcionVacia="Selecciona un oficio"
+                required
+              />
+            </label>
+
+            <fieldset className="text-sm">
+              <legend className="mb-1 font-medium text-neutral-700">Zonas donde trabajas</legend>
+              <div className="flex flex-wrap gap-2">
+                {zonas.map((zona) => {
+                  const activa = zonaIds.includes(zona.id)
+                  return (
+                    <button
+                      type="button"
+                      key={zona.id}
+                      onClick={() =>
+                        setZonaIds((actuales) =>
+                          activa ? actuales.filter((id) => id !== zona.id) : [...actuales, zona.id],
+                        )
+                      }
+                      className={`rounded-full border px-3 py-1.5 text-sm ${
+                        activa ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-neutral-300 text-neutral-600'
+                      }`}
+                    >
+                      {zona.nombre}
+                    </button>
+                  )
+                })}
+              </div>
+            </fieldset>
+
+            <label className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">Localidad</span>
+              <input
+                type="text"
+                required
+                value={localidad}
+                onChange={(e) => setLocalidad(e.target.value)}
+                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+              />
+            </label>
+
+            <label className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">
+                Descripción breve (para la tarjeta del directorio)
+              </span>
+              <input
+                type="text"
+                required
+                maxLength={140}
+                value={descripcionBreve}
+                onChange={(e) => setDescripcionBreve(e.target.value)}
+                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+              />
+            </label>
+
+            <fieldset className="grid gap-3 sm:grid-cols-2">
+              <legend className="mb-1 text-sm font-medium text-neutral-700">Contacto (al menos uno)</legend>
+              <input
+                type="tel"
+                placeholder="Teléfono"
+                value={contacto.telefono ?? ''}
+                onChange={(e) => setContacto({ ...contacto, telefono: e.target.value || undefined })}
+                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
+              />
+              <input
+                type="tel"
+                placeholder="WhatsApp"
+                value={contacto.whatsapp ?? ''}
+                onChange={(e) => setContacto({ ...contacto, whatsapp: e.target.value || undefined })}
+                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
+              />
+              <input
+                type="email"
+                placeholder="Correo electrónico"
+                value={contacto.email ?? ''}
+                onChange={(e) => setContacto({ ...contacto, email: e.target.value || undefined })}
+                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
+              />
+              <input
+                type="url"
+                placeholder="Sitio web"
+                value={contacto.web ?? ''}
+                onChange={(e) => setContacto({ ...contacto, web: e.target.value || undefined })}
+                className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
+              />
+            </fieldset>
+          </>
+        )}
+
+        {paso === 2 && (
+          <>
+            <p className="text-sm text-neutral-500">
+              Todo esto es opcional — puedes saltarlo y añadirlo más adelante desde aquí mismo.
+            </p>
+
+            <div className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">Especialidades</span>
+              <div className="flex flex-wrap gap-2">
+                {especialidades.map((especialidad) => (
+                  <span
+                    key={especialidad}
+                    className="inline-flex items-center gap-1 rounded-full bg-brand-100 px-3 py-1 text-sm text-brand-700"
+                  >
+                    {especialidad}
+                    <button
+                      type="button"
+                      onClick={() => setEspecialidades(especialidades.filter((e) => e !== especialidad))}
+                      aria-label={`Quitar ${especialidad}`}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="text"
+                  value={especialidadNueva}
+                  onChange={(e) => setEspecialidadNueva(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      anadirEspecialidad()
+                    }
+                  }}
+                  placeholder="Ej. Reforma de baños"
+                  className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+                />
                 <button
                   type="button"
-                  key={zona.id}
-                  onClick={() =>
-                    setZonaIds((actuales) =>
-                      activa ? actuales.filter((id) => id !== zona.id) : [...actuales, zona.id],
-                    )
-                  }
-                  className={`rounded-full border px-3 py-1.5 text-sm ${
-                    activa ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-neutral-300 text-neutral-600'
-                  }`}
+                  onClick={anadirEspecialidad}
+                  className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
                 >
-                  {zona.nombre}
+                  <Plus className="h-4 w-4" /> Añadir
                 </button>
-              )
-            })}
-          </div>
-        </fieldset>
+              </div>
+            </div>
 
-        <label className="text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Localidad</span>
-          <input
-            type="text"
-            required
-            value={localidad}
-            onChange={(e) => setLocalidad(e.target.value)}
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-          />
-        </label>
+            <label className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">Descripción completa</span>
+              <textarea
+                rows={4}
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+              />
+            </label>
+          </>
+        )}
 
-        <label className="text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">
-            Descripción breve (para la tarjeta del directorio)
-          </span>
-          <input
-            type="text"
-            required
-            maxLength={140}
-            value={descripcionBreve}
-            onChange={(e) => setDescripcionBreve(e.target.value)}
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-          />
-        </label>
+        {paso === 3 && (
+          <>
+            <p className="text-sm text-neutral-500">
+              También opcional. Los perfiles con foto y trabajos reales destacan más.
+            </p>
 
-        <fieldset className="grid gap-3 sm:grid-cols-2">
-          <legend className="mb-1 font-medium text-neutral-700">Contacto (al menos uno)</legend>
-          <input
-            type="tel"
-            placeholder="Teléfono"
-            value={contacto.telefono ?? ''}
-            onChange={(e) => setContacto({ ...contacto, telefono: e.target.value || undefined })}
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
-          />
-          <input
-            type="tel"
-            placeholder="WhatsApp"
-            value={contacto.whatsapp ?? ''}
-            onChange={(e) => setContacto({ ...contacto, whatsapp: e.target.value || undefined })}
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
-          />
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={contacto.email ?? ''}
-            onChange={(e) => setContacto({ ...contacto, email: e.target.value || undefined })}
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
-          />
-          <input
-            type="url"
-            placeholder="Sitio web"
-            value={contacto.web ?? ''}
-            onChange={(e) => setContacto({ ...contacto, web: e.target.value || undefined })}
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
-          />
-        </fieldset>
+            <div className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">Foto de perfil o logotipo</span>
+              <div className="flex items-center gap-3">
+                {fotoPerfilUrl && <img src={fotoPerfilUrl} alt="" className="h-16 w-16 rounded-xl object-cover" />}
+                <input type="file" accept="image/*" onChange={subirFotoPerfil} disabled={subiendoFoto} />
+              </div>
+            </div>
+
+            <div className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">Fotografías de trabajos</span>
+              <div className="flex flex-wrap gap-3">
+                {fotosTrabajos.map((url) => (
+                  <div key={url} className="relative">
+                    <img src={url} alt="" className="h-20 w-20 rounded-lg object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setFotosTrabajos(fotosTrabajos.filter((f) => f !== url))}
+                      className="absolute -right-2 -top-2 rounded-full bg-white p-0.5 shadow"
+                      aria-label="Quitar foto"
+                    >
+                      <X className="h-4 w-4 text-neutral-700" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <input type="file" accept="image/*" onChange={subirFotoTrabajo} disabled={subiendoFoto} className="mt-2" />
+            </div>
+          </>
+        )}
 
         {error && <p className="text-sm text-danger-500">{error}</p>}
         {guardadoOk && <p className="text-sm text-success-500">Ficha guardada correctamente.</p>}
 
-        <Button type="submit" disabled={guardar.isPending || subiendoFoto} className="sm:w-auto">
-          {guardar.isPending ? 'Guardando…' : profesional ? 'Guardar cambios' : 'Publicar ficha'}
-        </Button>
-        <p className="-mt-2 text-xs text-neutral-500">
-          Con esto ya apareces en el directorio. Especialidades, descripción completa y fotos son opcionales — puedes
-          añadirlas ahora o más adelante.
-        </p>
-      </section>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex gap-2">
+            {paso > 1 && (
+              <Button type="button" variante="secundario" onClick={atras}>
+                Atrás
+              </Button>
+            )}
+          </div>
 
-      <section className="flex flex-col gap-4 border-t border-neutral-200 pt-6">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
-          Opcional: cuéntanos más
-        </h2>
-
-        <div className="text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Especialidades</span>
-          <div className="flex flex-wrap gap-2">
-            {especialidades.map((especialidad) => (
-              <span
-                key={especialidad}
-                className="inline-flex items-center gap-1 rounded-full bg-brand-100 px-3 py-1 text-sm text-brand-700"
+          <div className="flex gap-2">
+            {paso === 1 && (
+              <Button
+                type="button"
+                variante="secundario"
+                disabled={guardar.isPending || subiendoFoto}
+                onClick={guardarFicha}
               >
-                {especialidad}
-                <button
-                  type="button"
-                  onClick={() => setEspecialidades(especialidades.filter((e) => e !== especialidad))}
-                  aria-label={`Quitar ${especialidad}`}
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </span>
-            ))}
-          </div>
-          <div className="mt-2 flex gap-2">
-            <input
-              type="text"
-              value={especialidadNueva}
-              onChange={(e) => setEspecialidadNueva(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  anadirEspecialidad()
-                }
-              }}
-              placeholder="Ej. Reforma de baños"
-              className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-            />
-            <button
-              type="button"
-              onClick={anadirEspecialidad}
-              className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
-            >
-              <Plus className="h-4 w-4" /> Añadir
-            </button>
+                {guardar.isPending ? 'Guardando…' : profesional ? 'Guardar y salir' : 'Publicar ya'}
+              </Button>
+            )}
+            {paso < TOTAL_PASOS ? (
+              <Button type="button" onClick={siguiente}>
+                Siguiente
+              </Button>
+            ) : (
+              <Button type="submit" disabled={guardar.isPending || subiendoFoto}>
+                {guardar.isPending ? 'Guardando…' : profesional ? 'Guardar cambios' : 'Publicar ficha'}
+              </Button>
+            )}
           </div>
         </div>
-
-        <label className="text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Descripción completa</span>
-          <textarea
-            rows={4}
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-          />
-        </label>
-
-        <div className="text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Foto de perfil o logotipo</span>
-          <div className="flex items-center gap-3">
-            {fotoPerfilUrl && <img src={fotoPerfilUrl} alt="" className="h-16 w-16 rounded-xl object-cover" />}
-            <input type="file" accept="image/*" onChange={subirFotoPerfil} disabled={subiendoFoto} />
-          </div>
-        </div>
-
-        <div className="text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Fotografías de trabajos</span>
-          <div className="flex flex-wrap gap-3">
-            {fotosTrabajos.map((url) => (
-              <div key={url} className="relative">
-                <img src={url} alt="" className="h-20 w-20 rounded-lg object-cover" />
-                <button
-                  type="button"
-                  onClick={() => setFotosTrabajos(fotosTrabajos.filter((f) => f !== url))}
-                  className="absolute -right-2 -top-2 rounded-full bg-white p-0.5 shadow"
-                  aria-label="Quitar foto"
-                >
-                  <X className="h-4 w-4 text-neutral-700" />
-                </button>
-              </div>
-            ))}
-          </div>
-          <input type="file" accept="image/*" onChange={subirFotoTrabajo} disabled={subiendoFoto} className="mt-2" />
-        </div>
-
-        <Button type="submit" variante="secundario" disabled={guardar.isPending || subiendoFoto} className="sm:w-auto">
-          {guardar.isPending ? 'Guardando…' : 'Guardar cambios'}
-        </Button>
-      </section>
-    </form>
+      </form>
+    </div>
   )
 }

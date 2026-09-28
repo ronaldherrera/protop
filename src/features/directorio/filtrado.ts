@@ -1,3 +1,4 @@
+import { calcularCompletitud } from './completitud'
 import type { Profesional } from '../../types/profesional'
 
 export type FiltrosDirectorio = {
@@ -45,6 +46,9 @@ export function filtrarProfesionales(
  * Orden por defecto: patrocinados primero (dejando hueco suficiente para
  * resultados orgánicos), después por puntuación y nº de trabajos valorados.
  * Los perfiles sin valoraciones se muestran al final, no penalizados a cero.
+ * En cada empate (incluido entre perfiles nuevos, que empatan a 0 trabajos),
+ * desempata quién tiene el perfil más completo — así "cuanto más completo,
+ * más visibilidad" es real, no solo un mensaje motivacional.
  */
 export function ordenarProfesionales(profesionales: Profesional[]): Profesional[] {
   return [...profesionales].sort((a, b) => {
@@ -53,7 +57,8 @@ export function ordenarProfesionales(profesionales: Profesional[]): Profesional[
     }
 
     if (a.puntuacionGlobal === null && b.puntuacionGlobal === null) {
-      return b.trabajosValorados - a.trabajosValorados
+      if (b.trabajosValorados !== a.trabajosValorados) return b.trabajosValorados - a.trabajosValorados
+      return calcularCompletitud(b) - calcularCompletitud(a)
     }
     if (a.puntuacionGlobal === null) return 1
     if (b.puntuacionGlobal === null) return -1
@@ -61,6 +66,7 @@ export function ordenarProfesionales(profesionales: Profesional[]): Profesional[
     if (b.puntuacionGlobal !== a.puntuacionGlobal) {
       return b.puntuacionGlobal - a.puntuacionGlobal
     }
-    return b.trabajosValorados - a.trabajosValorados
+    if (b.trabajosValorados !== a.trabajosValorados) return b.trabajosValorados - a.trabajosValorados
+    return calcularCompletitud(b) - calcularCompletitud(a)
   })
 }
