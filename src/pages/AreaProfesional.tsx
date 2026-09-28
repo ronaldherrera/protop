@@ -1,6 +1,7 @@
 import { Plus, X } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
 import { SelectorChipsCategoria } from '../components/directorio/SelectorChipsCategoria'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
@@ -20,7 +21,7 @@ import {
 } from '../features/directorio/queries'
 import { useSolicitudesDisponibles } from '../features/solicitudes/queries'
 import { subirFoto } from '../lib/storage'
-import type { Categoria, Familia, MediosContacto } from '../types/profesional'
+import type { Categoria, Familia, MediosContacto, Zona } from '../types/profesional'
 
 export function AreaProfesional() {
   const { user } = useAuth()
@@ -136,7 +137,7 @@ type Props = {
   userId: string
   familias: Familia[]
   categorias: Categoria[]
-  zonas: { id: string; slug: string; nombre: string }[]
+  zonas: Zona[]
   profesional: ReturnType<typeof useMiProfesional>['data'] | null
 }
 
@@ -303,30 +304,13 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
               />
             </div>
 
-            <fieldset className="text-sm">
-              <legend className="mb-1 font-medium text-neutral-700">Zonas donde trabajas</legend>
-              <div className="flex flex-wrap gap-2">
-                {zonas.map((zona) => {
-                  const activa = zonaIds.includes(zona.id)
-                  return (
-                    <button
-                      type="button"
-                      key={zona.id}
-                      onClick={() =>
-                        setZonaIds((actuales) =>
-                          activa ? actuales.filter((id) => id !== zona.id) : [...actuales, zona.id],
-                        )
-                      }
-                      className={`rounded-full border px-3 py-1.5 text-sm ${
-                        activa ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-neutral-300 text-neutral-600'
-                      }`}
-                    >
-                      {zona.nombre}
-                    </button>
-                  )
-                })}
-              </div>
-            </fieldset>
+            <div className="text-sm">
+              <span className="mb-1 block font-medium text-neutral-700">Zonas donde trabajas</span>
+              <p className="mb-2 text-xs text-neutral-500">
+                Busca comunidades enteras o ciudades sueltas y añade las que necesites.
+              </p>
+              <BuscadorZonasChips zonas={zonas} valores={zonaIds} onChange={setZonaIds} />
+            </div>
 
             <label className="text-sm">
               <span className="mb-1 block font-medium text-neutral-700">Localidad</span>

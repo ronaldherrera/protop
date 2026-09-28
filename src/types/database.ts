@@ -616,25 +616,34 @@ export type Database = {
       }
       zonas: {
         Row: {
+          comunidad_slug: string | null
           created_at: string
           id: string
+          ine_id: string | null
           nombre: string
           orden: number
           slug: string
+          tipo: string
         }
         Insert: {
+          comunidad_slug?: string | null
           created_at?: string
           id?: string
+          ine_id?: string | null
           nombre: string
           orden?: number
           slug: string
+          tipo: string
         }
         Update: {
+          comunidad_slug?: string | null
           created_at?: string
           id?: string
+          ine_id?: string | null
           nombre?: string
           orden?: number
           slug?: string
+          tipo?: string
         }
         Relationships: []
       }

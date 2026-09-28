@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { BuscadorZonaUnica } from '../components/directorio/BuscadorZonas'
 import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { TarjetaProfesional } from '../components/directorio/TarjetaProfesional'
 import { EmptyState } from '../components/estado/EmptyState'
@@ -28,9 +29,9 @@ export function Directorio() {
   const resultados = useMemo(
     () =>
       ordenarProfesionales(
-        filtrarProfesionales(profesionales.data ?? [], { categoria, categoriaSlugsFamilia, zona, texto }),
+        filtrarProfesionales(profesionales.data ?? [], { categoria, categoriaSlugsFamilia, zona, texto }, zonas.data ?? []),
       ),
-    [profesionales.data, categoria, categoriaSlugsFamilia, zona, texto],
+    [profesionales.data, categoria, categoriaSlugsFamilia, zona, texto, zonas.data],
   )
 
   function actualizarFiltro(clave: string, valor: string) {
@@ -80,18 +81,12 @@ export function Directorio() {
 
         <label className="flex-1 text-sm">
           <span className="mb-1 block font-medium text-neutral-700">Localidad</span>
-          <select
-            value={zona}
-            onChange={(evento) => actualizarFiltro('zona', evento.target.value)}
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-          >
-            <option value="">Cualquier localidad</option>
-            {(zonas.data ?? []).map((z) => (
-              <option key={z.slug} value={z.slug}>
-                {z.nombre}
-              </option>
-            ))}
-          </select>
+          <BuscadorZonaUnica
+            zonas={zonas.data ?? []}
+            valor={zona}
+            onChange={(valor) => actualizarFiltro('zona', valor)}
+            placeholder="Cualquier localidad"
+          />
         </label>
 
         <label className="flex-1 text-sm">

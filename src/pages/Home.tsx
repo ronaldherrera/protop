@@ -1,6 +1,7 @@
 import { CheckCircle2, FileText, Percent, Search, ShieldCheck, Star } from 'lucide-react'
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { BuscadorZonaUnica } from '../components/directorio/BuscadorZonas'
 import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { TarjetaProfesional } from '../components/directorio/TarjetaProfesional'
 import { LoadingState } from '../components/estado/LoadingState'
@@ -59,18 +60,7 @@ export function Home() {
 
             <label className="flex-1 text-sm">
               <span className="mb-1 block font-medium text-neutral-700">Localidad</span>
-              <select
-                value={zona}
-                onChange={(evento) => setZona(evento.target.value)}
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-              >
-                <option value="">Cualquier localidad</option>
-                {(zonas.data ?? []).map((z) => (
-                  <option key={z.slug} value={z.slug}>
-                    {z.nombre}
-                  </option>
-                ))}
-              </select>
+              <BuscadorZonaUnica zonas={zonas.data ?? []} valor={zona} onChange={setZona} placeholder="Cualquier localidad" />
             </label>
 
             <Button type="submit" tamano="lg" className="sm:w-auto">

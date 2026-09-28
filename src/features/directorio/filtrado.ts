@@ -1,5 +1,5 @@
 import { calcularCompletitud } from './completitud'
-import type { Profesional } from '../../types/profesional'
+import type { Profesional, Zona } from '../../types/profesional'
 
 export type FiltrosDirectorio = {
   categoria?: string
@@ -9,11 +9,28 @@ export type FiltrosDirectorio = {
   texto?: string
 }
 
+/**
+ * Un profesional que trabaja en una comunidad entera encaja con una búsqueda
+ * por cualquiera de sus municipios, y viceversa: buscar por la comunidad
+ * encuentra a quien solo ha marcado municipios sueltos de esa comunidad.
+ */
+function coincideZona(filtroSlug: string, zonasProfesional: string[], zonasPorSlug: Map<string, Zona>): boolean {
+  if (zonasProfesional.includes(filtroSlug)) return true
+  const filtroZona = zonasPorSlug.get(filtroSlug)
+  if (!filtroZona) return false
+  if (filtroZona.tipo === 'municipio') {
+    return filtroZona.comunidadSlug ? zonasProfesional.includes(filtroZona.comunidadSlug) : false
+  }
+  return zonasProfesional.some((slug) => zonasPorSlug.get(slug)?.comunidadSlug === filtroZona.slug)
+}
+
 export function filtrarProfesionales(
   profesionales: Profesional[],
   filtros: FiltrosDirectorio,
+  zonas: Zona[] = [],
 ): Profesional[] {
   const texto = filtros.texto?.trim().toLowerCase()
+  const zonasPorSlug = new Map(zonas.map((z) => [z.slug, z]))
 
   return profesionales.filter((profesional) => {
     const slugsOficios = profesional.oficios.map((oficio) => oficio.slug)
@@ -26,7 +43,7 @@ export function filtrarProfesionales(
       return false
     }
 
-    if (filtros.zona && !profesional.zonasTrabajo.includes(filtros.zona)) {
+    if (filtros.zona && !coincideZona(filtros.zona, profesional.zonasTrabajo, zonasPorSlug)) {
       return false
     }
 

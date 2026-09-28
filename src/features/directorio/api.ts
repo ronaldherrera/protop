@@ -92,10 +92,29 @@ export async function obtenerCategorias(): Promise<Categoria[]> {
   }))
 }
 
+const TAMANO_PAGINA_ZONAS = 1000
+
 export async function obtenerZonas(): Promise<Zona[]> {
-  const { data, error } = await supabase.from('zonas').select('id, nombre, slug').order('orden')
-  if (error) throw error
-  return data
+  // Son más de 8000 (todas las comunidades y municipios de España): PostgREST
+  // limita cada respuesta a 1000 filas, así que hay que paginar para traerlas todas.
+  const filas: Pick<Database['public']['Tables']['zonas']['Row'], 'id' | 'nombre' | 'slug' | 'tipo' | 'comunidad_slug'>[] = []
+  for (let desde = 0; ; desde += TAMANO_PAGINA_ZONAS) {
+    const { data, error } = await supabase
+      .from('zonas')
+      .select('id, nombre, slug, tipo, comunidad_slug')
+      .order('orden')
+      .range(desde, desde + TAMANO_PAGINA_ZONAS - 1)
+    if (error) throw error
+    filas.push(...data)
+    if (data.length < TAMANO_PAGINA_ZONAS) break
+  }
+  return filas.map((z) => ({
+    id: z.id,
+    nombre: z.nombre,
+    slug: z.slug,
+    tipo: z.tipo as 'comunidad' | 'municipio',
+    comunidadSlug: z.comunidad_slug,
+  }))
 }
 
 export async function obtenerProfesionales(): Promise<Profesional[]> {

@@ -17,6 +17,9 @@ export type Zona = {
   id: string
   nombre: string
   slug: string
+  tipo: 'comunidad' | 'municipio'
+  /** Para un municipio, el slug de su comunidad autónoma; null en una comunidad. */
+  comunidadSlug: string | null
 }
 
 /** Conceptos estructurados de valoración (sección 7 del documento de producto). */

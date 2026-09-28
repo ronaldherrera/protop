@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { BuscadorZonaUnica } from '../components/directorio/BuscadorZonas'
 import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { LoadingState } from '../components/estado/LoadingState'
 import { Button } from '../components/ui/Button'
@@ -158,19 +159,13 @@ export function SolicitarPresupuesto() {
           <>
             <label className="text-sm">
               <span className="mb-1 block font-medium text-neutral-700">Localidad</span>
-              <select
-                required
-                value={zonaId}
-                onChange={(e) => setZonaId(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
-              >
-                <option value="">Selecciona una localidad</option>
-                {(zonas.data ?? []).map((zona) => (
-                  <option key={zona.id} value={zona.id}>
-                    {zona.nombre}
-                  </option>
-                ))}
-              </select>
+              <BuscadorZonaUnica
+                zonas={zonas.data ?? []}
+                valor={zonaId}
+                onChange={setZonaId}
+                campoValor="id"
+                placeholder="Busca la localidad del proyecto…"
+              />
               <span className="mt-1 block text-xs text-neutral-500">
                 No pediremos tu dirección exacta — solo lo necesario para que el profesional sepa si encaja.
               </span>
