@@ -40,7 +40,7 @@ export function AreaProfesional() {
       <p className="mt-1 text-sm text-neutral-600">
         {miProfesional.data
           ? 'Edita los datos que ven los particulares en el directorio.'
-          : 'Rellena estos datos para aparecer en el directorio de Protop. Es gratis.'}
+          : 'Rellena estos datos para aparecer en el directorio de Protop. Gratis, sin comisión por el trabajo.'}
       </p>
 
       {miProfesional.data && (

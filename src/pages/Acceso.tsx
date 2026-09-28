@@ -61,7 +61,7 @@ export function Acceso() {
       </h1>
       <p className="mt-2 text-sm text-neutral-600">
         {esProfesional
-          ? 'Con una cuenta gratuita puedes crear tu ficha de profesional y, si quieres, usar Protop también como particular.'
+          ? 'Sin comisión por el trabajo y sin cuota mensual. Crea tu ficha, responde a solicitudes y cobra el 100% de lo que factures — la misma cuenta también te sirve como particular si la necesitas.'
           : 'Con la misma cuenta puedes buscar profesionales y, si lo necesitas, publicar tu propia ficha.'}
       </p>
 
