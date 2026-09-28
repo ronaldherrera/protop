@@ -2,7 +2,7 @@
 
 Directorio digital de profesionales de reformas, construcción y servicios para el hogar. Lanzamiento inicial en Santander y alrededores.
 
-Estado actual: **Fase 5 — solicitudes de presupuestos, propuestas y comparación**, con el pago todavía sin activar (Fase 6).
+Estado actual: **Fase 5 — solicitudes de presupuestos, propuestas y comparación**, con el pago todavía sin activar (Fase 6). Además, el perfil de profesional incorpora un portfolio de trabajos publicados, independiente del sistema oficial de valoraciones.
 
 ## Stack y por qué
 
@@ -59,6 +59,8 @@ Buckets de Storage:
 
 Para convertir una cuenta en administradora (no hay alta de administradores desde la interfaz todavía): `update perfiles set es_admin = true where id = '<uuid del usuario>';` desde el SQL Editor de Supabase.
 
+Tablas `trabajos_publicados` y `trabajo_comentarios`: un portfolio del profesional, **totalmente separado** del sistema de valoraciones — sin factura, sin revisión de administración, no afecta a `puntuacion_global`. El profesional publica un trabajo y, si quiere, vincula al cliente real mediante la función `vincular_cliente_trabajo(trabajo_id, email)` (RPC `SECURITY DEFINER`: busca la cuenta por correo en `auth.users`, que no es consultable directamente desde el cliente, y solo expone si existe o no). El cliente vinculado puede dejar un comentario público, opcional y único por trabajo.
+
 ## Despliegue a Hostinger
 
 El workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) construye la app y la sube por FTPS en cada push a `main`. Antes del primer despliegue:
@@ -100,6 +102,7 @@ src/
 - **Solicitar presupuesto** (`/solicitar-presupuesto`, requiere cuenta): formulario por pasos (qué necesitas → dónde y cuándo, con fotos opcionales → repaso) que guarda un borrador. Desde el detalle de la solicitud, el particular la envía a pago, ve las propuestas recibidas en formato comparable (alcance, importe, materiales, exclusiones, plazo, estimación vs. confirmado…) y puede cerrarla.
 - **Área del profesional**: además de la ficha, ahora muestra "Solicitudes disponibles" en su categoría y zona; desde el detalle de cada una puede enviar su propuesta (una por solicitud) o ver la que ya envió.
 - **Aclaraciones**: hilo de preguntas/respuestas dentro de cada solicitud, visible solo para el particular y los profesionales que han enviado propuesta ahí.
+- **Trabajos publicados**: portfolio del profesional (título, descripción, fotos, fecha) en su perfil público. Puede vincular al cliente real por email; ese cliente ve el trabajo en su área particular y puede dejar un comentario opcional, público, sin pasar por revisión — independiente de la reputación oficial.
 
 ## Qué depende de configuración pendiente
 

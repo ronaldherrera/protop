@@ -381,6 +381,96 @@ export type Database = {
           },
         ]
       }
+      trabajo_comentarios: {
+        Row: {
+          autor_id: string
+          comentario: string
+          created_at: string
+          id: string
+          trabajo_id: string
+        }
+        Insert: {
+          autor_id: string
+          comentario: string
+          created_at?: string
+          id?: string
+          trabajo_id: string
+        }
+        Update: {
+          autor_id?: string
+          comentario?: string
+          created_at?: string
+          id?: string
+          trabajo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trabajo_comentarios_autor_id_fkey"
+            columns: ["autor_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trabajo_comentarios_trabajo_id_fkey"
+            columns: ["trabajo_id"]
+            isOneToOne: true
+            referencedRelation: "trabajos_publicados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trabajos_publicados: {
+        Row: {
+          cliente_id: string | null
+          created_at: string
+          descripcion: string | null
+          fotos: string[]
+          id: string
+          profesional_id: string
+          realizado_en: string | null
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          cliente_id?: string | null
+          created_at?: string
+          descripcion?: string | null
+          fotos?: string[]
+          id?: string
+          profesional_id: string
+          realizado_en?: string | null
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string | null
+          created_at?: string
+          descripcion?: string | null
+          fotos?: string[]
+          id?: string
+          profesional_id?: string
+          realizado_en?: string | null
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trabajos_publicados_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trabajos_publicados_profesional_id_fkey"
+            columns: ["profesional_id"]
+            isOneToOne: false
+            referencedRelation: "profesionales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       valoraciones: {
         Row: {
           calidad_acabado: number | null
@@ -485,6 +575,10 @@ export type Database = {
       es_admin_actual: { Args: never; Returns: boolean }
       recalcular_reputacion_profesional: {
         Args: { target_id: string }
+        Returns: undefined
+      }
+      vincular_cliente_trabajo: {
+        Args: { email_cliente: string; trabajo_id_param: string }
         Returns: undefined
       }
     }

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
+import { GestionTrabajos } from '../components/trabajos/GestionTrabajos'
 import { Button } from '../components/ui/Button'
 import { useAuth } from '../features/auth/useAuth'
 import {
@@ -36,7 +37,7 @@ export function AreaProfesional() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-neutral-900">Tu ficha de profesional</h1>
+      <h1 className="text-2xl font-bold text-neutral-900">Tu perfil de profesional</h1>
       <p className="mt-1 text-sm text-neutral-600">
         {miProfesional.data
           ? 'Edita los datos que ven los particulares en el directorio.'
@@ -48,7 +49,7 @@ export function AreaProfesional() {
           to={`/profesionales/${miProfesional.data.slug}`}
           className="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline"
         >
-          Ver mi ficha pública →
+          Ver mi perfil público →
         </Link>
       )}
 
@@ -59,6 +60,19 @@ export function AreaProfesional() {
         zonas={zonas.data ?? []}
         profesional={miProfesional.data ?? null}
       />
+
+      {miProfesional.data && (
+        <div className="mt-10">
+          <h2 className="text-lg font-semibold text-neutral-900">Trabajos publicados</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Muestra trabajos reales en tu perfil. Puedes vincular al cliente para que, si quiere, deje un
+            comentario — es opcional y no afecta a tu puntuación oficial.
+          </p>
+          <div className="mt-3">
+            <GestionTrabajos profesionalId={miProfesional.data.id} />
+          </div>
+        </div>
+      )}
 
       {miProfesional.data && (
         <div className="mt-10">

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
+import { FormularioComentario } from '../components/trabajos/FormularioComentario'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { actualizarPerfil, type Perfil } from '../features/auth/api'
@@ -10,6 +11,7 @@ import { useInvalidarPerfil, usePerfil } from '../features/auth/queries'
 import { useAuth } from '../features/auth/useAuth'
 import { useMisSolicitudes } from '../features/solicitudes/queries'
 import type { EstadoSolicitud } from '../features/solicitudes/types'
+import { useTrabajosVinculados } from '../features/trabajos/queries'
 import { useMisValoraciones } from '../features/valoraciones/queries'
 import type { EstadoValoracion } from '../features/valoraciones/types'
 
@@ -50,7 +52,55 @@ export function AreaParticular() {
         <h2 className="text-lg font-semibold text-neutral-900">Mis valoraciones</h2>
         <MisValoraciones />
       </div>
+
+      <div className="mt-10">
+        <h2 className="text-lg font-semibold text-neutral-900">Trabajos vinculados a ti</h2>
+        <p className="mt-1 text-sm text-neutral-600">
+          Trabajos que un profesional ha publicado y en los que te ha vinculado como cliente. Comentar es opcional.
+        </p>
+        <TrabajosVinculados />
+      </div>
     </div>
+  )
+}
+
+function TrabajosVinculados() {
+  const trabajos = useTrabajosVinculados()
+
+  if (trabajos.isLoading) {
+    return <LoadingState etiqueta="Cargando…" />
+  }
+
+  if (trabajos.isError) {
+    return <ErrorState descripcion="No hemos podido cargar tus trabajos vinculados." />
+  }
+
+  if (!trabajos.data || trabajos.data.length === 0) {
+    return (
+      <div className="mt-3">
+        <EmptyState titulo="Todavía no te han vinculado a ningún trabajo" />
+      </div>
+    )
+  }
+
+  return (
+    <ul className="mt-3 flex flex-col gap-3">
+      {trabajos.data.map((trabajo) => (
+        <li key={trabajo.id} className="rounded-lg border border-neutral-200 p-4">
+          <Link to={`/profesionales/${trabajo.profesionalSlug}`} className="text-sm font-medium text-brand-700 hover:underline">
+            {trabajo.profesionalNombre}
+          </Link>
+          <p className="mt-0.5 text-sm text-neutral-800">{trabajo.titulo}</p>
+          {trabajo.comentario ? (
+            <p className="mt-2 text-sm text-neutral-600">Tu comentario: "{trabajo.comentario.comentario}"</p>
+          ) : (
+            <div className="mt-2">
+              <FormularioComentario trabajoId={trabajo.id} />
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
   )
 }
 

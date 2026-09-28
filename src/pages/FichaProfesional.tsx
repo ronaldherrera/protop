@@ -5,6 +5,8 @@ import { DesgloseValoraciones } from '../components/directorio/DesgloseValoracio
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
+import { FormularioComentario } from '../components/trabajos/FormularioComentario'
+import { TarjetaTrabajoPublico } from '../components/trabajos/TarjetaTrabajoPublico'
 import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
@@ -12,12 +14,14 @@ import { Puntuacion } from '../components/ui/Puntuacion'
 import { FormularioValoracion } from '../components/valoraciones/FormularioValoracion'
 import { useAuth } from '../features/auth/useAuth'
 import { useMiProfesional, useProfesional } from '../features/directorio/queries'
+import { useTrabajosDeProfesional } from '../features/trabajos/queries'
 
 export function FichaProfesional() {
   const { slug } = useParams<{ slug: string }>()
   const { data: profesional, isLoading, isError } = useProfesional(slug)
   const { user } = useAuth()
   const miProfesional = useMiProfesional()
+  const trabajos = useTrabajosDeProfesional(profesional?.id)
   const esPropia = Boolean(user && profesional && miProfesional.data?.slug === profesional.slug)
   const [valorando, setValorando] = useState(false)
 
@@ -168,6 +172,24 @@ export function FichaProfesional() {
           ))}
         </ul>
       </section>
+
+      {trabajos.data && trabajos.data.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-neutral-900">Trabajos publicados</h2>
+          <div className="mt-3 flex flex-col gap-4">
+            {trabajos.data.map((trabajo) => (
+              <div key={trabajo.id}>
+                <TarjetaTrabajoPublico trabajo={trabajo} />
+                {user && trabajo.clienteId === user.id && !trabajo.comentario && (
+                  <div className="mt-2">
+                    <FormularioComentario trabajoId={trabajo.id} profesionalId={profesional.id} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {profesional.fotosTrabajos.length > 0 && (
         <section className="mt-8">
