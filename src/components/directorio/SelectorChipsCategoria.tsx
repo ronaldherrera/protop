@@ -13,12 +13,16 @@ type Props = {
 
 function SelectorFamilia({
   disponibles,
+  categorias,
   placeholder,
-  onSeleccionar,
+  onSeleccionarFamilia,
+  onSeleccionarOficio,
 }: {
   disponibles: Familia[]
+  categorias: Categoria[]
   placeholder: string
-  onSeleccionar: (familiaId: string) => void
+  onSeleccionarFamilia: (familiaId: string) => void
+  onSeleccionarOficio: (familiaId: string, categoriaId: string) => void
 }) {
   const [abierto, setAbierto] = useState(false)
   const contenedorRef = useRef<HTMLDivElement>(null)
@@ -45,7 +49,7 @@ function SelectorFamilia({
       <button
         type="button"
         onClick={() => setAbierto((a) => !a)}
-        aria-haspopup="listbox"
+        aria-haspopup="tree"
         aria-expanded={abierto}
         className="flex w-full items-center justify-between gap-2 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-left text-sm text-neutral-700 hover:border-neutral-400"
       >
@@ -54,27 +58,46 @@ function SelectorFamilia({
       </button>
 
       {abierto && (
-        <ul
-          role="listbox"
+        <div
+          role="tree"
           aria-label={placeholder}
-          className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-neutral-200 bg-white py-1 shadow-lg"
+          className="absolute z-10 mt-1 max-h-80 w-full overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 shadow-lg"
         >
-          {disponibles.map((familia) => (
-            <li key={familia.id} role="option" aria-selected={false}>
-              <button
-                type="button"
-                onClick={() => {
-                  onSeleccionar(familia.id)
-                  setAbierto(false)
-                }}
-                className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-neutral-700 hover:bg-brand-50 hover:text-brand-700"
-              >
-                <IconoCategoria iconoUrl={familia.iconoUrl} nombre={familia.nombre} className="h-5 w-5" />
-                {familia.nombre}
-              </button>
-            </li>
-          ))}
-        </ul>
+          {disponibles.map((familia) => {
+            const categoriasFamilia = categorias.filter((c) => c.familiaId === familia.id)
+            return (
+              <div key={familia.id} role="group">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSeleccionarFamilia(familia.id)
+                    setAbierto(false)
+                  }}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm font-semibold text-neutral-800 hover:bg-brand-50 hover:text-brand-700"
+                >
+                  <IconoCategoria iconoUrl={familia.iconoUrl} nombre={familia.nombre} className="h-5 w-5" />
+                  {familia.nombre}
+                </button>
+                <div className="ml-4 border-l border-neutral-200 pb-1">
+                  {categoriasFamilia.map((categoria) => (
+                    <button
+                      type="button"
+                      key={categoria.id}
+                      onClick={() => {
+                        onSeleccionarOficio(familia.id, categoria.id)
+                        setAbierto(false)
+                      }}
+                      className="flex w-full items-center gap-2 py-1.5 pl-4 pr-3 text-left text-sm text-neutral-600 hover:bg-brand-50 hover:text-brand-700"
+                    >
+                      <IconoCategoria iconoUrl={categoria.iconoUrl} nombre={categoria.nombre} className="h-4 w-4" />
+                      {categoria.nombre}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       )}
     </div>
   )
@@ -98,6 +121,11 @@ export function SelectorChipsCategoria({ familias, categorias, valores, onChange
     const idsFamilia = categorias.filter((c) => c.familiaId === familiaId).map((c) => c.id)
     setAbiertas((actuales) => [...actuales, familiaId])
     onChange([...valores, ...idsFamilia.filter((id) => !valores.includes(id))])
+  }
+
+  function anadirOficio(familiaId: string, categoriaId: string) {
+    setAbiertas((actuales) => (actuales.includes(familiaId) ? actuales : [...actuales, familiaId]))
+    onChange(valores.includes(categoriaId) ? valores : [...valores, categoriaId])
   }
 
   function quitarFamilia(familiaId: string) {
@@ -159,8 +187,10 @@ export function SelectorChipsCategoria({ familias, categorias, valores, onChange
       {disponibles.length > 0 && (
         <SelectorFamilia
           disponibles={disponibles}
+          categorias={categorias}
           placeholder={abiertas.length === 0 ? 'Elige una categoría…' : 'Añadir otra categoría…'}
-          onSeleccionar={anadirFamilia}
+          onSeleccionarFamilia={anadirFamilia}
+          onSeleccionarOficio={anadirOficio}
         />
       )}
     </div>
