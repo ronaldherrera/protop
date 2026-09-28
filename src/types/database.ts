@@ -240,7 +240,7 @@ export type Database = {
           desglose_por_concepto: Json
           distintivos: Json
           es_demo: boolean
-          especialidades: string[]
+          especialidades: Json
           foto_perfil_url: string | null
           fotos_trabajos: string[]
           id: string
@@ -263,7 +263,7 @@ export type Database = {
           desglose_por_concepto?: Json
           distintivos?: Json
           es_demo?: boolean
-          especialidades?: string[]
+          especialidades?: Json
           foto_perfil_url?: string | null
           fotos_trabajos?: string[]
           id?: string
@@ -286,7 +286,7 @@ export type Database = {
           desglose_por_concepto?: Json
           distintivos?: Json
           es_demo?: boolean
-          especialidades?: string[]
+          especialidades?: Json
           foto_perfil_url?: string | null
           fotos_trabajos?: string[]
           id?: string
@@ -660,6 +660,10 @@ export type Database = {
       vincular_cliente_trabajo: {
         Args: { email_cliente: string; trabajo_id_param: string }
         Returns: undefined
+      }
+      zonas_coinciden: {
+        Args: { zona_a: string; zona_b: string }
+        Returns: boolean
       }
     }
     Enums: {

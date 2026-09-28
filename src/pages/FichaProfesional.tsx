@@ -178,10 +178,13 @@ export function FichaProfesional() {
           {profesional.descripcion || profesional.descripcionBreve}
         </p>
         {profesional.especialidades.length > 0 && (
-          <ul className="mt-3 flex flex-wrap gap-2">
+          <ul className="mt-3 flex flex-col gap-2">
             {profesional.especialidades.map((especialidad) => (
-              <li key={especialidad}>
-                <Badge tono="marca">{especialidad}</Badge>
+              <li key={especialidad.nombre}>
+                <Badge tono="marca">{especialidad.nombre}</Badge>
+                {especialidad.descripcion && (
+                  <p className="mt-1 text-sm text-neutral-600">{especialidad.descripcion}</p>
+                )}
               </li>
             ))}
           </ul>

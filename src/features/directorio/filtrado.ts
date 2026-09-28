@@ -50,7 +50,7 @@ export function filtrarProfesionales(
     if (texto) {
       const enNombre = profesional.nombreComercial.toLowerCase().includes(texto)
       const enEspecialidades = profesional.especialidades.some((especialidad) =>
-        especialidad.toLowerCase().includes(texto),
+        especialidad.nombre.toLowerCase().includes(texto),
       )
       if (!enNombre && !enEspecialidades) {
         return false

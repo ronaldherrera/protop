@@ -2,6 +2,7 @@ import { supabase } from '../../lib/supabaseClient'
 import type {
   Categoria,
   Distintivo,
+  Especialidad,
   Familia,
   MediosContacto,
   Profesional,
@@ -53,7 +54,7 @@ function mapearProfesional(fila: FilaProfesional): Profesional {
     categoriaNombre: fila.categorias?.nombre ?? '',
     categoriaIconoUrl: fila.categorias?.icono_url ?? null,
     oficios,
-    especialidades: fila.especialidades,
+    especialidades: fila.especialidades as unknown as Especialidad[],
     localidad: fila.localidad,
     zonasTrabajo: zonas.map((zona) => zona.slug),
     zonasTrabajoNombres: zonas.map((zona) => zona.nombre),
@@ -147,7 +148,7 @@ export type DatosFormularioProfesional = {
   nombreComercial: string
   /** Oficios del profesional (chips); el primero se guarda como oficio principal. */
   categoriaIds: string[]
-  especialidades: string[]
+  especialidades: Especialidad[]
   localidad: string
   zonaIds: string[]
   descripcionBreve: string

@@ -1,9 +1,9 @@
-import type { MediosContacto } from '../../types/profesional'
+import type { Especialidad, MediosContacto } from '../../types/profesional'
 
 export type DatosCompletitud = {
   fotoPerfilUrl?: string | null
   descripcion: string
-  especialidades: string[]
+  especialidades: Especialidad[]
   fotosTrabajos: string[]
   contacto: MediosContacto
 }

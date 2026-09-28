@@ -49,6 +49,11 @@ export type Distintivo = {
   explicacion: string
 }
 
+export type Especialidad = {
+  nombre: string
+  descripcion: string
+}
+
 export type MediosContacto = {
   telefono?: string
   whatsapp?: string
@@ -72,7 +77,7 @@ export type Profesional = {
   categoriaIconoUrl: string | null
   /** Todos los oficios del profesional (chips); el primero es el oficio principal. */
   oficios: OficioProfesional[]
-  especialidades: string[]
+  especialidades: Especialidad[]
   localidad: string
   zonasTrabajo: string[]
   zonasTrabajoNombres: string[]

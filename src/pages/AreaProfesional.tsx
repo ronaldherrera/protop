@@ -21,7 +21,7 @@ import {
 } from '../features/directorio/queries'
 import { useSolicitudesDisponibles } from '../features/solicitudes/queries'
 import { subirFoto } from '../lib/storage'
-import type { Categoria, Familia, MediosContacto, Zona } from '../types/profesional'
+import type { Categoria, Especialidad, Familia, MediosContacto, Zona } from '../types/profesional'
 
 export function AreaProfesional() {
   const { user } = useAuth()
@@ -149,7 +149,7 @@ type BorradorFicha = {
   nombreComercial: string
   categoriaIds: string[]
   zonaIds: string[]
-  especialidades: string[]
+  especialidades: Especialidad[]
   localidad: string
   descripcionBreve: string
   descripcion: string
@@ -199,7 +199,9 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
   const [zonaIds, setZonaIds] = useState<string[]>(
     () => borrador?.zonaIds ?? zonas.filter((z) => profesional?.zonasTrabajo.includes(z.slug)).map((z) => z.id),
   )
-  const [especialidades, setEspecialidades] = useState<string[]>(borrador?.especialidades ?? profesional?.especialidades ?? [])
+  const [especialidades, setEspecialidades] = useState<Especialidad[]>(
+    borrador?.especialidades ?? profesional?.especialidades ?? [],
+  )
   const [especialidadNueva, setEspecialidadNueva] = useState('')
   const [localidad, setLocalidad] = useState(borrador?.localidad ?? profesional?.localidad ?? '')
   const [descripcionBreve, setDescripcionBreve] = useState(borrador?.descripcionBreve ?? profesional?.descripcionBreve ?? '')
@@ -244,10 +246,18 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
 
   function anadirEspecialidad() {
     const valor = especialidadNueva.trim()
-    if (valor && !especialidades.includes(valor)) {
-      setEspecialidades([...especialidades, valor])
+    if (valor && !especialidades.some((e) => e.nombre === valor)) {
+      setEspecialidades([...especialidades, { nombre: valor, descripcion: '' }])
     }
     setEspecialidadNueva('')
+  }
+
+  function actualizarDescripcionEspecialidad(nombre: string, descripcion: string) {
+    setEspecialidades((actuales) => actuales.map((e) => (e.nombre === nombre ? { ...e, descripcion } : e)))
+  }
+
+  function quitarEspecialidad(nombre: string) {
+    setEspecialidades((actuales) => actuales.filter((e) => e.nombre !== nombre))
   }
 
   async function subirFotoPerfil(evento: React.ChangeEvent<HTMLInputElement>) {
@@ -460,24 +470,38 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
 
             <div className="text-sm">
               <span className="mb-1 block font-medium text-neutral-700">Especialidades</span>
-              <div className="flex flex-wrap gap-2">
-                {especialidades.map((especialidad) => (
-                  <span
-                    key={especialidad}
-                    className="inline-flex items-center gap-1 rounded-full bg-brand-100 px-3 py-1 text-sm text-brand-700"
-                  >
-                    {especialidad}
-                    <button
-                      type="button"
-                      onClick={() => setEspecialidades(especialidades.filter((e) => e !== especialidad))}
-                      aria-label={`Quitar ${especialidad}`}
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="mt-2 flex gap-2">
+              <p className="mb-2 text-xs text-neutral-500">
+                Cada una puede llevar su propia explicación (opcional) de en qué consiste ese trabajo.
+              </p>
+              {especialidades.length > 0 && (
+                <div className="mb-3 flex flex-col gap-2">
+                  {especialidades.map((especialidad) => (
+                    <div key={especialidad.nombre} className="rounded-lg border border-neutral-200 bg-white p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-1 text-sm font-medium text-brand-700">
+                          {especialidad.nombre}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => quitarEspecialidad(especialidad.nombre)}
+                          aria-label={`Quitar ${especialidad.nombre}`}
+                          className="rounded-full p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <textarea
+                        rows={2}
+                        value={especialidad.descripcion}
+                        onChange={(e) => actualizarDescripcionEspecialidad(especialidad.nombre, e.target.value)}
+                        placeholder="Describe en qué consiste (opcional)"
+                        className="mt-2 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
                 <input
                   type="text"
                   value={especialidadNueva}
@@ -502,7 +526,11 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
             </div>
 
             <label className="text-sm">
-              <span className="mb-1 block font-medium text-neutral-700">Descripción completa</span>
+              <span className="mb-1 block font-medium text-neutral-700">Sobre ti</span>
+              <p className="mb-1 text-xs text-neutral-500">
+                Preséntate: tu experiencia, cómo trabajas... Esto no es por especialidad, es lo que un cliente lee
+                al entrar en tu ficha.
+              </p>
               <textarea
                 rows={4}
                 value={descripcion}
