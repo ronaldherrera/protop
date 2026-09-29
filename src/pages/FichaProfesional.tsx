@@ -1,4 +1,4 @@
-import { Globe, Mail, MapPin, Phone } from 'lucide-react'
+import { Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { CarruselFotos } from '../components/directorio/CarruselFotos'
@@ -116,6 +116,17 @@ export function FichaProfesional() {
             )}
           >
             <Phone className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.telefono}
+          </a>
+          <a
+            href={profesional.contacto.whatsapp ? `https://wa.me/${profesional.contacto.whatsapp.replace(/[^0-9]/g, '')}` : undefined}
+            target="_blank"
+            rel="noreferrer"
+            className={cn(
+              'flex items-center gap-2 text-sm text-brand-700 hover:underline',
+              !profesional.contacto.whatsapp && 'invisible',
+            )}
+          >
+            <MessageCircle className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.whatsapp}
           </a>
           <a
             href={profesional.contacto.email ? `mailto:${profesional.contacto.email}` : undefined}
