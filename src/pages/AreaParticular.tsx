@@ -66,29 +66,35 @@ export function AreaParticular() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start">
-        <aside className="lg:sticky lg:top-6">
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
           <TarjetaCuentaLateral perfil={perfil.data} email={user.email ?? ''} onEditar={() => setEditando(true)} />
-        </aside>
 
-        <div>
-          <div className="flex items-center gap-4 overflow-x-auto border-b border-neutral-200">
+          <nav className="flex flex-col gap-1 rounded-xl border border-neutral-200 bg-white p-2">
             {PESTANAS.map((p) => (
               <button
                 key={p.id}
                 type="button"
                 onClick={() => setSeccion(p.id)}
                 className={cn(
-                  '-mb-px whitespace-nowrap border-b-2 pb-2 text-sm font-medium',
-                  seccion === p.id
-                    ? 'border-brand-600 text-brand-700'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-800',
+                  'rounded-lg px-3 py-2 text-left text-sm font-medium',
+                  seccion === p.id ? 'bg-brand-50 text-brand-700' : 'text-neutral-600 hover:bg-neutral-50',
                 )}
               >
                 {p.etiqueta}
               </button>
             ))}
-          </div>
+            {perfil.data.esAdmin && (
+              <Link
+                to="/admin"
+                className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+              >
+                Administración
+              </Link>
+            )}
+          </nav>
+        </aside>
 
+        <div>
           {seccion === 'solicitudes' && (
             <div className="mt-6">
               <div className="flex items-center justify-between">

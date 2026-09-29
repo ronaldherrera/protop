@@ -16,6 +16,7 @@ import { Puntuacion } from '../components/ui/Puntuacion'
 import { Stepper } from '../components/ui/Stepper'
 import { calcularCompletitudPorcentaje } from '../features/directorio/completitud'
 import { coincideZona } from '../features/directorio/filtrado'
+import { usePerfil } from '../features/auth/queries'
 import { useAuth } from '../features/auth/useAuth'
 import { cn } from '../lib/cn'
 import {
@@ -35,6 +36,7 @@ type Seccion = 'solicitudes' | 'trabajos'
 
 export function AreaProfesional() {
   const { user } = useAuth()
+  const perfil = usePerfil()
   const miProfesional = useMiProfesional()
   const familias = useFamilias()
   const categorias = useCategorias()
@@ -105,29 +107,35 @@ export function AreaProfesional() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start">
-        <aside className="lg:sticky lg:top-6">
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
           <TarjetaPerfilLateral profesional={profesional} onEditar={() => setEditando(true)} />
-        </aside>
 
-        <div>
-          <div className="flex items-center gap-4 border-b border-neutral-200">
+          <nav className="flex flex-col gap-1 rounded-xl border border-neutral-200 bg-white p-2">
             {(['solicitudes', 'trabajos'] as const).map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setSeccion(s)}
                 className={cn(
-                  '-mb-px border-b-2 pb-2 text-sm font-medium',
-                  seccion === s
-                    ? 'border-brand-600 text-brand-700'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-800',
+                  'rounded-lg px-3 py-2 text-left text-sm font-medium',
+                  seccion === s ? 'bg-brand-50 text-brand-700' : 'text-neutral-600 hover:bg-neutral-50',
                 )}
               >
                 {s === 'solicitudes' ? 'Solicitudes de presupuesto' : 'Mis trabajos'}
               </button>
             ))}
-          </div>
+            {perfil.data?.esAdmin && (
+              <Link
+                to="/admin"
+                className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+              >
+                Administración
+              </Link>
+            )}
+          </nav>
+        </aside>
 
+        <div>
           {seccion === 'solicitudes' && (
             <div className="mt-6">
               <SolicitudesDisponibles

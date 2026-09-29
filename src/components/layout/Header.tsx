@@ -2,7 +2,6 @@ import { Briefcase, Menu, User, X } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { cerrarSesion } from '../../features/auth/api'
-import { usePerfil } from '../../features/auth/queries'
 import { useAuth } from '../../features/auth/useAuth'
 import { useModo } from '../../features/modo/useModo'
 import { cn } from '../../lib/cn'
@@ -13,18 +12,9 @@ const ENLACES_INVITADO = [
   { to: '/solicitar-presupuesto', etiqueta: 'Solicitar presupuesto' },
 ]
 
-const ENLACES_PARTICULAR = [
-  { to: '/profesionales', etiqueta: 'Directorio' },
-  { to: '/solicitar-presupuesto', etiqueta: 'Solicitar presupuesto' },
-  { to: '/particular', etiqueta: 'Mi cuenta' },
-]
-
-const ENLACES_PROFESIONAL = [{ to: '/profesional', etiqueta: 'Mi perfil' }]
-
 export function Header() {
   const [menuAbierto, setMenuAbierto] = useState(false)
   const { user } = useAuth()
-  const perfil = usePerfil()
   const { modo, setModo } = useModo()
   const navigate = useNavigate()
 
@@ -37,11 +27,10 @@ export function Header() {
   function cambiarModo(nuevo: 'particular' | 'profesional') {
     setModo(nuevo)
     setMenuAbierto(false)
-    navigate(nuevo === 'profesional' ? '/profesional' : '/')
+    navigate(nuevo === 'profesional' ? '/profesional' : '/particular')
   }
 
-  const enlaces = !user ? ENLACES_INVITADO : modo === 'profesional' ? ENLACES_PROFESIONAL : ENLACES_PARTICULAR
-  const enlacesFinal = user && perfil.data?.esAdmin ? [...enlaces, { to: '/admin', etiqueta: 'Administración' }] : enlaces
+  const enlacesFinal = user ? [] : ENLACES_INVITADO
 
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur">
