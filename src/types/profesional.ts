@@ -31,13 +31,37 @@ export type ConceptoValoracion =
   | 'comunicacion'
   | 'respeto_presupuesto'
 
-export const CONCEPTOS_VALORACION: { id: ConceptoValoracion; etiqueta: string }[] = [
-  { id: 'calidad_acabado', etiqueta: 'Calidad del acabado' },
-  { id: 'puntualidad', etiqueta: 'Puntualidad' },
-  { id: 'cumplimiento_plazos', etiqueta: 'Cumplimiento de plazos' },
-  { id: 'limpieza_cuidado', etiqueta: 'Limpieza y cuidado' },
-  { id: 'comunicacion', etiqueta: 'Comunicación' },
-  { id: 'respeto_presupuesto', etiqueta: 'Respeto del presupuesto' },
+export const CONCEPTOS_VALORACION: { id: ConceptoValoracion; etiqueta: string; explicacion: string }[] = [
+  {
+    id: 'calidad_acabado',
+    etiqueta: 'Calidad del acabado',
+    explicacion: 'Cómo quedó el resultado final del trabajo, con el nivel de acabado esperado.',
+  },
+  {
+    id: 'puntualidad',
+    etiqueta: 'Puntualidad',
+    explicacion: 'Si el profesional llegó a la hora acordada, tanto para presupuestar como para trabajar.',
+  },
+  {
+    id: 'cumplimiento_plazos',
+    etiqueta: 'Cumplimiento de plazos',
+    explicacion: 'Si el trabajo se entregó en el plazo pactado de principio a fin.',
+  },
+  {
+    id: 'limpieza_cuidado',
+    etiqueta: 'Limpieza y cuidado',
+    explicacion: 'Si dejó la zona de trabajo limpia y cuidó el resto de la vivienda.',
+  },
+  {
+    id: 'comunicacion',
+    etiqueta: 'Comunicación',
+    explicacion: 'Si mantuvo informado al cliente durante el trabajo y respondió a sus dudas.',
+  },
+  {
+    id: 'respeto_presupuesto',
+    etiqueta: 'Respeto del presupuesto',
+    explicacion: 'Si el importe final coincidió con lo presupuestado, sin sorpresas.',
+  },
 ]
 
 /** Media de respuestas aplicables por concepto; "No aplica" queda fuera del cálculo. */

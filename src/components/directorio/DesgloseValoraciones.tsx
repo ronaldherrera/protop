@@ -1,4 +1,5 @@
 import { CONCEPTOS_VALORACION, type DesgloseValoracion } from '../../types/profesional'
+import { InfoTooltip } from '../ui/InfoTooltip'
 
 export function DesgloseValoraciones({ desglose }: { desglose: DesgloseValoracion }) {
   const conceptosContestados = CONCEPTOS_VALORACION.filter((concepto) => desglose[concepto.id] !== undefined)
@@ -13,7 +14,10 @@ export function DesgloseValoraciones({ desglose }: { desglose: DesgloseValoracio
         const valor = desglose[concepto.id] as number
         return (
           <div key={concepto.id} className="flex items-center justify-between gap-3 rounded-lg bg-neutral-50 px-3 py-2">
-            <dt className="text-sm text-neutral-600">{concepto.etiqueta}</dt>
+            <dt className="flex items-center gap-1.5 text-sm text-neutral-600">
+              {concepto.etiqueta}
+              <InfoTooltip texto={concepto.explicacion} />
+            </dt>
             <dd className="text-sm font-semibold text-neutral-900">
               {valor.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}/5
             </dd>
