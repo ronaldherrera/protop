@@ -1,9 +1,10 @@
-import { X } from 'lucide-react'
+import { ImagePlus, X } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { useAuth } from '../../features/auth/useAuth'
 import { useActualizarTrabajo, useCrearTrabajo } from '../../features/trabajos/queries'
 import type { TrabajoPublicado } from '../../features/trabajos/types'
 import { subirFoto } from '../../lib/storage'
+import { cn } from '../../lib/cn'
 import { Button } from '../ui/Button'
 
 export function FormularioTrabajo({
@@ -41,6 +42,7 @@ export function FormularioTrabajo({
       setError('No se ha podido subir la foto.')
     } finally {
       setSubiendo(false)
+      evento.target.value = ''
     }
   }
 
@@ -65,7 +67,7 @@ export function FormularioTrabajo({
   }
 
   return (
-    <form onSubmit={guardar} className="flex flex-col gap-3 rounded-xl border border-neutral-200 p-4">
+    <form onSubmit={guardar} className="flex flex-col gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
       <label className="text-sm">
         <span className="mb-1 block font-medium text-neutral-700">Título del trabajo</span>
         <input
@@ -74,7 +76,7 @@ export function FormularioTrabajo({
           placeholder="Ej. Reforma de baño completo"
           value={titulo}
           onChange={(e) => setTitulo(e.target.value)}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
         />
       </label>
 
@@ -84,7 +86,7 @@ export function FormularioTrabajo({
           rows={2}
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
         />
       </label>
 
@@ -94,28 +96,46 @@ export function FormularioTrabajo({
           type="date"
           value={realizadoEn}
           onChange={(e) => setRealizadoEn(e.target.value)}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900 sm:w-48"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900 sm:w-48"
         />
       </label>
 
       <div className="text-sm">
         <span className="mb-1 block font-medium text-neutral-700">Fotos</span>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           {fotos.map((url) => (
-            <div key={url} className="relative">
-              <img src={url} alt="" className="h-20 w-20 rounded-lg object-cover" />
+            <div key={url} className="group relative h-24 w-24 overflow-hidden rounded-lg">
+              <img src={url} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
                 onClick={() => setFotos(fotos.filter((f) => f !== url))}
-                className="absolute -right-2 -top-2 rounded-full bg-white p-0.5 shadow"
+                className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
                 aria-label="Quitar foto"
               >
-                <X className="h-4 w-4 text-neutral-700" />
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
           ))}
+
+          <label
+            htmlFor="foto-trabajo-nueva"
+            className={cn(
+              'flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-neutral-300 text-neutral-500 hover:border-brand-400 hover:text-brand-600',
+              subiendo && 'pointer-events-none opacity-50',
+            )}
+          >
+            <ImagePlus className="h-5 w-5" />
+            <span className="text-xs font-medium">{subiendo ? 'Subiendo…' : 'Añadir'}</span>
+          </label>
+          <input
+            id="foto-trabajo-nueva"
+            type="file"
+            accept="image/*"
+            onChange={subirFotoNueva}
+            disabled={subiendo}
+            className="hidden"
+          />
         </div>
-        <input type="file" accept="image/*" onChange={subirFotoNueva} disabled={subiendo} className="mt-2" />
       </div>
 
       {error && <p className="text-sm text-danger-500">{error}</p>}

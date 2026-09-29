@@ -1,4 +1,4 @@
-import { Globe, Mail, Phone, Plus, X } from 'lucide-react'
+import { Globe, ImagePlus, Mail, Phone, Plus, X } from 'lucide-react'
 import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BuscadorZonaUnica, BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
@@ -754,8 +754,25 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
             <div className="text-sm">
               <span className="mb-1 block font-medium text-neutral-700">Foto de perfil o logotipo</span>
               <div className="flex items-center gap-3">
-                {fotoPerfilUrl && <img src={fotoPerfilUrl} alt="" className="h-16 w-16 rounded-xl object-cover" />}
-                <input type="file" accept="image/*" onChange={subirFotoPerfil} disabled={subiendoFoto} />
+                {fotoPerfilUrl && <img src={fotoPerfilUrl} alt="" className="h-24 w-24 rounded-xl object-cover" />}
+                <label
+                  htmlFor="foto-perfil-input"
+                  className={cn(
+                    'flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-neutral-300 text-neutral-500 hover:border-brand-400 hover:text-brand-600',
+                    subiendoFoto && 'pointer-events-none opacity-50',
+                  )}
+                >
+                  <ImagePlus className="h-5 w-5" />
+                  <span className="text-xs font-medium">{subiendoFoto ? 'Subiendo…' : fotoPerfilUrl ? 'Cambiar' : 'Añadir'}</span>
+                </label>
+                <input
+                  id="foto-perfil-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={subirFotoPerfil}
+                  disabled={subiendoFoto}
+                  className="hidden"
+                />
               </div>
             </div>
 
@@ -763,20 +780,37 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
               <span className="mb-1 block font-medium text-neutral-700">Fotografías de trabajos</span>
               <div className="flex flex-wrap gap-3">
                 {fotosTrabajos.map((url) => (
-                  <div key={url} className="relative">
-                    <img src={url} alt="" className="h-20 w-20 rounded-lg object-cover" />
+                  <div key={url} className="group relative h-24 w-24 overflow-hidden rounded-lg">
+                    <img src={url} alt="" className="h-full w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => setFotosTrabajos(fotosTrabajos.filter((f) => f !== url))}
-                      className="absolute -right-2 -top-2 rounded-full bg-white p-0.5 shadow"
+                      className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
                       aria-label="Quitar foto"
                     >
-                      <X className="h-4 w-4 text-neutral-700" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ))}
+                <label
+                  htmlFor="foto-trabajo-input"
+                  className={cn(
+                    'flex h-24 w-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-neutral-300 text-neutral-500 hover:border-brand-400 hover:text-brand-600',
+                    subiendoFoto && 'pointer-events-none opacity-50',
+                  )}
+                >
+                  <ImagePlus className="h-5 w-5" />
+                  <span className="text-xs font-medium">{subiendoFoto ? 'Subiendo…' : 'Añadir'}</span>
+                </label>
+                <input
+                  id="foto-trabajo-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={subirFotoTrabajo}
+                  disabled={subiendoFoto}
+                  className="hidden"
+                />
               </div>
-              <input type="file" accept="image/*" onChange={subirFotoTrabajo} disabled={subiendoFoto} className="mt-2" />
             </div>
           </>
         )}
