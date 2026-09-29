@@ -22,6 +22,8 @@ import { useTrabajosDeProfesional } from '../features/trabajos/queries'
 import { useValoracionesPublicas } from '../features/valoraciones/queries'
 import { cn } from '../lib/cn'
 
+const TRABAJOS_POR_PAGINA = 5
+
 export function FichaProfesional() {
   const { slug } = useParams<{ slug: string }>()
   const { data: profesional, isLoading, isError } = useProfesional(slug)
@@ -31,6 +33,7 @@ export function FichaProfesional() {
   const valoracionesPublicas = useValoracionesPublicas(profesional?.id)
   const esPropia = Boolean(user && profesional && miProfesional.data?.slug === profesional.slug)
   const [valorando, setValorando] = useState(false)
+  const [trabajosVisibles, setTrabajosVisibles] = useState(TRABAJOS_POR_PAGINA)
 
   if (isLoading) {
     return <LoadingState etiqueta="Cargando ficha…" />
@@ -245,7 +248,7 @@ export function FichaProfesional() {
         <section className="mt-8">
           <h2 className="text-lg font-semibold text-neutral-900">Trabajos publicados</h2>
           <div className="mt-3 flex flex-col gap-4">
-            {trabajos.data.map((trabajo) => (
+            {trabajos.data.slice(0, trabajosVisibles).map((trabajo) => (
               <div key={trabajo.id}>
                 <TarjetaTrabajoPublico trabajo={trabajo} />
                 {user && trabajo.clienteId === user.id && !trabajo.comentario && (
@@ -256,6 +259,18 @@ export function FichaProfesional() {
               </div>
             ))}
           </div>
+
+          {trabajosVisibles < trabajos.data.length && (
+            <div className="mt-4 flex justify-center">
+              <Button
+                type="button"
+                variante="secundario"
+                onClick={() => setTrabajosVisibles((v) => v + TRABAJOS_POR_PAGINA)}
+              >
+                Cargar más
+              </Button>
+            </div>
+          )}
         </section>
       )}
     </div>
