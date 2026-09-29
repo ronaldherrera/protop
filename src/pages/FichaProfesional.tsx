@@ -1,6 +1,7 @@
 import { Globe, Mail, MapPin, Phone } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { CarruselFotos } from '../components/directorio/CarruselFotos'
 import { DesgloseValoraciones } from '../components/directorio/DesgloseValoraciones'
 import { IconoCategoria } from '../components/directorio/IconoCategoria'
 import { ListaValoracionesPublicas } from '../components/directorio/ListaValoracionesPublicas'
@@ -132,10 +133,8 @@ export function FichaProfesional() {
       {profesional.fotosTrabajos.length > 0 && (
         <section className="mt-8">
           <h2 className="text-lg font-semibold text-neutral-900">Fotografías de trabajos</h2>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {profesional.fotosTrabajos.map((foto) => (
-              <img key={foto} src={foto} alt={`Trabajo de ${profesional.nombreComercial}`} className="aspect-4/3 w-full rounded-lg object-cover" />
-            ))}
+          <div className="mt-3">
+            <CarruselFotos fotos={profesional.fotosTrabajos} nombreAlt={profesional.nombreComercial} />
           </div>
         </section>
       )}
