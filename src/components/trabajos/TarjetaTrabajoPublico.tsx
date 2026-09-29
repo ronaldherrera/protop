@@ -37,7 +37,13 @@ export function TarjetaTrabajoPublico({ trabajo }: { trabajo: TrabajoPublicado }
       )}
 
       {fotoAbierta !== null && (
-        <Lightbox fotos={trabajo.fotos} indiceInicial={fotoAbierta} onCerrar={() => setFotoAbierta(null)} />
+        <Lightbox
+          fotos={trabajo.fotos}
+          indiceInicial={fotoAbierta}
+          onCerrar={() => setFotoAbierta(null)}
+          titulo={trabajo.titulo}
+          descripcion={trabajo.descripcion}
+        />
       )}
 
       {trabajo.comentario && (

@@ -152,7 +152,13 @@ function TarjetaGestionTrabajo({
       )}
 
       {fotoAbierta !== null && (
-        <Lightbox fotos={trabajo.fotos} indiceInicial={fotoAbierta} onCerrar={() => setFotoAbierta(null)} />
+        <Lightbox
+          fotos={trabajo.fotos}
+          indiceInicial={fotoAbierta}
+          onCerrar={() => setFotoAbierta(null)}
+          titulo={trabajo.titulo}
+          descripcion={trabajo.descripcion}
+        />
       )}
 
       <div className="mt-3 border-t border-neutral-100 pt-3">
