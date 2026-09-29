@@ -193,7 +193,7 @@ export function FichaProfesional() {
 
       {profesional.fotosTrabajos.length > 0 && (
         <section className="mt-8">
-          <h2 className="text-lg font-semibold text-neutral-900">Fotografías de trabajos</h2>
+          <h2 className="text-lg font-semibold text-neutral-900">Fotografías</h2>
           <div className="mt-3">
             <CarruselFotos fotos={profesional.fotosTrabajos} nombreAlt={profesional.nombreComercial} />
           </div>

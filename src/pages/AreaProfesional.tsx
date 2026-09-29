@@ -798,7 +798,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
             </div>
 
             <div className="text-sm">
-              <span className="mb-1 block font-medium text-neutral-700">Fotografías de trabajos</span>
+              <span className="mb-1 block font-medium text-neutral-700">Fotografías</span>
               <div className="flex flex-wrap gap-3">
                 {fotosTrabajos.map((url) => (
                   <div key={url} className="group relative h-24 w-24 overflow-hidden rounded-lg">
@@ -1360,7 +1360,7 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
         </div>
 
         <div className="text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Fotografías de trabajos</span>
+          <span className="mb-1 block font-medium text-neutral-700">Fotografías</span>
           <div className="flex flex-wrap gap-3">
             {fotosTrabajos.map((url) => (
               <div key={url} className="group relative h-24 w-24 overflow-hidden rounded-lg">
