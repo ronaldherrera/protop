@@ -9,16 +9,16 @@ export function DesgloseValoraciones({ desglose }: { desglose: DesgloseValoracio
   }
 
   return (
-    <dl className="grid gap-3 sm:grid-cols-2">
+    <dl className="grid gap-2 sm:grid-cols-3">
       {conceptosContestados.map((concepto) => {
         const valor = desglose[concepto.id] as number
         return (
-          <div key={concepto.id} className="flex items-center justify-between gap-3 rounded-lg bg-neutral-50 px-3 py-2">
-            <dt className="flex items-center gap-1.5 text-sm text-neutral-600">
+          <div key={concepto.id} className="flex items-center justify-between gap-2 rounded-md bg-neutral-50 px-2.5 py-1.5">
+            <dt className="flex items-center gap-1 text-xs text-neutral-600">
               {concepto.etiqueta}
               <InfoTooltip texto={concepto.explicacion} />
             </dt>
-            <dd className="text-sm font-semibold text-neutral-900">
+            <dd className="text-xs font-semibold text-neutral-900">
               {valor.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}/5
             </dd>
           </div>

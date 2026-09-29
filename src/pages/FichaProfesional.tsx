@@ -130,37 +130,26 @@ export function FichaProfesional() {
         </div>
       </header>
 
-      {profesional.fotosTrabajos.length > 0 && (
-        <section className="mt-8">
-          <h2 className="text-lg font-semibold text-neutral-900">Fotografías de trabajos</h2>
-          <div className="mt-3">
-            <CarruselFotos fotos={profesional.fotosTrabajos} nombreAlt={profesional.nombreComercial} />
-          </div>
-        </section>
-      )}
-
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-neutral-900">Reputación</h2>
-        <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-4">
-          <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} />
-          <p className="mt-2 max-w-2xl text-xs text-neutral-500">
+        <div className="mt-2 rounded-xl border border-neutral-200 bg-white px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} tamano="sm" />
+            {valoracionesPublicas.data && <ListaValoracionesPublicas valoraciones={valoracionesPublicas.data} />}
+          </div>
+          <div className="mt-2">
+            <DesgloseValoraciones desglose={profesional.desglosePorConcepto} />
+          </div>
+          <p className="mt-2 text-xs text-neutral-500">
             El índice refleja experiencias de clientes con factura revisada por Protop. No es una garantía del
             resultado de futuros trabajos.
           </p>
-          <div className="mt-4">
-            <DesgloseValoraciones desglose={profesional.desglosePorConcepto} />
-          </div>
-          {valoracionesPublicas.data && (
-            <div className="mt-3">
-              <ListaValoracionesPublicas valoraciones={valoracionesPublicas.data} />
-            </div>
-          )}
         </div>
 
         {!profesional.esDemo && !esPropia && (
-          <div className="mt-4">
+          <div className="mt-3">
             {user ? (
-              <Button type="button" variante="secundario" onClick={() => setValorando(true)}>
+              <Button type="button" variante="secundario" tamano="md" onClick={() => setValorando(true)}>
                 Valorar este trabajo
               </Button>
             ) : (
@@ -171,6 +160,15 @@ export function FichaProfesional() {
           </div>
         )}
       </section>
+
+      {profesional.fotosTrabajos.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-neutral-900">Fotografías de trabajos</h2>
+          <div className="mt-3">
+            <CarruselFotos fotos={profesional.fotosTrabajos} nombreAlt={profesional.nombreComercial} />
+          </div>
+        </section>
+      )}
 
       {valorando && (
         <FormularioValoracion profesionalId={profesional.id} onCerrar={() => setValorando(false)} />
