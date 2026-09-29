@@ -1,15 +1,18 @@
-import { Plus, X } from 'lucide-react'
+import { Globe, Mail, Phone, Plus, X } from 'lucide-react'
 import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BuscadorZonaUnica, BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
+import { IconoCategoria } from '../components/directorio/IconoCategoria'
 import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { SelectorChipsCategoria } from '../components/directorio/SelectorChipsCategoria'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
 import { GestionTrabajos } from '../components/trabajos/GestionTrabajos'
+import { Avatar } from '../components/ui/Avatar'
 import { Button } from '../components/ui/Button'
 import { MedidorCompletitud } from '../components/ui/MedidorCompletitud'
+import { Puntuacion } from '../components/ui/Puntuacion'
 import { Stepper } from '../components/ui/Stepper'
 import { calcularCompletitudPorcentaje } from '../features/directorio/completitud'
 import { coincideZona } from '../features/directorio/filtrado'
@@ -26,9 +29,9 @@ import { solicitudEncajaConProfesional } from '../features/solicitudes/coinciden
 import { useSolicitudesDisponibles } from '../features/solicitudes/queries'
 import type { Solicitud } from '../features/solicitudes/types'
 import { subirFoto } from '../lib/storage'
-import type { Categoria, Especialidad, Familia, MediosContacto, Zona } from '../types/profesional'
+import type { Categoria, Especialidad, Familia, MediosContacto, Profesional, Zona } from '../types/profesional'
 
-type Seccion = 'muro' | 'solicitudes'
+type Seccion = 'solicitudes' | 'trabajos'
 
 export function AreaProfesional() {
   const { user } = useAuth()
@@ -37,7 +40,7 @@ export function AreaProfesional() {
   const categorias = useCategorias()
   const zonas = useZonas()
   const [editando, setEditando] = useState(false)
-  const [seccion, setSeccion] = useState<Seccion>('muro')
+  const [seccion, setSeccion] = useState<Seccion>('solicitudes')
 
   if (miProfesional.isLoading || familias.isLoading || categorias.isLoading || zonas.isLoading) {
     return <LoadingState etiqueta="Cargando tu ficha…" />
@@ -54,63 +57,49 @@ export function AreaProfesional() {
   const tieneFicha = Boolean(miProfesional.data)
   const mostrarWizard = !tieneFicha || editando
 
-  return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-neutral-900">
-        {tieneFicha && !editando ? 'Tu perfil' : 'Tu perfil de profesional'}
-      </h1>
-      <p className="mt-1 text-sm text-neutral-600">
-        {tieneFicha
-          ? mostrarWizard
+  if (mostrarWizard) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+        <h1 className="text-2xl font-bold text-neutral-900">Tu perfil de profesional</h1>
+        <p className="mt-1 text-sm text-neutral-600">
+          {tieneFicha
             ? 'Edita los datos que ven los particulares en el directorio.'
-            : 'Publica trabajos y encuentra solicitudes de presupuesto.'
-          : 'Rellena estos datos para aparecer en el directorio de Protop. Gratis, sin comisión por el trabajo.'}
-      </p>
+            : 'Rellena estos datos para aparecer en el directorio de Protop. Gratis, sin comisión por el trabajo.'}
+        </p>
 
-      {miProfesional.data && !editando && (
-        <div className="mt-3 flex flex-wrap items-center gap-4">
-          <Link
-            to={`/profesionales/${miProfesional.data.slug}`}
-            className="text-sm font-medium text-brand-700 hover:underline"
-          >
-            Ver mi perfil público →
-          </Link>
+        {tieneFicha && (
           <button
             type="button"
-            onClick={() => setEditando(true)}
-            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:underline"
+            onClick={() => setEditando(false)}
+            className="mt-4 text-sm font-medium text-neutral-600 hover:text-neutral-900"
           >
-            Gestionar perfil profesional
+            ← Volver a mi perfil
           </button>
-        </div>
-      )}
+        )}
+        <FormularioFicha
+          key={miProfesional.data?.id ?? 'nueva'}
+          userId={user.id}
+          familias={familias.data ?? []}
+          categorias={categorias.data ?? []}
+          zonas={zonas.data ?? []}
+          profesional={miProfesional.data ?? null}
+        />
+      </div>
+    )
+  }
 
-      {mostrarWizard && (
-        <>
-          {tieneFicha && (
-            <button
-              type="button"
-              onClick={() => setEditando(false)}
-              className="mt-4 text-sm font-medium text-neutral-600 hover:text-neutral-900"
-            >
-              ← Volver a mi perfil
-            </button>
-          )}
-          <FormularioFicha
-            key={miProfesional.data?.id ?? 'nueva'}
-            userId={user.id}
-            familias={familias.data ?? []}
-            categorias={categorias.data ?? []}
-            zonas={zonas.data ?? []}
-            profesional={miProfesional.data ?? null}
-          />
-        </>
-      )}
+  const profesional = miProfesional.data as Profesional
 
-      {miProfesional.data && !editando && (
-        <>
-          <div className="mt-8 inline-flex rounded-full border border-neutral-200 bg-white p-1">
-            {(['muro', 'solicitudes'] as const).map((s) => (
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start">
+        <aside className="lg:sticky lg:top-6">
+          <TarjetaPerfilLateral profesional={profesional} onEditar={() => setEditando(true)} />
+        </aside>
+
+        <div>
+          <div className="inline-flex rounded-full border border-neutral-200 bg-white p-1">
+            {(['solicitudes', 'trabajos'] as const).map((s) => (
               <button
                 key={s}
                 type="button"
@@ -120,22 +109,10 @@ export function AreaProfesional() {
                   seccion === s ? 'bg-brand-600 text-white' : 'text-neutral-600 hover:text-neutral-900',
                 )}
               >
-                {s === 'muro' ? 'Muro' : 'Solicitudes'}
+                {s === 'solicitudes' ? 'Solicitudes de presupuesto' : 'Mis trabajos'}
               </button>
             ))}
           </div>
-
-          {seccion === 'muro' && (
-            <div className="mt-6">
-              <p className="text-sm text-neutral-600">
-                Muestra trabajos reales en tu perfil. Puedes vincular al cliente para que, si quiere, deje un
-                comentario — es opcional y no afecta a tu puntuación oficial.
-              </p>
-              <div className="mt-3">
-                <GestionTrabajos profesionalId={miProfesional.data.id} />
-              </div>
-            </div>
-          )}
 
           {seccion === 'solicitudes' && (
             <div className="mt-6">
@@ -143,13 +120,98 @@ export function AreaProfesional() {
                 familias={familias.data ?? []}
                 categorias={categorias.data ?? []}
                 zonas={zonas.data ?? []}
-                categoriaIdsProfesional={miProfesional.data.oficios.map((o) => o.id)}
-                zonaSlugsProfesional={miProfesional.data.zonasTrabajo}
+                categoriaIdsProfesional={profesional.oficios.map((o) => o.id)}
+                zonaSlugsProfesional={profesional.zonasTrabajo}
               />
             </div>
           )}
-        </>
+
+          {seccion === 'trabajos' && (
+            <div className="mt-6">
+              <p className="text-sm text-neutral-600">
+                Muestra trabajos reales en tu perfil. Puedes vincular al cliente para que, si quiere, deje un
+                comentario — es opcional y no afecta a tu puntuación oficial.
+              </p>
+              <div className="mt-3">
+                <GestionTrabajos profesionalId={profesional.id} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TarjetaPerfilLateral({ profesional, onEditar }: { profesional: Profesional; onEditar: () => void }) {
+  const porcentajeCompletitud = calcularCompletitudPorcentaje({
+    fotoPerfilUrl: profesional.fotoPerfilUrl,
+    descripcion: profesional.descripcion,
+    especialidades: profesional.especialidades,
+    fotosTrabajos: profesional.fotosTrabajos,
+    contacto: profesional.contacto,
+  })
+
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-4">
+      <div className="flex flex-col items-center text-center">
+        <Avatar nombre={profesional.nombreComercial} fotoUrl={profesional.fotoPerfilUrl} className="h-20 w-20 rounded-2xl object-cover" />
+        <h2 className="mt-3 text-lg font-bold text-neutral-900">{profesional.nombreComercial}</h2>
+        <p className="text-sm text-neutral-500">{profesional.localidad}</p>
+        <div className="mt-2">
+          <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} tamano="sm" />
+        </div>
+      </div>
+
+      {profesional.oficios.length > 0 && (
+        <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+          {profesional.oficios.map((oficio) => (
+            <span
+              key={oficio.id}
+              className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-1 text-xs text-neutral-700"
+            >
+              <IconoCategoria iconoUrl={oficio.iconoUrl} nombre={oficio.nombre} className="h-3.5 w-3.5" />
+              {oficio.nombre}
+            </span>
+          ))}
+        </div>
       )}
+
+      {(profesional.contacto.telefono || profesional.contacto.email || profesional.contacto.web) && (
+        <div className="mt-4 flex flex-col gap-1.5 border-t border-neutral-100 pt-3 text-sm">
+          {profesional.contacto.telefono && (
+            <span className="flex items-center gap-2 text-neutral-600">
+              <Phone className="h-4 w-4 shrink-0" aria-hidden="true" /> {profesional.contacto.telefono}
+            </span>
+          )}
+          {profesional.contacto.email && (
+            <span className="flex items-center gap-2 text-neutral-600">
+              <Mail className="h-4 w-4 shrink-0" aria-hidden="true" /> {profesional.contacto.email}
+            </span>
+          )}
+          {profesional.contacto.web && (
+            <span className="flex items-center gap-2 text-neutral-600">
+              <Globe className="h-4 w-4 shrink-0" aria-hidden="true" /> {profesional.contacto.web}
+            </span>
+          )}
+        </div>
+      )}
+
+      <div className="mt-4 border-t border-neutral-100 pt-3">
+        <MedidorCompletitud porcentaje={porcentajeCompletitud} />
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2 border-t border-neutral-100 pt-3">
+        <Link
+          to={`/profesionales/${profesional.slug}`}
+          className="text-center text-sm font-medium text-brand-700 hover:underline"
+        >
+          Ver mi perfil público →
+        </Link>
+        <Button type="button" variante="secundario" onClick={onEditar} className="w-full">
+          Gestionar perfil profesional
+        </Button>
+      </div>
     </div>
   )
 }
