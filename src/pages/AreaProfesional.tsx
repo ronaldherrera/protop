@@ -528,6 +528,15 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
     setPaso((p) => Math.max(p - 1, 1))
   }
 
+  function irAPaso(objetivo: number) {
+    setError(null)
+    if (objetivo > 1 && !datosEsencialesValidos()) {
+      setPaso(1)
+      return
+    }
+    setPaso(objetivo)
+  }
+
   async function guardarFicha() {
     setError(null)
     setGuardadoOk(false)
@@ -563,7 +572,7 @@ function FormularioFicha({ userId, familias, categorias, zonas, profesional }: P
 
   return (
     <div className="mt-6">
-      <Stepper pasoActual={paso} titulos={TITULOS_PASO} />
+      <Stepper pasoActual={paso} titulos={TITULOS_PASO} onIrAPaso={irAPaso} />
 
       <div className="mt-4">
         <MedidorCompletitud porcentaje={porcentajeCompletitud} />
