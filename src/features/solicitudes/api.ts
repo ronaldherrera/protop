@@ -12,8 +12,8 @@ import type {
 const SELECT_SOLICITUD = `
   id, particular_id, titulo, descripcion, medidas_cantidades, fecha_deseada, informacion_adicional,
   fotos, estado, created_at,
-  categorias ( id, nombre ),
-  zonas ( id, nombre )
+  categorias ( id, nombre, slug ),
+  zonas ( id, nombre, slug )
 `
 
 type FilaSolicitud = {
@@ -27,8 +27,8 @@ type FilaSolicitud = {
   fotos: string[]
   estado: string
   created_at: string
-  categorias: { id: string; nombre: string } | null
-  zonas: { id: string; nombre: string } | null
+  categorias: { id: string; nombre: string; slug: string } | null
+  zonas: { id: string; nombre: string; slug: string } | null
 }
 
 function mapearSolicitud(fila: FilaSolicitud): Solicitud {
@@ -38,8 +38,10 @@ function mapearSolicitud(fila: FilaSolicitud): Solicitud {
     titulo: fila.titulo,
     categoriaId: fila.categorias?.id ?? '',
     categoriaNombre: fila.categorias?.nombre ?? '',
+    categoriaSlug: fila.categorias?.slug ?? '',
     zonaId: fila.zonas?.id ?? '',
     zonaNombre: fila.zonas?.nombre ?? '',
+    zonaSlug: fila.zonas?.slug ?? '',
     descripcion: fila.descripcion,
     medidasCantidades: fila.medidas_cantidades,
     fechaDeseada: fila.fecha_deseada,

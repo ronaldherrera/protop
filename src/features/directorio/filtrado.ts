@@ -14,7 +14,7 @@ export type FiltrosDirectorio = {
  * por cualquiera de sus municipios, y viceversa: buscar por la comunidad
  * encuentra a quien solo ha marcado municipios sueltos de esa comunidad.
  */
-function coincideZona(filtroSlug: string, zonasProfesional: string[], zonasPorSlug: Map<string, Zona>): boolean {
+export function coincideZona(filtroSlug: string, zonasProfesional: string[], zonasPorSlug: Map<string, Zona>): boolean {
   if (zonasProfesional.includes(filtroSlug)) return true
   const filtroZona = zonasPorSlug.get(filtroSlug)
   if (!filtroZona) return false

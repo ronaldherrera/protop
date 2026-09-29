@@ -19,7 +19,7 @@ const ENLACES_PARTICULAR = [
   { to: '/particular', etiqueta: 'Mi cuenta' },
 ]
 
-const ENLACES_PROFESIONAL = [{ to: '/profesional', etiqueta: 'Mi ficha y solicitudes' }]
+const ENLACES_PROFESIONAL = [{ to: '/profesional', etiqueta: 'Mi perfil' }]
 
 export function Header() {
   const [menuAbierto, setMenuAbierto] = useState(false)

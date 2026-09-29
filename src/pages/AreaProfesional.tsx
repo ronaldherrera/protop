@@ -1,7 +1,8 @@
 import { Plus, X } from 'lucide-react'
-import { type FormEvent, useEffect, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
+import { BuscadorZonaUnica, BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
+import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { SelectorChipsCategoria } from '../components/directorio/SelectorChipsCategoria'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
@@ -11,6 +12,7 @@ import { Button } from '../components/ui/Button'
 import { MedidorCompletitud } from '../components/ui/MedidorCompletitud'
 import { Stepper } from '../components/ui/Stepper'
 import { calcularCompletitudPorcentaje } from '../features/directorio/completitud'
+import { coincideZona } from '../features/directorio/filtrado'
 import { useAuth } from '../features/auth/useAuth'
 import { cn } from '../lib/cn'
 import {
@@ -20,17 +22,13 @@ import {
   useMiProfesional,
   useZonas,
 } from '../features/directorio/queries'
+import { solicitudEncajaConProfesional } from '../features/solicitudes/coincidencia'
 import { useSolicitudesDisponibles } from '../features/solicitudes/queries'
+import type { Solicitud } from '../features/solicitudes/types'
 import { subirFoto } from '../lib/storage'
 import type { Categoria, Especialidad, Familia, MediosContacto, Zona } from '../types/profesional'
 
-const PESTANAS = [
-  { id: 'ficha', etiqueta: 'Ficha' },
-  { id: 'trabajos', etiqueta: 'Trabajos' },
-  { id: 'solicitudes', etiqueta: 'Solicitudes' },
-] as const
-
-type Pestana = (typeof PESTANAS)[number]['id']
+type Seccion = 'muro' | 'solicitudes'
 
 export function AreaProfesional() {
   const { user } = useAuth()
@@ -38,7 +36,8 @@ export function AreaProfesional() {
   const familias = useFamilias()
   const categorias = useCategorias()
   const zonas = useZonas()
-  const [pestana, setPestana] = useState<Pestana>('ficha')
+  const [editando, setEditando] = useState(false)
+  const [seccion, setSeccion] = useState<Seccion>('muro')
 
   if (miProfesional.isLoading || familias.isLoading || categorias.isLoading || zonas.isLoading) {
     return <LoadingState etiqueta="Cargando tu ficha…" />
@@ -53,80 +52,145 @@ export function AreaProfesional() {
   }
 
   const tieneFicha = Boolean(miProfesional.data)
+  const mostrarWizard = !tieneFicha || editando
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-neutral-900">Tu perfil de profesional</h1>
+      <h1 className="text-2xl font-bold text-neutral-900">
+        {tieneFicha && !editando ? 'Tu perfil' : 'Tu perfil de profesional'}
+      </h1>
       <p className="mt-1 text-sm text-neutral-600">
         {tieneFicha
-          ? 'Edita los datos que ven los particulares en el directorio.'
+          ? mostrarWizard
+            ? 'Edita los datos que ven los particulares en el directorio.'
+            : 'Publica trabajos y encuentra solicitudes de presupuesto.'
           : 'Rellena estos datos para aparecer en el directorio de Protop. Gratis, sin comisión por el trabajo.'}
       </p>
 
-      {miProfesional.data && (
-        <Link
-          to={`/profesionales/${miProfesional.data.slug}`}
-          className="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline"
-        >
-          Ver mi perfil público →
-        </Link>
+      {miProfesional.data && !editando && (
+        <div className="mt-3 flex flex-wrap items-center gap-4">
+          <Link
+            to={`/profesionales/${miProfesional.data.slug}`}
+            className="text-sm font-medium text-brand-700 hover:underline"
+          >
+            Ver mi perfil público →
+          </Link>
+          <button
+            type="button"
+            onClick={() => setEditando(true)}
+            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:underline"
+          >
+            Gestionar perfil profesional
+          </button>
+        </div>
       )}
 
-      {tieneFicha && (
-        <div className="mt-6 flex gap-1 border-b border-neutral-200">
-          {PESTANAS.map((p) => (
+      {mostrarWizard && (
+        <>
+          {tieneFicha && (
             <button
-              key={p.id}
               type="button"
-              onClick={() => setPestana(p.id)}
-              className={cn(
-                '-mb-px border-b-2 px-4 py-2 text-sm font-medium',
-                pestana === p.id
-                  ? 'border-brand-600 text-brand-700'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-700',
-              )}
+              onClick={() => setEditando(false)}
+              className="mt-4 text-sm font-medium text-neutral-600 hover:text-neutral-900"
             >
-              {p.etiqueta}
+              ← Volver a mi perfil
             </button>
-          ))}
-        </div>
+          )}
+          <FormularioFicha
+            key={miProfesional.data?.id ?? 'nueva'}
+            userId={user.id}
+            familias={familias.data ?? []}
+            categorias={categorias.data ?? []}
+            zonas={zonas.data ?? []}
+            profesional={miProfesional.data ?? null}
+          />
+        </>
       )}
 
-      {(!tieneFicha || pestana === 'ficha') && (
-        <FormularioFicha
-          key={miProfesional.data?.id ?? 'nueva'}
-          userId={user.id}
-          familias={familias.data ?? []}
-          categorias={categorias.data ?? []}
-          zonas={zonas.data ?? []}
-          profesional={miProfesional.data ?? null}
-        />
-      )}
-
-      {miProfesional.data && pestana === 'trabajos' && (
-        <div className="mt-6">
-          <p className="text-sm text-neutral-600">
-            Muestra trabajos reales en tu perfil. Puedes vincular al cliente para que, si quiere, deje un
-            comentario — es opcional y no afecta a tu puntuación oficial.
-          </p>
-          <div className="mt-3">
-            <GestionTrabajos profesionalId={miProfesional.data.id} />
+      {miProfesional.data && !editando && (
+        <>
+          <div className="mt-8 inline-flex rounded-full border border-neutral-200 bg-white p-1">
+            {(['muro', 'solicitudes'] as const).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setSeccion(s)}
+                className={cn(
+                  'rounded-full px-4 py-1.5 text-sm font-medium',
+                  seccion === s ? 'bg-brand-600 text-white' : 'text-neutral-600 hover:text-neutral-900',
+                )}
+              >
+                {s === 'muro' ? 'Muro' : 'Solicitudes'}
+              </button>
+            ))}
           </div>
-        </div>
-      )}
 
-      {miProfesional.data && pestana === 'solicitudes' && (
-        <div className="mt-6">
-          <p className="text-sm text-neutral-600">Solicitudes abiertas en tu oficio y zona. Responder es gratis.</p>
-          <SolicitudesDisponibles />
-        </div>
+          {seccion === 'muro' && (
+            <div className="mt-6">
+              <p className="text-sm text-neutral-600">
+                Muestra trabajos reales en tu perfil. Puedes vincular al cliente para que, si quiere, deje un
+                comentario — es opcional y no afecta a tu puntuación oficial.
+              </p>
+              <div className="mt-3">
+                <GestionTrabajos profesionalId={miProfesional.data.id} />
+              </div>
+            </div>
+          )}
+
+          {seccion === 'solicitudes' && (
+            <div className="mt-6">
+              <SolicitudesDisponibles
+                familias={familias.data ?? []}
+                categorias={categorias.data ?? []}
+                zonas={zonas.data ?? []}
+                categoriaIdsProfesional={miProfesional.data.oficios.map((o) => o.id)}
+                zonaSlugsProfesional={miProfesional.data.zonasTrabajo}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   )
 }
 
-function SolicitudesDisponibles() {
+function SolicitudesDisponibles({
+  familias,
+  categorias,
+  zonas,
+  categoriaIdsProfesional,
+  zonaSlugsProfesional,
+}: {
+  familias: Familia[]
+  categorias: Categoria[]
+  zonas: Zona[]
+  categoriaIdsProfesional: string[]
+  zonaSlugsProfesional: string[]
+}) {
   const solicitudes = useSolicitudesDisponibles()
+  const [soloParaTi, setSoloParaTi] = useState(true)
+  const [categoria, setCategoria] = useState('')
+  const [zona, setZona] = useState('')
+  const [texto, setTexto] = useState('')
+
+  const zonasPorSlug = useMemo(() => new Map(zonas.map((z) => [z.slug, z])), [zonas])
+
+  const resultados = useMemo(() => {
+    const busqueda = texto.trim().toLowerCase()
+    return (solicitudes.data ?? []).filter((s: Solicitud) => {
+      if (soloParaTi && !solicitudEncajaConProfesional(s, categoriaIdsProfesional, zonaSlugsProfesional, zonas)) {
+        return false
+      }
+      if (categoria && s.categoriaSlug !== categoria) return false
+      if (zona && !coincideZona(zona, [s.zonaSlug], zonasPorSlug)) return false
+      if (busqueda && !s.titulo.toLowerCase().includes(busqueda) && !s.descripcion.toLowerCase().includes(busqueda)) {
+        return false
+      }
+      return true
+    })
+  }, [solicitudes.data, soloParaTi, categoriaIdsProfesional, zonaSlugsProfesional, zonas, zonasPorSlug, categoria, zona, texto])
+
+  const hayFiltrosLibres = Boolean(categoria || zona || texto)
 
   if (solicitudes.isLoading) {
     return <LoadingState etiqueta="Cargando solicitudes…" />
@@ -136,30 +200,76 @@ function SolicitudesDisponibles() {
     return <ErrorState descripcion="No hemos podido cargar las solicitudes disponibles." />
   }
 
-  if (!solicitudes.data || solicitudes.data.length === 0) {
-    return (
-      <div className="mt-3">
-        <EmptyState titulo="No hay solicitudes disponibles ahora mismo" />
-      </div>
-    )
-  }
-
   return (
-    <ul className="mt-3 flex flex-col gap-2">
-      {solicitudes.data.map((s) => (
-        <li key={s.id}>
-          <Link
-            to={`/solicitudes/${s.id}`}
-            className="block rounded-lg border border-neutral-200 px-4 py-3 hover:bg-neutral-50"
-          >
-            <p className="text-sm font-medium text-neutral-900">{s.titulo}</p>
-            <p className="text-xs text-neutral-500">
-              {s.categoriaNombre} · {s.zonaNombre}
-            </p>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <div>
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setSoloParaTi((v) => !v)}
+          aria-pressed={soloParaTi}
+          className={cn(
+            'rounded-full border px-3 py-1.5 text-sm font-medium',
+            soloParaTi ? 'border-brand-600 bg-brand-50 text-brand-700' : 'border-neutral-300 text-neutral-600',
+          )}
+        >
+          Para ti
+        </button>
+        <span className="text-xs text-neutral-500">
+          {soloParaTi ? 'Solo tu oficio y tu zona' : 'Explorando todas las solicitudes abiertas'}
+        </span>
+      </div>
+
+      <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+        <SelectorCategoria
+          familias={familias}
+          categorias={categorias}
+          value={categoria}
+          onChange={setCategoria}
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 sm:w-48"
+        />
+        <BuscadorZonaUnica zonas={zonas} valor={zona} onChange={setZona} placeholder="Cualquier localidad" />
+        <input
+          type="search"
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          placeholder="Buscar por título o descripción…"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
+        />
+      </div>
+
+      <p className="mt-3 text-sm text-neutral-500">
+        {resultados.length} {resultados.length === 1 ? 'solicitud encontrada' : 'solicitudes encontradas'}
+      </p>
+
+      {resultados.length === 0 ? (
+        <div className="mt-3">
+          <EmptyState
+            titulo={
+              soloParaTi || hayFiltrosLibres
+                ? 'Ninguna solicitud coincide ahora mismo'
+                : 'No hay solicitudes abiertas ahora mismo'
+            }
+            descripcion={soloParaTi ? 'Prueba a quitar "Para ti" para ver todas las solicitudes abiertas.' : undefined}
+          />
+        </div>
+      ) : (
+        <ul className="mt-3 flex flex-col gap-2">
+          {resultados.map((s) => (
+            <li key={s.id}>
+              <Link
+                to={`/solicitudes/${s.id}`}
+                className="block rounded-lg border border-neutral-200 px-4 py-3 hover:bg-neutral-50"
+              >
+                <p className="text-sm font-medium text-neutral-900">{s.titulo}</p>
+                <p className="text-xs text-neutral-500">
+                  {s.categoriaNombre} · {s.zonaNombre}
+                </p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 

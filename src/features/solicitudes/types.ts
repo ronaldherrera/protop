@@ -7,8 +7,10 @@ export type Solicitud = {
   titulo: string
   categoriaId: string
   categoriaNombre: string
+  categoriaSlug: string
   zonaId: string
   zonaNombre: string
+  zonaSlug: string
   descripcion: string
   medidasCantidades: string | null
   fechaDeseada: string | null
