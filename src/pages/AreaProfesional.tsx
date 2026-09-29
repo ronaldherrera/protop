@@ -892,8 +892,10 @@ function TarjetaEditable({
   onCancelar,
   onGuardar,
   guardando,
+  guardadoOk,
   resumen,
   children,
+  siempreVisible = false,
 }: {
   titulo: string
   editando: boolean
@@ -901,30 +903,36 @@ function TarjetaEditable({
   onCancelar: () => void
   onGuardar: () => void
   guardando: boolean
-  resumen: React.ReactNode
+  guardadoOk?: boolean
+  resumen?: React.ReactNode
   children: React.ReactNode
+  /** La tarjeta de Fotos no se colapsa en un resumen: se ve siempre abierta. */
+  siempreVisible?: boolean
 }) {
+  const mostrarFormulario = siempreVisible || editando
+
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-semibold text-neutral-900">{titulo}</h3>
-        {!editando && (
+        {!siempreVisible && !editando && (
           <button type="button" onClick={onEditar} className="text-sm font-medium text-brand-700 hover:underline">
             Editar
           </button>
         )}
       </div>
 
-      {editando ? (
+      {mostrarFormulario ? (
         <div className="mt-3 flex flex-col gap-3">
           {children}
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Button type="button" tamano="md" onClick={onGuardar} disabled={guardando}>
               {guardando ? 'Guardando…' : 'Guardar'}
             </Button>
             <Button type="button" variante="secundario" tamano="md" onClick={onCancelar} disabled={guardando}>
               Cancelar
             </Button>
+            {guardadoOk && <span className="text-sm text-success-500">Guardado.</span>}
           </div>
         </div>
       ) : (
@@ -1318,20 +1326,13 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
 
       <TarjetaEditable
         titulo="Fotos"
+        siempreVisible
         editando={tarjetaEditando === 'fotos'}
         onEditar={() => abrirTarjeta('fotos')}
         onCancelar={cancelarFotos}
         onGuardar={guardarTarjeta}
         guardando={guardar.isPending}
-        resumen={
-          <>
-            <p>
-              {fotoPerfilUrl ? 'Con foto de perfil' : 'Sin foto de perfil'} · {fotosTrabajos.length} foto
-              {fotosTrabajos.length === 1 ? '' : 's'} de trabajos
-            </p>
-            {guardadoOk === 'fotos' && <p className="mt-1 text-success-500">Guardado.</p>}
-          </>
-        }
+        guardadoOk={guardadoOk === 'fotos'}
       >
         <div className="text-sm">
           <span className="mb-1 block font-medium text-neutral-700">Foto de perfil o logotipo</span>
