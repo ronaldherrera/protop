@@ -127,7 +127,6 @@ export function FichaProfesional() {
               texto: profesional.contacto.whatsapp,
               Icono: WhatsAppIcon,
               externo: true,
-              clase: 'text-[#25D366]',
             },
             {
               id: 'email',
@@ -147,17 +146,13 @@ export function FichaProfesional() {
             },
           ]
             .sort((a, b) => (b.valor ? 1 : 0) - (a.valor ? 1 : 0))
-            .map(({ id, valor, href, texto, Icono, externo, clase }) => (
+            .map(({ id, valor, href, texto, Icono, externo }) => (
               <a
                 key={id}
                 href={href}
                 target={externo ? '_blank' : undefined}
                 rel={externo ? 'noreferrer' : undefined}
-                className={cn(
-                  'flex items-center gap-2 text-sm hover:underline',
-                  clase ?? 'text-brand-700',
-                  !valor && 'invisible',
-                )}
+                className={cn('flex items-center gap-2 text-sm text-brand-700 hover:underline', !valor && 'invisible')}
               >
                 <Icono className="h-4 w-4" aria-hidden="true" /> {texto}
               </a>
