@@ -19,6 +19,7 @@ import { useAuth } from '../features/auth/useAuth'
 import { useMiProfesional, useProfesional } from '../features/directorio/queries'
 import { useTrabajosDeProfesional } from '../features/trabajos/queries'
 import { useValoracionesPublicas } from '../features/valoraciones/queries'
+import { cn } from '../lib/cn'
 
 export function FichaProfesional() {
   const { slug } = useParams<{ slug: string }>()
@@ -107,26 +108,35 @@ export function FichaProfesional() {
 
         <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4 sm:w-80">
           <p className="text-sm font-semibold text-neutral-700">Contacto directo</p>
-          {profesional.contacto.telefono && (
-            <a href={`tel:${profesional.contacto.telefono}`} className="flex items-center gap-2 text-sm text-brand-700 hover:underline">
-              <Phone className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.telefono}
-            </a>
-          )}
-          {profesional.contacto.email && (
-            <a href={`mailto:${profesional.contacto.email}`} className="flex items-center gap-2 text-sm text-brand-700 hover:underline">
-              <Mail className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.email}
-            </a>
-          )}
-          {profesional.contacto.web && (
-            <a
-              href={profesional.contacto.web}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 text-sm text-brand-700 hover:underline"
-            >
-              <Globe className="h-4 w-4" aria-hidden="true" /> Sitio web
-            </a>
-          )}
+          <a
+            href={profesional.contacto.telefono ? `tel:${profesional.contacto.telefono}` : undefined}
+            className={cn(
+              'flex items-center gap-2 text-sm text-brand-700 hover:underline',
+              !profesional.contacto.telefono && 'invisible',
+            )}
+          >
+            <Phone className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.telefono}
+          </a>
+          <a
+            href={profesional.contacto.email ? `mailto:${profesional.contacto.email}` : undefined}
+            className={cn(
+              'flex items-center gap-2 text-sm text-brand-700 hover:underline',
+              !profesional.contacto.email && 'invisible',
+            )}
+          >
+            <Mail className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.email}
+          </a>
+          <a
+            href={profesional.contacto.web}
+            target="_blank"
+            rel="noreferrer"
+            className={cn(
+              'flex items-center gap-2 text-sm text-brand-700 hover:underline',
+              !profesional.contacto.web && 'invisible',
+            )}
+          >
+            <Globe className="h-4 w-4" aria-hidden="true" /> Sitio web
+          </a>
         </div>
       </header>
 
