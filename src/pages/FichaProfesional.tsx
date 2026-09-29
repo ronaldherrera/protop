@@ -1,4 +1,4 @@
-import { Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
+import { Globe, Mail, MapPin, Phone } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { CarruselFotos } from '../components/directorio/CarruselFotos'
@@ -8,6 +8,7 @@ import { ListaValoracionesPublicas } from '../components/directorio/ListaValorac
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
+import { WhatsAppIcon } from '../components/icons/WhatsAppIcon'
 import { FormularioComentario } from '../components/trabajos/FormularioComentario'
 import { TarjetaTrabajoPublico } from '../components/trabajos/TarjetaTrabajoPublico'
 import { Avatar } from '../components/ui/Avatar'
@@ -124,7 +125,7 @@ export function FichaProfesional() {
                 ? `https://wa.me/${profesional.contacto.whatsapp.replace(/[^0-9]/g, '')}`
                 : undefined,
               texto: profesional.contacto.whatsapp,
-              Icono: MessageCircle,
+              Icono: WhatsAppIcon,
               externo: true,
               clase: 'text-[#25D366]',
             },
