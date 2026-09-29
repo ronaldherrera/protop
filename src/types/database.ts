@@ -649,7 +649,53 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      valoraciones_publicas: {
+        Row: {
+          calidad_acabado: number | null
+          comunicacion: number | null
+          created_at: string | null
+          cumplimiento_plazos: number | null
+          descripcion_trabajo: string | null
+          id: string | null
+          limpieza_cuidado: number | null
+          profesional_id: string | null
+          puntualidad: number | null
+          respeto_presupuesto: number | null
+        }
+        Insert: {
+          calidad_acabado?: number | null
+          comunicacion?: number | null
+          created_at?: string | null
+          cumplimiento_plazos?: number | null
+          descripcion_trabajo?: string | null
+          id?: string | null
+          limpieza_cuidado?: number | null
+          profesional_id?: string | null
+          puntualidad?: number | null
+          respeto_presupuesto?: number | null
+        }
+        Update: {
+          calidad_acabado?: number | null
+          comunicacion?: number | null
+          created_at?: string | null
+          cumplimiento_plazos?: number | null
+          descripcion_trabajo?: string | null
+          id?: string | null
+          limpieza_cuidado?: number | null
+          profesional_id?: string | null
+          puntualidad?: number | null
+          respeto_presupuesto?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valoraciones_profesional_id_fkey"
+            columns: ["profesional_id"]
+            isOneToOne: false
+            referencedRelation: "profesionales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       es_admin_actual: { Args: never; Returns: boolean }

@@ -1,7 +1,7 @@
 import { subirFactura } from '../../lib/storage'
 import { supabase } from '../../lib/supabaseClient'
 import type { DesgloseValoracion } from '../../types/profesional'
-import type { EstadoValoracion, MiValoracion, ValoracionParaRevision } from './types'
+import type { EstadoValoracion, MiValoracion, ValoracionParaRevision, ValoracionPublica } from './types'
 
 export async function enviarValoracion(
   userId: string,
@@ -79,6 +79,38 @@ export async function obtenerValoracionesParaRevision(): Promise<ValoracionParaR
       estado: fila.estado as EstadoValoracion,
       motivoRevision: fila.motivo_revision,
       creadoEn: fila.created_at,
+    }
+  })
+}
+
+/**
+ * Detalle público de las valoraciones aprobadas de un profesional (vista
+ * `valoraciones_publicas`, que expone solo lo seguro: nunca quién la
+ * escribió ni la factura).
+ */
+export async function obtenerValoracionesPublicas(profesionalId: string): Promise<ValoracionPublica[]> {
+  const { data, error } = await supabase
+    .from('valoraciones_publicas')
+    .select(
+      'id, descripcion_trabajo, created_at, calidad_acabado, puntualidad, cumplimiento_plazos, limpieza_cuidado, comunicacion, respeto_presupuesto',
+    )
+    .eq('profesional_id', profesionalId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+
+  return data.map((fila) => {
+    const conceptos: DesgloseValoracion = {}
+    for (const clave of CONCEPTOS_DB) {
+      const valor = fila[clave]
+      if (valor !== null) conceptos[clave] = valor
+    }
+    return {
+      // La vista marca todas las columnas como nullable (Postgres no lo sabe
+      // de un view), pero id/created_at nunca lo son en la tabla base.
+      id: fila.id as string,
+      descripcionTrabajo: fila.descripcion_trabajo,
+      conceptos,
+      creadoEn: fila.created_at as string,
     }
   })
 }

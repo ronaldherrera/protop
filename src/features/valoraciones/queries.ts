@@ -5,6 +5,7 @@ import {
   enviarValoracion,
   obtenerMisValoraciones,
   obtenerValoracionesParaRevision,
+  obtenerValoracionesPublicas,
   revisarValoracion,
 } from './api'
 
@@ -38,6 +39,14 @@ export function useEnviarValoracion() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mis-valoraciones', user?.id] })
     },
+  })
+}
+
+export function useValoracionesPublicas(profesionalId: string | undefined) {
+  return useQuery({
+    queryKey: ['valoraciones-publicas', profesionalId],
+    queryFn: () => obtenerValoracionesPublicas(profesionalId as string),
+    enabled: Boolean(profesionalId),
   })
 }
 

@@ -11,6 +11,13 @@ export type MiValoracion = {
   creadoEn: string
 }
 
+export type ValoracionPublica = {
+  id: string
+  descripcionTrabajo: string | null
+  conceptos: DesgloseValoracion
+  creadoEn: string
+}
+
 export type ValoracionParaRevision = {
   id: string
   profesionalId: string

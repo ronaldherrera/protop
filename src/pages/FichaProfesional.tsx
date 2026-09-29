@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { DesgloseValoraciones } from '../components/directorio/DesgloseValoraciones'
 import { IconoCategoria } from '../components/directorio/IconoCategoria'
+import { ListaValoracionesPublicas } from '../components/directorio/ListaValoracionesPublicas'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
@@ -16,6 +17,7 @@ import { FormularioValoracion } from '../components/valoraciones/FormularioValor
 import { useAuth } from '../features/auth/useAuth'
 import { useMiProfesional, useProfesional } from '../features/directorio/queries'
 import { useTrabajosDeProfesional } from '../features/trabajos/queries'
+import { useValoracionesPublicas } from '../features/valoraciones/queries'
 
 export function FichaProfesional() {
   const { slug } = useParams<{ slug: string }>()
@@ -23,6 +25,7 @@ export function FichaProfesional() {
   const { user } = useAuth()
   const miProfesional = useMiProfesional()
   const trabajos = useTrabajosDeProfesional(profesional?.id)
+  const valoracionesPublicas = useValoracionesPublicas(profesional?.id)
   const esPropia = Boolean(user && profesional && miProfesional.data?.slug === profesional.slug)
   const [valorando, setValorando] = useState(false)
 
@@ -138,6 +141,7 @@ export function FichaProfesional() {
         <div className="mt-4">
           <DesgloseValoraciones desglose={profesional.desglosePorConcepto} />
         </div>
+        {valoracionesPublicas.data && <ListaValoracionesPublicas valoraciones={valoracionesPublicas.data} />}
 
         {!profesional.esDemo && !esPropia && (
           <div className="mt-4">
