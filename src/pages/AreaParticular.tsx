@@ -1,9 +1,11 @@
+import { Phone } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
 import { FormularioComentario } from '../components/trabajos/FormularioComentario'
+import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { actualizarPerfil, type Perfil } from '../features/auth/api'
@@ -14,10 +16,21 @@ import type { EstadoSolicitud } from '../features/solicitudes/types'
 import { useTrabajosVinculados } from '../features/trabajos/queries'
 import { useMisValoraciones } from '../features/valoraciones/queries'
 import type { EstadoValoracion } from '../features/valoraciones/types'
+import { cn } from '../lib/cn'
+
+type Seccion = 'solicitudes' | 'valoraciones' | 'trabajos'
+
+const PESTANAS: { id: Seccion; etiqueta: string }[] = [
+  { id: 'solicitudes', etiqueta: 'Mis solicitudes' },
+  { id: 'valoraciones', etiqueta: 'Mis valoraciones' },
+  { id: 'trabajos', etiqueta: 'Trabajos vinculados' },
+]
 
 export function AreaParticular() {
   const { user } = useAuth()
   const perfil = usePerfil()
+  const [editando, setEditando] = useState(false)
+  const [seccion, setSeccion] = useState<Seccion>('solicitudes')
 
   if (perfil.isLoading) {
     return <LoadingState etiqueta="Cargando tu perfil…" />
@@ -31,34 +44,111 @@ export function AreaParticular() {
     )
   }
 
+  if (editando) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+        <h1 className="text-2xl font-bold text-neutral-900">Gestionar cuenta</h1>
+        <p className="mt-1 text-sm text-neutral-600">{user.email}</p>
+
+        <button
+          type="button"
+          onClick={() => setEditando(false)}
+          className="mt-4 text-sm font-medium text-neutral-600 hover:text-neutral-900"
+        >
+          ← Volver a mi cuenta
+        </button>
+
+        <FormularioPerfil key={perfil.data.id} userId={user.id} perfil={perfil.data} />
+      </div>
+    )
+  }
+
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-neutral-900">Tu cuenta</h1>
-      <p className="mt-1 text-sm text-neutral-600">{user.email}</p>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start">
+        <aside className="lg:sticky lg:top-6">
+          <TarjetaCuentaLateral perfil={perfil.data} email={user.email ?? ''} onEditar={() => setEditando(true)} />
+        </aside>
 
-      <FormularioPerfil key={perfil.data.id} userId={user.id} perfil={perfil.data} />
+        <div>
+          <div className="flex items-center gap-4 overflow-x-auto border-b border-neutral-200">
+            {PESTANAS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setSeccion(p.id)}
+                className={cn(
+                  '-mb-px whitespace-nowrap border-b-2 pb-2 text-sm font-medium',
+                  seccion === p.id
+                    ? 'border-brand-600 text-brand-700'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-800',
+                )}
+              >
+                {p.etiqueta}
+              </button>
+            ))}
+          </div>
 
-      <div className="mt-10">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-neutral-900">Mis solicitudes de presupuesto</h2>
-          <Link to="/solicitar-presupuesto" className="text-sm font-medium text-brand-700 hover:underline">
-            + Nueva solicitud
-          </Link>
+          {seccion === 'solicitudes' && (
+            <div className="mt-6">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-neutral-600">Solicitudes de presupuesto que has creado.</p>
+                <Link to="/solicitar-presupuesto" className="text-sm font-medium text-brand-700 hover:underline">
+                  + Nueva solicitud
+                </Link>
+              </div>
+              <MisSolicitudes />
+            </div>
+          )}
+
+          {seccion === 'valoraciones' && (
+            <div className="mt-6">
+              <MisValoraciones />
+            </div>
+          )}
+
+          {seccion === 'trabajos' && (
+            <div className="mt-6">
+              <p className="text-sm text-neutral-600">
+                Trabajos que un profesional ha publicado y en los que te ha vinculado como cliente. Comentar es
+                opcional.
+              </p>
+              <TrabajosVinculados />
+            </div>
+          )}
         </div>
-        <MisSolicitudes />
+      </div>
+    </div>
+  )
+}
+
+function TarjetaCuentaLateral({
+  perfil,
+  email,
+  onEditar,
+}: {
+  perfil: Perfil
+  email: string
+  onEditar: () => void
+}) {
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-4">
+      <div className="flex flex-col items-center text-center">
+        <Avatar nombre={perfil.nombre} className="h-20 w-20 rounded-2xl text-2xl" />
+        <h2 className="mt-3 text-lg font-bold text-neutral-900">{perfil.nombre}</h2>
+        <p className="text-sm text-neutral-500">{email}</p>
       </div>
 
-      <div className="mt-10">
-        <h2 className="text-lg font-semibold text-neutral-900">Mis valoraciones</h2>
-        <MisValoraciones />
-      </div>
+      {perfil.telefono && (
+        <div className="mt-4 flex items-center gap-2 border-t border-neutral-100 pt-3 text-sm text-neutral-600">
+          <Phone className="h-4 w-4 shrink-0" aria-hidden="true" /> {perfil.telefono}
+        </div>
+      )}
 
-      <div className="mt-10">
-        <h2 className="text-lg font-semibold text-neutral-900">Trabajos vinculados a ti</h2>
-        <p className="mt-1 text-sm text-neutral-600">
-          Trabajos que un profesional ha publicado y en los que te ha vinculado como cliente. Comentar es opcional.
-        </p>
-        <TrabajosVinculados />
+      <div className="mt-4 border-t border-neutral-100 pt-3">
+        <Button type="button" variante="secundario" onClick={onEditar} className="w-full">
+          Gestionar cuenta
+        </Button>
       </div>
     </div>
   )
@@ -86,7 +176,7 @@ function TrabajosVinculados() {
   return (
     <ul className="mt-3 flex flex-col gap-3">
       {trabajos.data.map((trabajo) => (
-        <li key={trabajo.id} className="rounded-lg border border-neutral-200 p-4">
+        <li key={trabajo.id} className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
           <Link to={`/profesionales/${trabajo.profesionalSlug}`} className="text-sm font-medium text-brand-700 hover:underline">
             {trabajo.profesionalNombre}
           </Link>
@@ -141,7 +231,7 @@ function MisSolicitudes() {
           <li key={s.id}>
             <Link
               to={`/solicitudes/${s.id}`}
-              className="flex flex-col gap-1 rounded-lg border border-neutral-200 px-4 py-3 hover:bg-neutral-50 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-1 rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm hover:bg-neutral-50 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
                 <p className="text-sm font-medium text-neutral-900">{s.titulo}</p>
@@ -193,7 +283,7 @@ function MisValoraciones() {
         return (
           <li
             key={valoracion.id}
-            className="flex flex-col gap-1 rounded-lg border border-neutral-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-1 rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
               <Link
@@ -239,7 +329,7 @@ function FormularioPerfil({ userId, perfil }: { userId: string; perfil: Perfil }
   }
 
   return (
-    <form onSubmit={guardar} className="mt-6 flex flex-col gap-4">
+    <form onSubmit={guardar} className="mt-6 flex flex-col gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
       <label className="text-sm">
         <span className="mb-1 block font-medium text-neutral-700">Nombre</span>
         <input
@@ -247,7 +337,7 @@ function FormularioPerfil({ userId, perfil }: { userId: string; perfil: Perfil }
           required
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
         />
       </label>
 
@@ -257,7 +347,7 @@ function FormularioPerfil({ userId, perfil }: { userId: string; perfil: Perfil }
           type="tel"
           value={telefono}
           onChange={(e) => setTelefono(e.target.value)}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-900"
         />
       </label>
 

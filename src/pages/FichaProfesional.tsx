@@ -85,7 +85,7 @@ export function FichaProfesional() {
           <Avatar
             nombre={profesional.nombreComercial}
             fotoUrl={profesional.fotoPerfilUrl}
-            className="h-32 w-32 shrink-0 rounded-2xl object-cover"
+            className="h-32 w-32 shrink-0 rounded-2xl object-cover text-3xl"
           />
           <div>
             <div className="flex flex-wrap items-center gap-2">

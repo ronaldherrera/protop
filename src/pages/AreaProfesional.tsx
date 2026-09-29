@@ -169,7 +169,11 @@ function TarjetaPerfilLateral({ profesional, onEditar }: { profesional: Profesio
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4">
       <div className="flex flex-col items-center text-center">
-        <Avatar nombre={profesional.nombreComercial} fotoUrl={profesional.fotoPerfilUrl} className="h-20 w-20 rounded-2xl object-cover" />
+        <Avatar
+          nombre={profesional.nombreComercial}
+          fotoUrl={profesional.fotoPerfilUrl}
+          className="h-20 w-20 rounded-2xl object-cover text-2xl"
+        />
         <h2 className="mt-3 text-lg font-bold text-neutral-900">{profesional.nombreComercial}</h2>
         <p className="text-sm text-neutral-500">{profesional.localidad}</p>
         <div className="mt-2">

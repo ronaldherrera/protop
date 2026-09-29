@@ -1,3 +1,5 @@
+import { cn } from '../../lib/cn'
+
 function iniciales(nombre: string): string {
   return nombre
     .split(' ')
@@ -20,10 +22,10 @@ export function Avatar({ nombre, fotoUrl, className }: { nombre: string; fotoUrl
 
   return (
     <div
-      className={
-        className ??
-        'flex h-14 w-14 items-center justify-center rounded-xl bg-brand-100 text-lg font-semibold text-brand-700'
-      }
+      className={cn(
+        'flex shrink-0 items-center justify-center bg-brand-100 font-semibold text-brand-700',
+        className ?? 'h-14 w-14 rounded-xl text-lg',
+      )}
       aria-hidden="true"
     >
       {iniciales(nombre)}
