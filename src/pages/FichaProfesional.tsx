@@ -75,14 +75,14 @@ export function FichaProfesional() {
         </div>
       )}
 
-      <header className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <header className="mt-6 grid gap-4 sm:grid-cols-2 sm:items-start">
         <div className="flex items-start gap-4">
           <Avatar
             nombre={profesional.nombreComercial}
             fotoUrl={profesional.fotoPerfilUrl}
-            className="h-20 w-20 rounded-2xl object-cover"
+            className="h-20 w-20 shrink-0 rounded-2xl object-cover"
           />
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-bold text-neutral-900">{profesional.nombreComercial}</h1>
               {profesional.patrocinado && <Badge tono="patrocinado">Patrocinado</Badge>}
@@ -103,7 +103,7 @@ export function FichaProfesional() {
               {profesional.localidad} · trabaja en {profesional.zonasTrabajoNombres.join(', ')}
             </div>
 
-            <div className="mt-3 flex flex-col gap-1.5 rounded-xl border border-neutral-200 p-3 sm:w-64">
+            <div className="mt-3 flex flex-col gap-1.5 rounded-xl border border-neutral-200 p-3">
               <p className="text-sm font-semibold text-neutral-700">Contacto directo</p>
               {profesional.contacto.telefono && (
                 <a href={`tel:${profesional.contacto.telefono}`} className="flex items-center gap-2 text-sm text-brand-700 hover:underline">
@@ -129,7 +129,7 @@ export function FichaProfesional() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4 sm:w-72">
+        <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4">
           <p className="text-sm font-semibold text-neutral-700">Reputación</p>
           <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} tamano="sm" />
           <p className="text-xs text-neutral-500">
