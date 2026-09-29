@@ -12,6 +12,7 @@ import { MedidorCompletitud } from '../components/ui/MedidorCompletitud'
 import { Stepper } from '../components/ui/Stepper'
 import { calcularCompletitudPorcentaje } from '../features/directorio/completitud'
 import { useAuth } from '../features/auth/useAuth'
+import { cn } from '../lib/cn'
 import {
   useCategorias,
   useFamilias,
@@ -23,12 +24,21 @@ import { useSolicitudesDisponibles } from '../features/solicitudes/queries'
 import { subirFoto } from '../lib/storage'
 import type { Categoria, Especialidad, Familia, MediosContacto, Zona } from '../types/profesional'
 
+const PESTANAS = [
+  { id: 'ficha', etiqueta: 'Ficha' },
+  { id: 'trabajos', etiqueta: 'Trabajos' },
+  { id: 'solicitudes', etiqueta: 'Solicitudes' },
+] as const
+
+type Pestana = (typeof PESTANAS)[number]['id']
+
 export function AreaProfesional() {
   const { user } = useAuth()
   const miProfesional = useMiProfesional()
   const familias = useFamilias()
   const categorias = useCategorias()
   const zonas = useZonas()
+  const [pestana, setPestana] = useState<Pestana>('ficha')
 
   if (miProfesional.isLoading || familias.isLoading || categorias.isLoading || zonas.isLoading) {
     return <LoadingState etiqueta="Cargando tu ficha…" />
@@ -42,11 +52,13 @@ export function AreaProfesional() {
     )
   }
 
+  const tieneFicha = Boolean(miProfesional.data)
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
       <h1 className="text-2xl font-bold text-neutral-900">Tu perfil de profesional</h1>
       <p className="mt-1 text-sm text-neutral-600">
-        {miProfesional.data
+        {tieneFicha
           ? 'Edita los datos que ven los particulares en el directorio.'
           : 'Rellena estos datos para aparecer en el directorio de Protop. Gratis, sin comisión por el trabajo.'}
       </p>
@@ -60,19 +72,40 @@ export function AreaProfesional() {
         </Link>
       )}
 
-      <FormularioFicha
-        key={miProfesional.data?.id ?? 'nueva'}
-        userId={user.id}
-        familias={familias.data ?? []}
-        categorias={categorias.data ?? []}
-        zonas={zonas.data ?? []}
-        profesional={miProfesional.data ?? null}
-      />
+      {tieneFicha && (
+        <div className="mt-6 flex gap-1 border-b border-neutral-200">
+          {PESTANAS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => setPestana(p.id)}
+              className={cn(
+                '-mb-px border-b-2 px-4 py-2 text-sm font-medium',
+                pestana === p.id
+                  ? 'border-brand-600 text-brand-700'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-700',
+              )}
+            >
+              {p.etiqueta}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {miProfesional.data && (
-        <div className="mt-10">
-          <h2 className="text-lg font-semibold text-neutral-900">Trabajos publicados</h2>
-          <p className="mt-1 text-sm text-neutral-600">
+      {(!tieneFicha || pestana === 'ficha') && (
+        <FormularioFicha
+          key={miProfesional.data?.id ?? 'nueva'}
+          userId={user.id}
+          familias={familias.data ?? []}
+          categorias={categorias.data ?? []}
+          zonas={zonas.data ?? []}
+          profesional={miProfesional.data ?? null}
+        />
+      )}
+
+      {miProfesional.data && pestana === 'trabajos' && (
+        <div className="mt-6">
+          <p className="text-sm text-neutral-600">
             Muestra trabajos reales en tu perfil. Puedes vincular al cliente para que, si quiere, deje un
             comentario — es opcional y no afecta a tu puntuación oficial.
           </p>
@@ -82,12 +115,9 @@ export function AreaProfesional() {
         </div>
       )}
 
-      {miProfesional.data && (
-        <div className="mt-10">
-          <h2 className="text-lg font-semibold text-neutral-900">Solicitudes disponibles para ti</h2>
-          <p className="mt-1 text-sm text-neutral-600">
-            Solicitudes abiertas en tu oficio y zona. Responder es gratis.
-          </p>
+      {miProfesional.data && pestana === 'solicitudes' && (
+        <div className="mt-6">
+          <p className="text-sm text-neutral-600">Solicitudes abiertas en tu oficio y zona. Responder es gratis.</p>
           <SolicitudesDisponibles />
         </div>
       )}
