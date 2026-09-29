@@ -131,9 +131,9 @@ export function FichaProfesional() {
       </header>
 
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-neutral-900">Reputación</h2>
-        <div className="mt-2 rounded-xl border border-neutral-200 bg-white px-4 py-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
+          <h2 className="text-lg font-semibold text-neutral-900">Reputación</h2>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
             <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} tamano="sm" />
             {valoracionesPublicas.data && <ListaValoracionesPublicas valoraciones={valoracionesPublicas.data} />}
           </div>
