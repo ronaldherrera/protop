@@ -6,11 +6,15 @@ import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { TarjetaProfesional } from '../components/directorio/TarjetaProfesional'
 import { LoadingState } from '../components/estado/LoadingState'
 import { Button } from '../components/ui/Button'
+import { useAuth } from '../features/auth/useAuth'
 import { ordenarProfesionales } from '../features/directorio/filtrado'
 import { useCategorias, useFamilias, useProfesionales, useZonas } from '../features/directorio/queries'
+import { useModo } from '../features/modo/useModo'
 
 export function Home() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { modo } = useModo()
   const [categoria, setCategoria] = useState('')
   const [zona, setZona] = useState('')
 
@@ -99,46 +103,73 @@ export function Home() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <div className="grid gap-6 sm:grid-cols-2">
+        {user ? (
           <div className="rounded-xl border border-neutral-200 bg-white p-6">
-            <h2 className="text-lg font-semibold text-neutral-900">Para particulares</h2>
-            <ul className="mt-4 flex flex-col gap-3 text-sm text-neutral-700">
-              <li className="flex items-start gap-2">
-                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
-                Solo valoraciones respaldadas por factura y revisadas por Protop — no estrellas compradas.
-              </li>
-              <li className="flex items-start gap-2">
-                <Search className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
-                Busca y contacta directamente con el profesional, siempre gratis.
-              </li>
-              <li className="flex items-start gap-2">
-                <FileText className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
-                O pide varios presupuestos y compáralos en un mismo sitio, sin llamar uno a uno.
-              </li>
-            </ul>
+            {modo === 'profesional' ? (
+              <>
+                <h2 className="text-lg font-semibold text-neutral-900">Solicitudes disponibles para ti</h2>
+                <p className="mt-2 text-sm text-neutral-700">
+                  Revisa las solicitudes abiertas de tu oficio y zona, o explora todas libremente desde tu perfil.
+                </p>
+                <Button type="button" className="mt-4" onClick={() => navigate('/profesional')}>
+                  Ver mis solicitudes
+                </Button>
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold text-neutral-900">¿Necesitas un presupuesto?</h2>
+                <p className="mt-2 text-sm text-neutral-700">
+                  Describe el trabajo y recibe propuestas de varios profesionales, sin llamar uno a uno.
+                </p>
+                <Button type="button" className="mt-4" onClick={() => navigate('/solicitar-presupuesto')}>
+                  <FileText className="h-4 w-4" aria-hidden="true" />
+                  Nueva solicitud
+                </Button>
+              </>
+            )}
           </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="rounded-xl border border-neutral-200 bg-white p-6">
+              <h2 className="text-lg font-semibold text-neutral-900">Para particulares</h2>
+              <ul className="mt-4 flex flex-col gap-3 text-sm text-neutral-700">
+                <li className="flex items-start gap-2">
+                  <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
+                  Solo valoraciones respaldadas por factura y revisadas por Protop — no estrellas compradas.
+                </li>
+                <li className="flex items-start gap-2">
+                  <Search className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
+                  Busca y contacta directamente con el profesional, siempre gratis.
+                </li>
+                <li className="flex items-start gap-2">
+                  <FileText className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
+                  O pide varios presupuestos y compáralos en un mismo sitio, sin llamar uno a uno.
+                </li>
+              </ul>
+            </div>
 
-          <div className="rounded-xl border border-neutral-200 bg-white p-6">
-            <h2 className="text-lg font-semibold text-neutral-900">Para profesionales</h2>
-            <ul className="mt-4 flex flex-col gap-3 text-sm text-neutral-700">
-              <li className="flex items-start gap-2">
-                <Percent className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
-                Sin comisión por el trabajo: lo que cobras es tuyo, el 100%.
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
-                Registrarte, responder solicitudes y enviar presupuestos no cuesta nada.
-              </li>
-              <li className="flex items-start gap-2">
-                <Star className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
-                Tu reputación depende de trabajos reales verificados, no de cuánto pagues por destacar.
-              </li>
-            </ul>
-            <Button type="button" className="mt-4" onClick={() => navigate('/acceso?rol=profesional')}>
-              Publicar mi ficha gratis
-            </Button>
+            <div className="rounded-xl border border-neutral-200 bg-white p-6">
+              <h2 className="text-lg font-semibold text-neutral-900">Para profesionales</h2>
+              <ul className="mt-4 flex flex-col gap-3 text-sm text-neutral-700">
+                <li className="flex items-start gap-2">
+                  <Percent className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
+                  Sin comisión por el trabajo: lo que cobras es tuyo, el 100%.
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
+                  Registrarte, responder solicitudes y enviar presupuestos no cuesta nada.
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
+                  Tu reputación depende de trabajos reales verificados, no de cuánto pagues por destacar.
+                </li>
+              </ul>
+              <Button type="button" className="mt-4" onClick={() => navigate('/acceso?rol=profesional')}>
+                Publicar mi ficha gratis
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">

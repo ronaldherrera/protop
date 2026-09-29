@@ -124,6 +124,13 @@ export function AreaProfesional() {
                 {s === 'solicitudes' ? 'Solicitudes de presupuesto' : 'Mis trabajos'}
               </button>
             ))}
+            <div className="my-1 border-t border-neutral-100" />
+            <Link
+              to="/profesionales"
+              className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+            >
+              Buscar profesionales
+            </Link>
             {perfil.data?.esAdmin && (
               <Link
                 to="/admin"
