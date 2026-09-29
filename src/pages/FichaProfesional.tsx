@@ -105,7 +105,7 @@ export function FichaProfesional() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4 sm:w-64">
+        <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4 sm:w-80">
           <p className="text-sm font-semibold text-neutral-700">Contacto directo</p>
           {profesional.contacto.telefono && (
             <a href={`tel:${profesional.contacto.telefono}`} className="flex items-center gap-2 text-sm text-brand-700 hover:underline">
