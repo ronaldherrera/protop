@@ -102,30 +102,54 @@ export function FichaProfesional() {
               <MapPin className="h-4 w-4" aria-hidden="true" />
               {profesional.localidad} · trabaja en {profesional.zonasTrabajoNombres.join(', ')}
             </div>
+
+            <div className="mt-3 flex flex-col gap-1.5 rounded-xl border border-neutral-200 p-3 sm:w-64">
+              <p className="text-sm font-semibold text-neutral-700">Contacto directo</p>
+              {profesional.contacto.telefono && (
+                <a href={`tel:${profesional.contacto.telefono}`} className="flex items-center gap-2 text-sm text-brand-700 hover:underline">
+                  <Phone className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.telefono}
+                </a>
+              )}
+              {profesional.contacto.email && (
+                <a href={`mailto:${profesional.contacto.email}`} className="flex items-center gap-2 text-sm text-brand-700 hover:underline">
+                  <Mail className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.email}
+                </a>
+              )}
+              {profesional.contacto.web && (
+                <a
+                  href={profesional.contacto.web}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 text-sm text-brand-700 hover:underline"
+                >
+                  <Globe className="h-4 w-4" aria-hidden="true" /> Sitio web
+                </a>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4 sm:w-64">
-          <p className="text-sm font-semibold text-neutral-700">Contacto directo</p>
-          {profesional.contacto.telefono && (
-            <a href={`tel:${profesional.contacto.telefono}`} className="flex items-center gap-2 text-sm text-brand-700 hover:underline">
-              <Phone className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.telefono}
-            </a>
-          )}
-          {profesional.contacto.email && (
-            <a href={`mailto:${profesional.contacto.email}`} className="flex items-center gap-2 text-sm text-brand-700 hover:underline">
-              <Mail className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.email}
-            </a>
-          )}
-          {profesional.contacto.web && (
-            <a
-              href={profesional.contacto.web}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 text-sm text-brand-700 hover:underline"
-            >
-              <Globe className="h-4 w-4" aria-hidden="true" /> Sitio web
-            </a>
+        <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4 sm:w-72">
+          <p className="text-sm font-semibold text-neutral-700">Reputación</p>
+          <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} tamano="sm" />
+          <p className="text-xs text-neutral-500">
+            Con factura revisada por Protop. No es una garantía del resultado de futuros trabajos.
+          </p>
+          <DesgloseValoraciones desglose={profesional.desglosePorConcepto} />
+          {valoracionesPublicas.data && <ListaValoracionesPublicas valoraciones={valoracionesPublicas.data} />}
+
+          {!profesional.esDemo && !esPropia && (
+            <div className="mt-1">
+              {user ? (
+                <Button type="button" variante="secundario" tamano="md" onClick={() => setValorando(true)}>
+                  Valorar este trabajo
+                </Button>
+              ) : (
+                <Link to="/acceso" className="text-sm font-medium text-brand-700 hover:underline">
+                  Inicia sesión para valorar un trabajo con este profesional →
+                </Link>
+              )}
+            </div>
           )}
         </div>
       </header>
@@ -138,34 +162,6 @@ export function FichaProfesional() {
           </div>
         </section>
       )}
-
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold text-neutral-900">Reputación</h2>
-        <div className="mt-3 max-w-sm rounded-xl border border-neutral-200 bg-white p-3">
-          <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} tamano="sm" />
-          <p className="mt-1.5 text-xs text-neutral-500">
-            Con factura revisada por Protop. No es una garantía del resultado de futuros trabajos.
-          </p>
-          <div className="mt-3">
-            <DesgloseValoraciones desglose={profesional.desglosePorConcepto} />
-          </div>
-          {valoracionesPublicas.data && <ListaValoracionesPublicas valoraciones={valoracionesPublicas.data} />}
-        </div>
-
-        {!profesional.esDemo && !esPropia && (
-          <div className="mt-4">
-            {user ? (
-              <Button type="button" variante="secundario" onClick={() => setValorando(true)}>
-                Valorar este trabajo
-              </Button>
-            ) : (
-              <Link to="/acceso" className="text-sm font-medium text-brand-700 hover:underline">
-                Inicia sesión para valorar un trabajo con este profesional →
-              </Link>
-            )}
-          </div>
-        )}
-      </section>
 
       {valorando && (
         <FormularioValoracion profesionalId={profesional.id} onCerrar={() => setValorando(false)} />
