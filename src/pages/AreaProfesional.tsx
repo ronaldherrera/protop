@@ -98,15 +98,17 @@ export function AreaProfesional() {
         </aside>
 
         <div>
-          <div className="inline-flex rounded-full border border-neutral-200 bg-white p-1">
+          <div className="flex items-center gap-4 border-b border-neutral-200">
             {(['solicitudes', 'trabajos'] as const).map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setSeccion(s)}
                 className={cn(
-                  'rounded-full px-4 py-1.5 text-sm font-medium',
-                  seccion === s ? 'bg-brand-600 text-white' : 'text-neutral-600 hover:text-neutral-900',
+                  '-mb-px border-b-2 pb-2 text-sm font-medium',
+                  seccion === s
+                    ? 'border-brand-600 text-brand-700'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-800',
                 )}
               >
                 {s === 'solicitudes' ? 'Solicitudes de presupuesto' : 'Mis trabajos'}
