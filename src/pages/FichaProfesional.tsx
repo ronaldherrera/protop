@@ -129,6 +129,17 @@ export function FichaProfesional() {
         </div>
       </header>
 
+      {profesional.fotosTrabajos.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-neutral-900">Fotografías de trabajos</h2>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {profesional.fotosTrabajos.map((foto) => (
+              <img key={foto} src={foto} alt={`Trabajo de ${profesional.nombreComercial}`} className="aspect-4/3 w-full rounded-lg object-cover" />
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-neutral-900">Reputación</h2>
         <div className="mt-2">
@@ -208,17 +219,6 @@ export function FichaProfesional() {
                   </div>
                 )}
               </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {profesional.fotosTrabajos.length > 0 && (
-        <section className="mt-8">
-          <h2 className="text-lg font-semibold text-neutral-900">Fotografías de trabajos</h2>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {profesional.fotosTrabajos.map((foto) => (
-              <img key={foto} src={foto} alt={`Trabajo de ${profesional.nombreComercial}`} className="aspect-4/3 w-full rounded-lg object-cover" />
             ))}
           </div>
         </section>
