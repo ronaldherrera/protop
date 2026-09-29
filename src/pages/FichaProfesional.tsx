@@ -108,46 +108,59 @@ export function FichaProfesional() {
 
         <div className="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4 sm:w-80">
           <p className="text-sm font-semibold text-neutral-700">Contacto directo</p>
-          <a
-            href={profesional.contacto.telefono ? `tel:${profesional.contacto.telefono}` : undefined}
-            className={cn(
-              'flex items-center gap-2 text-sm text-brand-700 hover:underline',
-              !profesional.contacto.telefono && 'invisible',
-            )}
-          >
-            <Phone className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.telefono}
-          </a>
-          <a
-            href={profesional.contacto.whatsapp ? `https://wa.me/${profesional.contacto.whatsapp.replace(/[^0-9]/g, '')}` : undefined}
-            target="_blank"
-            rel="noreferrer"
-            className={cn(
-              'flex items-center gap-2 text-sm text-brand-700 hover:underline',
-              !profesional.contacto.whatsapp && 'invisible',
-            )}
-          >
-            <MessageCircle className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.whatsapp}
-          </a>
-          <a
-            href={profesional.contacto.email ? `mailto:${profesional.contacto.email}` : undefined}
-            className={cn(
-              'flex items-center gap-2 text-sm text-brand-700 hover:underline',
-              !profesional.contacto.email && 'invisible',
-            )}
-          >
-            <Mail className="h-4 w-4" aria-hidden="true" /> {profesional.contacto.email}
-          </a>
-          <a
-            href={profesional.contacto.web}
-            target="_blank"
-            rel="noreferrer"
-            className={cn(
-              'flex items-center gap-2 text-sm text-brand-700 hover:underline',
-              !profesional.contacto.web && 'invisible',
-            )}
-          >
-            <Globe className="h-4 w-4" aria-hidden="true" /> Sitio web
-          </a>
+          {[
+            {
+              id: 'telefono',
+              valor: profesional.contacto.telefono,
+              href: profesional.contacto.telefono ? `tel:${profesional.contacto.telefono}` : undefined,
+              texto: profesional.contacto.telefono,
+              Icono: Phone,
+              externo: false,
+            },
+            {
+              id: 'whatsapp',
+              valor: profesional.contacto.whatsapp,
+              href: profesional.contacto.whatsapp
+                ? `https://wa.me/${profesional.contacto.whatsapp.replace(/[^0-9]/g, '')}`
+                : undefined,
+              texto: profesional.contacto.whatsapp,
+              Icono: MessageCircle,
+              externo: true,
+              clase: 'text-[#25D366]',
+            },
+            {
+              id: 'email',
+              valor: profesional.contacto.email,
+              href: profesional.contacto.email ? `mailto:${profesional.contacto.email}` : undefined,
+              texto: profesional.contacto.email,
+              Icono: Mail,
+              externo: false,
+            },
+            {
+              id: 'web',
+              valor: profesional.contacto.web,
+              href: profesional.contacto.web,
+              texto: 'Sitio web',
+              Icono: Globe,
+              externo: true,
+            },
+          ]
+            .sort((a, b) => (b.valor ? 1 : 0) - (a.valor ? 1 : 0))
+            .map(({ id, valor, href, texto, Icono, externo, clase }) => (
+              <a
+                key={id}
+                href={href}
+                target={externo ? '_blank' : undefined}
+                rel={externo ? 'noreferrer' : undefined}
+                className={cn(
+                  'flex items-center gap-2 text-sm hover:underline',
+                  clase ?? 'text-brand-700',
+                  !valor && 'invisible',
+                )}
+              >
+                <Icono className="h-4 w-4" aria-hidden="true" /> {texto}
+              </a>
+            ))}
         </div>
       </header>
 
