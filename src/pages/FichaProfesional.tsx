@@ -141,17 +141,16 @@ export function FichaProfesional() {
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-neutral-900">Reputación</h2>
-        <div className="mt-2">
-          <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} />
+        <div className="mt-3 max-w-sm rounded-xl border border-neutral-200 bg-white p-3">
+          <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} tamano="sm" />
+          <p className="mt-1.5 text-xs text-neutral-500">
+            Con factura revisada por Protop. No es una garantía del resultado de futuros trabajos.
+          </p>
+          <div className="mt-3">
+            <DesgloseValoraciones desglose={profesional.desglosePorConcepto} />
+          </div>
+          {valoracionesPublicas.data && <ListaValoracionesPublicas valoraciones={valoracionesPublicas.data} />}
         </div>
-        <p className="mt-2 max-w-2xl text-xs text-neutral-500">
-          El índice refleja experiencias de clientes con factura revisada por Protop. No es una garantía del resultado
-          de futuros trabajos.
-        </p>
-        <div className="mt-4">
-          <DesgloseValoraciones desglose={profesional.desglosePorConcepto} />
-        </div>
-        {valoracionesPublicas.data && <ListaValoracionesPublicas valoraciones={valoracionesPublicas.data} />}
 
         {!profesional.esDemo && !esPropia && (
           <div className="mt-4">
