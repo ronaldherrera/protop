@@ -13,13 +13,13 @@ export function SelectorModo() {
   }
 
   return (
-    <div className="flex gap-1 rounded-lg bg-neutral-100 p-1 text-sm font-medium">
+    <div className="flex gap-1 rounded-lg border border-neutral-200 bg-white p-1 text-sm font-medium shadow-sm">
       <button
         type="button"
         onClick={() => cambiar('particular')}
         className={cn(
-          'flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5',
-          modo === 'particular' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
+          'flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 transition-colors',
+          modo === 'particular' ? 'bg-brand-600 text-white shadow-sm' : 'text-neutral-500 hover:bg-neutral-50',
         )}
       >
         <User className="h-4 w-4" /> Particular
@@ -28,8 +28,8 @@ export function SelectorModo() {
         type="button"
         onClick={() => cambiar('profesional')}
         className={cn(
-          'flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5',
-          modo === 'profesional' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
+          'flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 transition-colors',
+          modo === 'profesional' ? 'bg-brand-600 text-white shadow-sm' : 'text-neutral-500 hover:bg-neutral-50',
         )}
       >
         <Briefcase className="h-4 w-4" /> Profesional
