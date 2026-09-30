@@ -14,6 +14,7 @@ import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { MedidorCompletitud } from '../components/ui/MedidorCompletitud'
+import { Modal } from '../components/ui/Modal'
 import { Puntuacion } from '../components/ui/Puntuacion'
 import { Stepper } from '../components/ui/Stepper'
 import { calcularCompletitudPorcentaje } from '../features/directorio/completitud'
@@ -192,6 +193,8 @@ export function AreaProfesional() {
   )
 }
 
+const OFICIOS_VISIBLES_SIDEBAR = 3
+
 function TarjetaPerfilLateral({ profesional, onEditar }: { profesional: Profesional; onEditar: () => void }) {
   const porcentajeCompletitud = calcularCompletitudPorcentaje({
     fotoPerfilUrl: profesional.fotoPerfilUrl,
@@ -200,6 +203,9 @@ function TarjetaPerfilLateral({ profesional, onEditar }: { profesional: Profesio
     fotosTrabajos: profesional.fotosTrabajos,
     contacto: profesional.contacto,
   })
+  const [verTodosOficios, setVerTodosOficios] = useState(false)
+  const oficiosVisibles = profesional.oficios.slice(0, OFICIOS_VISIBLES_SIDEBAR)
+  const oficiosOcultos = profesional.oficios.length - oficiosVisibles.length
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4">
@@ -212,22 +218,47 @@ function TarjetaPerfilLateral({ profesional, onEditar }: { profesional: Profesio
         <h2 className="mt-3 text-lg font-bold text-neutral-900">{profesional.nombreComercial}</h2>
         <p className="text-sm text-neutral-500">{profesional.localidad}</p>
         <div className="mt-2">
-          <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} tamano="sm" />
+          <Puntuacion puntuacion={profesional.puntuacionGlobal} trabajosValorados={profesional.trabajosValorados} tamano="sm" centrado />
         </div>
       </div>
 
       {profesional.oficios.length > 0 && (
         <div className="mt-4 flex flex-wrap justify-center gap-1.5">
-          {profesional.oficios.map((oficio) => (
+          {oficiosVisibles.map((oficio) => (
             <span
               key={oficio.id}
-              className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-1 text-xs text-neutral-700"
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700"
             >
               <IconoCategoria iconoUrl={oficio.iconoUrl} nombre={oficio.nombre} className="h-3.5 w-3.5" />
               {oficio.nombre}
             </span>
           ))}
+          {oficiosOcultos > 0 && (
+            <button
+              type="button"
+              onClick={() => setVerTodosOficios(true)}
+              className="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-200"
+            >
+              +{oficiosOcultos} más
+            </button>
+          )}
         </div>
+      )}
+
+      {verTodosOficios && (
+        <Modal titulo="Tus oficios" onCerrar={() => setVerTodosOficios(false)}>
+          <ul className="flex flex-col gap-2">
+            {profesional.oficios.map((oficio) => (
+              <li
+                key={oficio.id}
+                className="flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700"
+              >
+                <IconoCategoria iconoUrl={oficio.iconoUrl} nombre={oficio.nombre} className="h-4 w-4" />
+                {oficio.nombre}
+              </li>
+            ))}
+          </ul>
+        </Modal>
       )}
 
       {(profesional.contacto.telefono || profesional.contacto.email || profesional.contacto.web) && (
