@@ -6,6 +6,7 @@ import { Admin } from '../pages/Admin'
 import { AreaParticular } from '../pages/AreaParticular'
 import { AreaProfesional } from '../pages/AreaProfesional'
 import { Blog } from '../pages/Blog'
+import { BlogPost } from '../pages/BlogPost'
 import { Directorio } from '../pages/Directorio'
 import { FichaProfesional } from '../pages/FichaProfesional'
 import { Home } from '../pages/Home'
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <Home /> },
       { path: '/blog', element: <Blog /> },
+      { path: '/blog/:slug', element: <BlogPost /> },
       { path: '/profesionales', element: <Directorio /> },
       { path: '/profesionales/:slug', element: <FichaProfesional /> },
       { path: '/solicitar-presupuesto', element: <SolicitarPresupuesto /> },
