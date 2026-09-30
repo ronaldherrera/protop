@@ -86,20 +86,16 @@ export function AreaParticular() {
                 {p.etiqueta}
               </button>
             ))}
-            <div className="my-1 border-t border-neutral-100" />
-            <Link
-              to="/profesionales"
-              className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
-            >
-              Buscar profesionales
-            </Link>
             {perfil.data.esAdmin && (
-              <Link
-                to="/admin"
-                className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
-              >
-                Administración
-              </Link>
+              <>
+                <div className="my-1 border-t border-neutral-100" />
+                <Link
+                  to="/admin"
+                  className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+                >
+                  Administración
+                </Link>
+              </>
             )}
           </nav>
         </aside>

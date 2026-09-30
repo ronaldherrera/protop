@@ -30,6 +30,7 @@ export function Header() {
     ? [
         { to: '/', etiqueta: 'Descubrir' },
         { to: '/blog', etiqueta: 'Blog' },
+        { to: '/profesionales', etiqueta: 'Directorio' },
         { to: modo === 'profesional' ? '/profesional' : '/particular', etiqueta: 'Perfil' },
       ]
     : ENLACES_INVITADO
