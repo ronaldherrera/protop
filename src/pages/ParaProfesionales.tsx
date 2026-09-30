@@ -39,7 +39,7 @@ export function ParaProfesionales() {
         <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6">
           <h1 className="text-3xl font-bold text-neutral-900 sm:text-4xl">Encuentra trabajo cerca de ti, sin comisión</h1>
           <p className="mx-auto mt-3 max-w-xl text-neutral-600">
-            Protop conecta a particulares de Santander con profesionales de reformas y hogar. Publica tu ficha,
+            Protop conecta a particulares con profesionales de reformas y hogar en su zona. Publica tu ficha,
             responde a solicitudes reales y cobra el 100% de lo que factures.
           </p>
           <Button type="button" tamano="lg" className="mt-6" onClick={registrarse}>

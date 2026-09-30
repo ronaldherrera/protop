@@ -8,7 +8,7 @@ export function Footer() {
         <div>
           <Logo invertido />
           <p className="mt-2 text-neutral-400">
-            El tablón digital de profesionales de reformas y hogar en Santander y alrededores.
+            El tablón digital de profesionales de reformas y hogar, cerca de ti.
           </p>
         </div>
         <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Enlaces del pie de página">

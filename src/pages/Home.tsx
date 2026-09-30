@@ -41,7 +41,7 @@ export function Home() {
       <section className="border-b border-neutral-200 bg-brand-50">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
           <h1 className="max-w-2xl text-3xl font-bold text-neutral-900 sm:text-4xl">
-            Encuentra profesionales de reformas y hogar en Santander
+            Encuentra profesionales de reformas y hogar en tu zona
           </h1>
           <p className="mt-3 max-w-xl text-neutral-600">
             El tablón digital de siempre, ahora online: fichas de profesionales, valoraciones con factura y
