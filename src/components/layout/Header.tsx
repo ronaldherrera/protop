@@ -40,7 +40,7 @@ export function Header() {
           <Logo />
         </NavLink>
 
-        <nav className="hidden flex-1 items-center gap-6 md:flex" aria-label="Navegación principal">
+        <nav className="hidden flex-1 items-center justify-end gap-6 md:flex" aria-label="Navegación principal">
           {enlacesFinal.map((enlace) => (
             <NavLink
               key={enlace.etiqueta}
