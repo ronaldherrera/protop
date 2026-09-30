@@ -9,9 +9,9 @@ import { Logo } from './Logo'
 
 const ENLACES_INVITADO = [
   { to: '/', etiqueta: 'Inicio' },
+  { to: '/blog', etiqueta: 'Blog' },
   { to: '/profesionales', etiqueta: 'Directorio' },
   { to: '/solicitar-presupuesto', etiqueta: 'Solicitar presupuesto' },
-  { to: '/blog', etiqueta: 'Blog' },
 ]
 
 export function Header() {
