@@ -1,3 +1,4 @@
+import { X } from 'lucide-react'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { BuscadorZonaUnica } from '../components/directorio/BuscadorZonas'
@@ -22,6 +23,8 @@ export function Directorio() {
   const profesionales = useProfesionales()
 
   const familiaActiva = familias.data?.find((f) => f.slug === familiaSlug)
+  const categoriaActiva = categorias.data?.find((c) => c.slug === categoria)
+  const zonaActiva = zonas.data?.find((z) => z.slug === zona)
   const categoriaSlugsFamilia = familiaActiva
     ? (categorias.data ?? []).filter((c) => c.familiaId === familiaActiva.id).map((c) => c.slug)
     : undefined
@@ -52,6 +55,13 @@ export function Directorio() {
   const hayError = profesionales.isError || categorias.isError || zonas.isError || familias.isError
   const hayDemo = (profesionales.data ?? []).some((profesional) => profesional.esDemo)
 
+  const filtrosActivos: { clave: string; etiqueta: string }[] = [
+    categoriaActiva && { clave: 'categoria', etiqueta: categoriaActiva.nombre },
+    !categoriaActiva && familiaActiva && { clave: 'familia', etiqueta: familiaActiva.nombre },
+    zonaActiva && { clave: 'zona', etiqueta: zonaActiva.nombre },
+    texto && { clave: 'q', etiqueta: `"${texto}"` },
+  ].filter((filtro): filtro is { clave: string; etiqueta: string } => Boolean(filtro))
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <h1 className="text-2xl font-bold text-neutral-900">Directorio de profesionales</h1>
@@ -59,13 +69,6 @@ export function Directorio() {
         <p className="mt-1 text-sm text-neutral-500">
           Datos de demostración — todavía no hay profesionales reales dados de alta en Protop.
         </p>
-      )}
-
-      {familiaActiva && (
-        <div className="mt-3 flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
-          {familiaActiva.iconoUrl && <img src={familiaActiva.iconoUrl} alt="" className="h-6 w-6" />}
-          Mostrando la familia "{familiaActiva.nombre}"
-        </div>
       )}
 
       <div className="mt-6 flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm sm:flex-row sm:items-end">
@@ -99,17 +102,37 @@ export function Directorio() {
             className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-neutral-900"
           />
         </label>
-
-        {hayFiltrosActivos && (
-          <button
-            type="button"
-            onClick={() => setParametros(new URLSearchParams(), { replace: true })}
-            className="whitespace-nowrap px-3 py-2 text-sm font-medium text-brand-700 hover:underline"
-          >
-            Quitar filtros
-          </button>
-        )}
       </div>
+
+      {filtrosActivos.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {filtrosActivos.map((filtro) => (
+            <span
+              key={filtro.clave}
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-sm text-brand-700"
+            >
+              {filtro.etiqueta}
+              <button
+                type="button"
+                onClick={() => actualizarFiltro(filtro.clave, '')}
+                aria-label={`Quitar filtro ${filtro.etiqueta}`}
+                className="rounded-full p-0.5 hover:bg-brand-100"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          ))}
+          {filtrosActivos.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setParametros(new URLSearchParams(), { replace: true })}
+              className="text-sm font-medium text-neutral-500 hover:text-neutral-700 hover:underline"
+            >
+              Quitar todos
+            </button>
+          )}
+        </div>
+      )}
 
       {cargando ? (
         <LoadingState etiqueta="Cargando profesionales…" />
