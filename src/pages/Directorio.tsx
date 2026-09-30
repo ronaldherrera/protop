@@ -68,9 +68,9 @@ export function Directorio() {
         </div>
       )}
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="flex-1 text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Oficio o servicio</span>
+      <div className="mt-6 flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm sm:flex-row sm:items-end">
+        <label className="flex-1 text-base">
+          <span className="mb-1.5 block font-medium text-neutral-700">Oficio o servicio</span>
           <SelectorCategoria
             familias={familias.data ?? []}
             categorias={categorias.data ?? []}
@@ -79,8 +79,8 @@ export function Directorio() {
           />
         </label>
 
-        <label className="flex-1 text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Localidad</span>
+        <label className="flex-1 text-base">
+          <span className="mb-1.5 block font-medium text-neutral-700">Localidad</span>
           <BuscadorZonaUnica
             zonas={zonas.data ?? []}
             valor={zona}
@@ -89,8 +89,8 @@ export function Directorio() {
           />
         </label>
 
-        <label className="flex-1 text-sm">
-          <span className="mb-1 block font-medium text-neutral-700">Buscar por nombre o servicio</span>
+        <label className="flex-1 text-base">
+          <span className="mb-1.5 block font-medium text-neutral-700">Buscar por nombre o servicio</span>
           <input
             type="search"
             value={texto}
