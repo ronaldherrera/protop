@@ -1,6 +1,6 @@
 import { Globe, ImagePlus, Mail, Phone, Plus, X } from 'lucide-react'
 import { type FormEvent, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { BuscadorZonaUnica, BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
 import { IconoCategoria } from '../components/directorio/IconoCategoria'
 import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
@@ -17,6 +17,7 @@ import { Puntuacion } from '../components/ui/Puntuacion'
 import { Stepper } from '../components/ui/Stepper'
 import { calcularCompletitudPorcentaje } from '../features/directorio/completitud'
 import { coincideZona } from '../features/directorio/filtrado'
+import { cerrarSesion } from '../features/auth/api'
 import { usePerfil } from '../features/auth/queries'
 import { useAuth } from '../features/auth/useAuth'
 import { cn } from '../lib/cn'
@@ -42,8 +43,14 @@ export function AreaProfesional() {
   const familias = useFamilias()
   const categorias = useCategorias()
   const zonas = useZonas()
+  const navigate = useNavigate()
   const [editando, setEditando] = useState(false)
   const [seccion, setSeccion] = useState<Seccion>('solicitudes')
+
+  async function salir() {
+    await cerrarSesion()
+    navigate('/')
+  }
 
   if (miProfesional.isLoading || familias.isLoading || categorias.isLoading || zonas.isLoading) {
     return <LoadingState etiqueta="Cargando tu ficha…" />
@@ -128,16 +135,21 @@ export function AreaProfesional() {
               </button>
             ))}
             {perfil.data?.esAdmin && (
-              <>
-                <div className="my-1 border-t border-neutral-100" />
-                <Link
-                  to="/admin"
-                  className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
-                >
-                  Administración
-                </Link>
-              </>
+              <Link
+                to="/admin"
+                className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+              >
+                Administración
+              </Link>
             )}
+            <div className="my-1 border-t border-neutral-100" />
+            <button
+              type="button"
+              onClick={salir}
+              className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+            >
+              Cerrar sesión
+            </button>
           </nav>
         </aside>
 

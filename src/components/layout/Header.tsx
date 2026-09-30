@@ -1,7 +1,6 @@
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
-import { cerrarSesion } from '../../features/auth/api'
+import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../features/auth/useAuth'
 import { useModo } from '../../features/modo/useModo'
 import { cn } from '../../lib/cn'
@@ -18,20 +17,14 @@ export function Header() {
   const [menuAbierto, setMenuAbierto] = useState(false)
   const { user } = useAuth()
   const { modo } = useModo()
-  const navigate = useNavigate()
 
-  async function salir() {
-    setMenuAbierto(false)
-    await cerrarSesion()
-    navigate('/')
-  }
+  const rutaPerfil = modo === 'profesional' ? '/profesional' : '/particular'
 
   const enlacesFinal = user
     ? [
         { to: '/', etiqueta: 'Descubrir' },
         { to: '/blog', etiqueta: 'Blog' },
         { to: '/profesionales', etiqueta: 'Directorio' },
-        { to: modo === 'profesional' ? '/profesional' : '/particular', etiqueta: 'Perfil' },
       ]
     : ENLACES_INVITADO
 
@@ -66,22 +59,12 @@ export function Header() {
               Para profesionales
             </NavLink>
           )}
-          {user ? (
-            <button
-              type="button"
-              onClick={salir}
-              className="inline-flex items-center justify-center rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
-            >
-              Cerrar sesión
-            </button>
-          ) : (
-            <NavLink
-              to="/acceso"
-              className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
-            >
-              Iniciar sesión
-            </NavLink>
-          )}
+          <NavLink
+            to={user ? rutaPerfil : '/acceso'}
+            className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+          >
+            {user ? 'Perfil' : 'Iniciar sesión'}
+          </NavLink>
         </div>
 
         <button
@@ -100,12 +83,12 @@ export function Header() {
           <ul className="flex flex-col gap-1 pt-2">
             {[
               ...enlacesFinal,
-              ...(!user
-                ? [
+              ...(user
+                ? [{ to: rutaPerfil, etiqueta: 'Perfil' }]
+                : [
                     { to: '/para-profesionales', etiqueta: 'Para profesionales' },
                     { to: '/acceso', etiqueta: 'Iniciar sesión' },
-                  ]
-                : []),
+                  ]),
             ].map((enlace) => (
               <li key={enlace.etiqueta}>
                 <NavLink
@@ -117,17 +100,6 @@ export function Header() {
                 </NavLink>
               </li>
             ))}
-            {user && (
-              <li>
-                <button
-                  type="button"
-                  onClick={salir}
-                  className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-100"
-                >
-                  Cerrar sesión
-                </button>
-              </li>
-            )}
           </ul>
         </nav>
       )}

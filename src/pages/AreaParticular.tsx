@@ -1,6 +1,6 @@
 import { Phone } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
@@ -9,7 +9,7 @@ import { FormularioComentario } from '../components/trabajos/FormularioComentari
 import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
-import { actualizarPerfil, type Perfil } from '../features/auth/api'
+import { actualizarPerfil, cerrarSesion, type Perfil } from '../features/auth/api'
 import { useInvalidarPerfil, usePerfil } from '../features/auth/queries'
 import { useAuth } from '../features/auth/useAuth'
 import { useMisSolicitudes } from '../features/solicitudes/queries'
@@ -30,8 +30,14 @@ const PESTANAS: { id: Seccion; etiqueta: string }[] = [
 export function AreaParticular() {
   const { user } = useAuth()
   const perfil = usePerfil()
+  const navigate = useNavigate()
   const [editando, setEditando] = useState(false)
   const [seccion, setSeccion] = useState<Seccion>('solicitudes')
+
+  async function salir() {
+    await cerrarSesion()
+    navigate('/')
+  }
 
   if (perfil.isLoading) {
     return <LoadingState etiqueta="Cargando tu perfil…" />
@@ -87,16 +93,21 @@ export function AreaParticular() {
               </button>
             ))}
             {perfil.data.esAdmin && (
-              <>
-                <div className="my-1 border-t border-neutral-100" />
-                <Link
-                  to="/admin"
-                  className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
-                >
-                  Administración
-                </Link>
-              </>
+              <Link
+                to="/admin"
+                className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+              >
+                Administración
+              </Link>
             )}
+            <div className="my-1 border-t border-neutral-100" />
+            <button
+              type="button"
+              onClick={salir}
+              className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+            >
+              Cerrar sesión
+            </button>
           </nav>
         </aside>
 
