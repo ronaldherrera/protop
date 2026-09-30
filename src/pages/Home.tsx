@@ -48,7 +48,7 @@ export function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-brand-50 from-15% via-brand-50/60 via-50% to-brand-50/0" />
 
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <div className="max-w-xl">
+          <div className="max-w-2xl">
             <h1 className="text-3xl font-bold text-neutral-900 sm:text-4xl lg:text-5xl">
               El profesional que necesitas, a la vuelta de la esquina
             </h1>
@@ -59,10 +59,10 @@ export function Home() {
 
             <form
               onSubmit={buscar}
-              className="mt-8 flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm sm:flex-row sm:items-end"
+              className="mt-8 flex flex-col gap-4 rounded-xl bg-white p-6 shadow-sm sm:flex-row sm:items-end"
             >
-              <label className="flex-1 text-sm">
-                <span className="mb-1 block font-medium text-neutral-700">Oficio o servicio</span>
+              <label className="flex-1 text-base">
+                <span className="mb-1.5 block font-medium text-neutral-700">Oficio o servicio</span>
                 <SelectorCategoria
                   familias={familias.data ?? []}
                   categorias={categorias.data ?? []}
@@ -71,8 +71,8 @@ export function Home() {
                 />
               </label>
 
-              <label className="flex-1 text-sm">
-                <span className="mb-1 block font-medium text-neutral-700">Localidad</span>
+              <label className="flex-1 text-base">
+                <span className="mb-1.5 block font-medium text-neutral-700">Localidad</span>
                 <BuscadorZonaUnica zonas={zonas.data ?? []} valor={zona} onChange={setZona} placeholder="Cualquier localidad" />
               </label>
 
