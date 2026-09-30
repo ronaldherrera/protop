@@ -35,7 +35,7 @@ export function ParaProfesionales() {
 
   return (
     <div>
-      <section className="relative overflow-hidden border-b border-neutral-200 bg-brand-50">
+      <section className="relative overflow-hidden bg-brand-50">
         <img
           src="/fotos/profesional-autonomo.webp"
           alt="Equipo de profesionales de reformas sonriendo con sus herramientas en una vivienda en obras"
@@ -44,51 +44,52 @@ export function ParaProfesionales() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-brand-50 from-15% via-brand-50/60 via-50% to-brand-50/0" />
 
-        <div className="relative mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-28">
           <div className="max-w-xl">
-            <h1 className="text-3xl font-bold text-neutral-900 sm:text-4xl">
+            <h1 className="text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
               Encuentra trabajo cerca de ti — y quédate con el 100%
             </h1>
-            <p className="mt-3 text-neutral-700">
+            <p className="mt-4 text-lg text-neutral-700">
               Protop conecta a particulares con profesionales de reformas y hogar en su zona. Publica tu ficha,
               responde a solicitudes reales y cobra el 100% de lo que factures.
             </p>
-            <Button type="button" tamano="lg" className="mt-6" onClick={registrarse}>
+            <Button type="button" tamano="lg" className="mt-8" onClick={registrarse}>
               Publicar mi ficha gratis
             </Button>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-        <div className="grid gap-4 sm:grid-cols-3">
+      <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
+        <h2 className="text-2xl font-bold text-neutral-900 sm:text-3xl">Por qué los profesionales eligen Protop</h2>
+        <div className="mt-10 grid gap-10 sm:grid-cols-3">
           {VENTAJAS.map(({ Icono, titulo, texto }) => (
-            <div key={titulo} className="rounded-xl border border-neutral-200 bg-white p-5">
-              <Icono className="h-6 w-6 text-brand-500" aria-hidden="true" />
-              <h2 className="mt-3 font-semibold text-neutral-900">{titulo}</h2>
-              <p className="mt-1 text-sm text-neutral-600">{texto}</p>
+            <div key={titulo}>
+              <Icono className="h-7 w-7 text-brand-600" aria-hidden="true" />
+              <h3 className="mt-4 text-lg font-semibold text-neutral-900">{titulo}</h3>
+              <p className="mt-2 text-neutral-600">{texto}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-        <h2 className="text-xl font-semibold text-neutral-900">Cómo funciona</h2>
-        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:items-center">
+      <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
+        <h2 className="text-2xl font-bold text-neutral-900 sm:text-3xl">Cómo funciona</h2>
+        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.3fr] lg:items-center">
           <img
             src="/fotos/herramientas-flatlay.webp"
             alt="Herramientas de profesionales de reformas y mantenimiento del hogar"
-            className="aspect-square w-full rounded-2xl object-cover shadow-sm"
+            className="aspect-square w-full rounded-2xl object-cover"
             loading="lazy"
           />
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-8">
             {PASOS.map(({ Icono, titulo, texto }, indice) => (
-              <div key={titulo} className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">
-                  {indice + 1}
+              <div key={titulo} className="flex gap-4">
+                <span className="text-3xl font-bold text-brand-200 tabular-nums">
+                  {String(indice + 1).padStart(2, '0')}
                 </span>
                 <div>
-                  <h3 className="flex items-center gap-2 font-medium text-neutral-900">
+                  <h3 className="flex items-center gap-2 font-semibold text-neutral-900">
                     <Icono className="h-4 w-4 text-brand-500" aria-hidden="true" />
                     {titulo}
                   </h3>
@@ -100,7 +101,7 @@ export function ParaProfesionales() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-12 text-center sm:px-6">
+      <section className="mx-auto max-w-5xl px-4 py-20 text-center sm:px-6">
         <Button type="button" tamano="lg" onClick={registrarse}>
           Publicar mi ficha gratis
         </Button>
