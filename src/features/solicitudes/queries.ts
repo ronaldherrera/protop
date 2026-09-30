@@ -9,6 +9,7 @@ import {
   enviarPropuesta,
   obtenerAclaraciones,
   obtenerMiPropuesta,
+  obtenerMisPropuestas,
   obtenerMisSolicitudes,
   obtenerPropuestasDeSolicitud,
   obtenerSolicitud,
@@ -85,6 +86,14 @@ export function usePropuestasDeSolicitud(solicitudId: string | undefined) {
   })
 }
 
+export function useMisPropuestas(profesionalId: string | undefined) {
+  return useQuery({
+    queryKey: ['mis-propuestas', profesionalId],
+    queryFn: () => obtenerMisPropuestas(profesionalId as string),
+    enabled: Boolean(profesionalId),
+  })
+}
+
 export function useMiPropuesta(solicitudId: string | undefined, profesionalId: string | undefined) {
   return useQuery({
     queryKey: ['mi-propuesta', solicitudId, profesionalId],
@@ -103,6 +112,7 @@ export function useEnviarPropuesta() {
       queryClient.invalidateQueries({
         queryKey: ['mi-propuesta', variables.solicitudId, variables.profesionalId],
       })
+      queryClient.invalidateQueries({ queryKey: ['mis-propuestas', variables.profesionalId] })
     },
   })
 }

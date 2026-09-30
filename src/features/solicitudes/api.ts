@@ -5,6 +5,7 @@ import type {
   DatosSolicitud,
   EstadoSolicitud,
   Propuesta,
+  PropuestaConSolicitud,
   Solicitud,
   TipoPropuesta,
 } from './types'
@@ -189,6 +190,39 @@ export async function obtenerPropuestasDeSolicitud(solicitudId: string): Promise
     .order('created_at', { ascending: true })
   if (error) throw error
   return (data as unknown as FilaPropuesta[]).map(mapearPropuesta)
+}
+
+const SELECT_MIS_PROPUESTAS = `
+  id, solicitud_id, profesional_id, alcance_trabajo, importe_orientativo, desglose,
+  materiales_incluidos, mano_obra, tratamiento_impuestos, exclusiones, plazo_aproximado,
+  necesita_visita, aspectos_pendientes, valida_hasta, tipo, created_at,
+  profesionales ( nombre_comercial, slug, puntuacion_global, trabajos_valorados ),
+  solicitudes ( titulo, estado, categorias ( nombre ), zonas ( nombre ) )
+`
+
+type FilaMiPropuesta = FilaPropuesta & {
+  solicitudes: {
+    titulo: string
+    estado: string
+    categorias: { nombre: string } | null
+    zonas: { nombre: string } | null
+  } | null
+}
+
+export async function obtenerMisPropuestas(profesionalId: string): Promise<PropuestaConSolicitud[]> {
+  const { data, error } = await supabase
+    .from('propuestas')
+    .select(SELECT_MIS_PROPUESTAS)
+    .eq('profesional_id', profesionalId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data as unknown as FilaMiPropuesta[]).map((fila) => ({
+    ...mapearPropuesta(fila),
+    solicitudTitulo: fila.solicitudes?.titulo ?? '(solicitud ya no disponible)',
+    solicitudEstado: (fila.solicitudes?.estado as EstadoSolicitud) ?? 'cerrada',
+    solicitudCategoriaNombre: fila.solicitudes?.categorias?.nombre ?? '',
+    solicitudZonaNombre: fila.solicitudes?.zonas?.nombre ?? '',
+  }))
 }
 
 export async function obtenerMiPropuesta(solicitudId: string, profesionalId: string): Promise<Propuesta | null> {

@@ -11,6 +11,7 @@ import { LoadingState } from '../components/estado/LoadingState'
 import { SelectorModo } from '../components/layout/SelectorModo'
 import { GestionTrabajos } from '../components/trabajos/GestionTrabajos'
 import { Avatar } from '../components/ui/Avatar'
+import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { MedidorCompletitud } from '../components/ui/MedidorCompletitud'
 import { Puntuacion } from '../components/ui/Puntuacion'
@@ -29,12 +30,12 @@ import {
   useZonas,
 } from '../features/directorio/queries'
 import { solicitudEncajaConProfesional } from '../features/solicitudes/coincidencia'
-import { useSolicitudesDisponibles } from '../features/solicitudes/queries'
-import type { Solicitud } from '../features/solicitudes/types'
+import { useMisPropuestas, useSolicitudesDisponibles } from '../features/solicitudes/queries'
+import type { EstadoSolicitud, Solicitud } from '../features/solicitudes/types'
 import { subirFoto } from '../lib/storage'
 import type { Categoria, Especialidad, Familia, MediosContacto, Profesional, Zona } from '../types/profesional'
 
-type Seccion = 'solicitudes' | 'trabajos'
+type Seccion = 'solicitudes' | 'propuestas' | 'trabajos'
 
 export function AreaProfesional() {
   const { user } = useAuth()
@@ -121,7 +122,7 @@ export function AreaProfesional() {
           <TarjetaPerfilLateral profesional={profesional} onEditar={() => setEditando(true)} />
 
           <nav className="flex flex-col gap-1 rounded-xl border border-neutral-200 bg-white p-2">
-            {(['solicitudes', 'trabajos'] as const).map((s) => (
+            {(['solicitudes', 'propuestas', 'trabajos'] as const).map((s) => (
               <button
                 key={s}
                 type="button"
@@ -131,7 +132,9 @@ export function AreaProfesional() {
                   seccion === s ? 'bg-brand-50 text-brand-700' : 'text-neutral-600 hover:bg-neutral-50',
                 )}
               >
-                {s === 'solicitudes' ? 'Solicitudes de presupuesto' : 'Mis trabajos'}
+                {s === 'solicitudes' && 'Solicitudes de presupuesto'}
+                {s === 'propuestas' && 'Mis propuestas'}
+                {s === 'trabajos' && 'Mis trabajos'}
               </button>
             ))}
             {perfil.data?.esAdmin && (
@@ -163,6 +166,12 @@ export function AreaProfesional() {
                 categoriaIdsProfesional={profesional.oficios.map((o) => o.id)}
                 zonaSlugsProfesional={profesional.zonasTrabajo}
               />
+            </div>
+          )}
+
+          {seccion === 'propuestas' && (
+            <div className="mt-6">
+              <MisPropuestas profesionalId={profesional.id} />
             </div>
           )}
 
@@ -241,20 +250,22 @@ function TarjetaPerfilLateral({ profesional, onEditar }: { profesional: Profesio
         </div>
       )}
 
-      <div className="mt-4 border-t border-neutral-100 pt-3">
-        <MedidorCompletitud porcentaje={porcentajeCompletitud} />
-      </div>
+      {porcentajeCompletitud < 100 && (
+        <div className="mt-4 border-t border-neutral-100 pt-3">
+          <MedidorCompletitud porcentaje={porcentajeCompletitud} />
+        </div>
+      )}
 
       <div className="mt-4 flex flex-col gap-2 border-t border-neutral-100 pt-3">
+        <Button type="button" onClick={onEditar} className="w-full">
+          Gestionar perfil profesional
+        </Button>
         <Link
           to={`/profesionales/${profesional.slug}`}
-          className="text-center text-sm font-medium text-brand-700 hover:underline"
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-brand-700 transition-colors hover:bg-brand-50"
         >
           Ver mi perfil público →
         </Link>
-        <Button type="button" variante="secundario" onClick={onEditar} className="w-full">
-          Gestionar perfil profesional
-        </Button>
       </div>
     </div>
   )
@@ -376,6 +387,75 @@ function SolicitudesDisponibles({
         </ul>
       )}
     </div>
+  )
+}
+
+function formatearImporte(valor: number): string {
+  return valor.toLocaleString('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+}
+
+function formatearFecha(fecha: string): string {
+  return new Date(fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+const ETIQUETA_ESTADO_SOLICITUD: Record<EstadoSolicitud, { texto: string; tono: 'neutro' | 'aviso' | 'exito' | 'error' }> = {
+  borrador: { texto: 'Borrador', tono: 'neutro' },
+  pendiente_pago: { texto: 'Pendiente de pago', tono: 'aviso' },
+  abierta: { texto: 'Abierta', tono: 'exito' },
+  cerrada: { texto: 'Cerrada', tono: 'neutro' },
+}
+
+function MisPropuestas({ profesionalId }: { profesionalId: string }) {
+  const propuestas = useMisPropuestas(profesionalId)
+
+  if (propuestas.isLoading) {
+    return <LoadingState etiqueta="Cargando tus propuestas…" />
+  }
+
+  if (propuestas.isError) {
+    return <ErrorState descripcion="No hemos podido cargar tus propuestas enviadas." />
+  }
+
+  if (!propuestas.data || propuestas.data.length === 0) {
+    return (
+      <div className="mt-3">
+        <EmptyState
+          titulo="Todavía no has enviado ninguna propuesta"
+          descripcion="Cuando respondas a una solicitud de presupuesto, aparecerá aquí para que puedas hacerle seguimiento."
+        />
+      </div>
+    )
+  }
+
+  const hoy = new Date().toISOString().slice(0, 10)
+
+  return (
+    <ul className="flex flex-col gap-2">
+      {propuestas.data.map((p) => {
+        const estado = ETIQUETA_ESTADO_SOLICITUD[p.solicitudEstado]
+        const caducada = p.solicitudEstado === 'abierta' && p.validaHasta < hoy
+        return (
+          <li key={p.id}>
+            <Link
+              to={`/solicitudes/${p.solicitudId}`}
+              className="flex flex-col gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm hover:bg-neutral-50 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="text-sm font-medium text-neutral-900">{p.solicitudTitulo}</p>
+                <p className="text-xs text-neutral-500">
+                  {p.solicitudCategoriaNombre} · {p.solicitudZonaNombre} · enviada el {formatearFecha(p.creadoEn)}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <span className="text-sm font-semibold text-neutral-900">{formatearImporte(p.importeOrientativo)}</span>
+                {caducada && <Badge tono="aviso">Caducada</Badge>}
+                <Badge tono={estado.tono}>{estado.texto}</Badge>
+              </div>
+            </Link>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 

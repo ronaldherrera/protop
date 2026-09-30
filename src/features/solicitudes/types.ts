@@ -54,6 +54,13 @@ export type Propuesta = {
   creadoEn: string
 }
 
+export type PropuestaConSolicitud = Propuesta & {
+  solicitudTitulo: string
+  solicitudEstado: EstadoSolicitud
+  solicitudCategoriaNombre: string
+  solicitudZonaNombre: string
+}
+
 export type DatosPropuesta = {
   alcanceTrabajo: string
   importeOrientativo: number

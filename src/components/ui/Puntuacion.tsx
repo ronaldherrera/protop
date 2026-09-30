@@ -18,8 +18,8 @@ export function Puntuacion({ puntuacion, trabajosValorados, tamano = 'md' }: Pro
   }
 
   return (
-    <div className={cn('flex items-center gap-1.5', tamano === 'sm' ? 'text-sm' : 'text-base')}>
-      <Star className="h-4 w-4 fill-brand-500 text-brand-500" aria-hidden="true" />
+    <div className={cn('flex items-start gap-1.5', tamano === 'sm' ? 'text-sm' : 'text-base')}>
+      <Star className="mt-0.5 h-4 w-4 shrink-0 fill-brand-500 text-brand-500" aria-hidden="true" />
       <span className="font-semibold text-neutral-900">{formatearPuntuacion(puntuacion)}/5</span>
       <span className="text-neutral-500">
         · {trabajosValorados} {trabajosValorados === 1 ? 'trabajo valorado' : 'trabajos valorados'} con factura
