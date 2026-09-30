@@ -8,6 +8,7 @@ import { cn } from '../../lib/cn'
 import { Logo } from './Logo'
 
 const ENLACES_INVITADO = [
+  { to: '/', etiqueta: 'Inicio' },
   { to: '/profesionales', etiqueta: 'Directorio' },
   { to: '/solicitar-presupuesto', etiqueta: 'Solicitar presupuesto' },
   { to: '/blog', etiqueta: 'Blog' },
@@ -45,6 +46,7 @@ export function Header() {
             <NavLink
               key={enlace.etiqueta}
               to={enlace.to}
+              end={enlace.to === '/'}
               className={({ isActive }) =>
                 cn(
                   'text-sm font-medium text-neutral-700 hover:text-brand-700',
