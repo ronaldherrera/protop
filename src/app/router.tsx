@@ -10,6 +10,7 @@ import { Directorio } from '../pages/Directorio'
 import { FichaProfesional } from '../pages/FichaProfesional'
 import { Home } from '../pages/Home'
 import { NotFound } from '../pages/NotFound'
+import { ParaProfesionales } from '../pages/ParaProfesionales'
 import { SolicitarPresupuesto } from '../pages/SolicitarPresupuesto'
 import { SolicitudDetalle } from '../pages/SolicitudDetalle'
 import { Layout } from './Layout'
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
       { path: '/profesionales', element: <Directorio /> },
       { path: '/profesionales/:slug', element: <FichaProfesional /> },
       { path: '/solicitar-presupuesto', element: <SolicitarPresupuesto /> },
+      { path: '/para-profesionales', element: <ParaProfesionales /> },
       {
         path: '/solicitudes/:id',
         element: (

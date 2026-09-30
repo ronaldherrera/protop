@@ -1,3 +1,4 @@
+import { CheckCircle2, FileText, ShieldCheck } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BuscadorZonaUnica } from '../components/directorio/BuscadorZonas'
@@ -8,6 +9,21 @@ import { useCategorias, useFamilias, useZonas } from '../features/directorio/que
 import { useCrearBorradorSolicitud } from '../features/solicitudes/queries'
 import { subirFotoSolicitud } from '../lib/storage'
 import { useAuth } from '../features/auth/useAuth'
+
+const RAZONES = [
+  {
+    Icono: FileText,
+    texto: 'Describes el trabajo una vez y lo reciben varios profesionales de tu zona, sin llamar uno a uno.',
+  },
+  {
+    Icono: CheckCircle2,
+    texto: 'Comparas sus propuestas en el mismo sitio antes de decidir. Pedir presupuesto es gratis.',
+  },
+  {
+    Icono: ShieldCheck,
+    texto: 'La cuenta también te deja ver las valoraciones con factura de cada profesional antes de elegir.',
+  },
+]
 
 const TOTAL_PASOS = 3
 
@@ -85,14 +101,30 @@ export function SolicitarPresupuesto() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-xl px-4 py-16 text-center sm:px-6">
-        <h1 className="text-2xl font-bold text-neutral-900">Solicitar presupuestos</h1>
-        <p className="mt-2 text-neutral-600">
-          Necesitas una cuenta para preparar tu solicitud y recibir propuestas de varios profesionales.
-        </p>
-        <Button type="button" className="mt-4" onClick={() => navigate('/acceso')}>
-          Acceder o crear cuenta
-        </Button>
+      <div className="mx-auto max-w-xl px-4 py-16 sm:px-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-neutral-900">Pide presupuesto a varios profesionales a la vez</h1>
+          <p className="mt-2 text-neutral-600">
+            Cuéntanos qué necesitas una vez y deja que los profesionales de tu zona vengan a ti — sin llamar,
+            sin comisión y sin coste por pedirlo.
+          </p>
+        </div>
+
+        <ul className="mt-6 flex flex-col gap-3">
+          {RAZONES.map(({ Icono, texto }) => (
+            <li key={texto} className="flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-700">
+              <Icono className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
+              {texto}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-6 text-center">
+          <Button type="button" onClick={() => navigate('/acceso')}>
+            Crear cuenta gratis
+          </Button>
+          <p className="mt-2 text-xs text-neutral-500">¿Ya tienes cuenta? Entra desde el mismo botón.</p>
+        </div>
       </div>
     )
   }

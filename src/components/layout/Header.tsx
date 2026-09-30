@@ -59,7 +59,7 @@ export function Header() {
 
         <div className="hidden shrink-0 items-center gap-3 md:flex">
           {!user && (
-            <NavLink to="/acceso?rol=profesional" className="text-sm font-medium text-neutral-700 hover:text-brand-700">
+            <NavLink to="/para-profesionales" className="text-sm font-medium text-neutral-700 hover:text-brand-700">
               Para profesionales
             </NavLink>
           )}
@@ -99,7 +99,7 @@ export function Header() {
               ...enlacesFinal,
               ...(!user
                 ? [
-                    { to: '/acceso?rol=profesional', etiqueta: 'Para profesionales' },
+                    { to: '/para-profesionales', etiqueta: 'Para profesionales' },
                     { to: '/acceso', etiqueta: 'Iniciar sesión' },
                   ]
                 : []),
