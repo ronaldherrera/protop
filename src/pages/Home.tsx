@@ -93,22 +93,22 @@ export function Home() {
               </Button>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="mt-16">
-            <h2 className="text-xl font-semibold text-neutral-900">Explora por familia de servicios</h2>
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              {(familias.data ?? []).map((familia) => (
-                <Link
-                  key={familia.id}
-                  to={`/profesionales?familia=${familia.slug}`}
-                  className="flex flex-col items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 text-center hover:shadow-md"
-                >
-                  {familia.iconoUrl && <img src={familia.iconoUrl} alt="" className="h-10 w-10" />}
-                  <span className="text-sm font-medium text-neutral-800">{familia.nombre}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
+      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+        <h2 className="text-xl font-semibold text-neutral-900">Explora por familia de servicios</h2>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {(familias.data ?? []).map((familia) => (
+            <Link
+              key={familia.id}
+              to={`/profesionales?familia=${familia.slug}`}
+              className="flex flex-col items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 text-center hover:shadow-md"
+            >
+              {familia.iconoUrl && <img src={familia.iconoUrl} alt="" className="h-10 w-10" />}
+              <span className="text-sm font-medium text-neutral-800">{familia.nombre}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
