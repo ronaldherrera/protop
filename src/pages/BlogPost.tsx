@@ -36,6 +36,13 @@ export function BlogPost() {
         {formatearFecha(post.fechaPublicacion)} · {post.tiempoLecturaMin} min de lectura
       </p>
 
+      <img
+        src={post.imagen}
+        alt=""
+        className="mt-8 aspect-[16/9] w-full rounded-2xl object-cover"
+        fetchPriority="high"
+      />
+
       <div className="mt-8">
         <Articulo />
       </div>

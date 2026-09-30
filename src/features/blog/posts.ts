@@ -8,11 +8,13 @@ export type PostBlog = {
   oficioNombre: string
   fechaPublicacion: string
   tiempoLecturaMin: number
+  imagen: string
 }
 
 export const POSTS: PostBlog[] = [
   {
     slug: 'cuanto-cuesta-un-fontanero',
+    imagen: '/fotos/blog/cuanto-cuesta-un-fontanero.webp',
     titulo: 'Cuánto cuesta un fontanero: precios orientativos y cómo evitar sustos',
     metaDescripcion:
       'Precios orientativos de fontanería por tipo de trabajo, qué factores los mueven y cómo pedir presupuesto sin sorpresas en la factura final.',
@@ -26,6 +28,7 @@ export const POSTS: PostBlog[] = [
   },
   {
     slug: 'cuando-llamar-a-un-electricista',
+    imagen: '/fotos/blog/cuando-llamar-a-un-electricista.webp',
     titulo: 'Señales de que necesitas un electricista ya (y no dentro de un mes)',
     metaDescripcion:
       'Síntomas eléctricos que no conviene posponer, qué revisa un electricista en una inspección y cuándo es obligatorio el boletín eléctrico.',
@@ -39,6 +42,7 @@ export const POSTS: PostBlog[] = [
   },
   {
     slug: 'aire-acondicionado-o-bomba-de-calor',
+    imagen: '/fotos/blog/aire-acondicionado-o-bomba-de-calor.webp',
     titulo: 'Aire acondicionado o bomba de calor: qué instalar en casa y qué cuesta',
     metaDescripcion:
       'Diferencias entre aire acondicionado y bomba de calor, cuándo compensa cada una y precios orientativos de instalación según el tipo de vivienda.',
@@ -52,6 +56,7 @@ export const POSTS: PostBlog[] = [
   },
   {
     slug: 'cuanto-cuesta-pintar-un-piso',
+    imagen: '/fotos/blog/cuanto-cuesta-pintar-un-piso.webp',
     titulo: 'Cuánto cuesta pintar un piso: cómo se calcula el presupuesto por m²',
     metaDescripcion:
       'Cómo calculan los pintores el precio por metro cuadrado, qué encarece una mano de pintura y precios orientativos para un piso completo.',
@@ -65,6 +70,7 @@ export const POSTS: PostBlog[] = [
   },
   {
     slug: 'como-organizar-una-reforma-integral',
+    imagen: '/fotos/blog/como-organizar-una-reforma-integral.webp',
     titulo: 'Reforma integral paso a paso: fases, plazos y cómo comparar presupuestos',
     metaDescripcion:
       'Las fases de una reforma integral en orden, cuánto suele durar cada una y cómo pedir presupuestos que de verdad se puedan comparar entre sí.',
