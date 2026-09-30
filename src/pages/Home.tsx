@@ -45,7 +45,7 @@ export function Home() {
           className="absolute inset-0 h-full w-full object-cover object-[78%_15%]"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-50 from-35% via-brand-50/90 via-65% to-brand-50/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-50 from-15% via-brand-50/60 via-50% to-brand-50/0" />
 
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="max-w-xl">
