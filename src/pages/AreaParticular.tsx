@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
+import { SelectorModo } from '../components/layout/SelectorModo'
 import { FormularioComentario } from '../components/trabajos/FormularioComentario'
 import { Avatar } from '../components/ui/Avatar'
 import { Badge } from '../components/ui/Badge'
@@ -67,6 +68,8 @@ export function AreaParticular() {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <div className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start">
         <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
+          <SelectorModo />
+
           <TarjetaCuentaLateral perfil={perfil.data} email={user.email ?? ''} onEditar={() => setEditando(true)} />
 
           <nav className="flex flex-col gap-1 rounded-xl border border-neutral-200 bg-white p-2">

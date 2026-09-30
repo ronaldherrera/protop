@@ -1,4 +1,4 @@
-import { Briefcase, Menu, User, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { cerrarSesion } from '../../features/auth/api'
@@ -10,12 +10,13 @@ import { Logo } from './Logo'
 const ENLACES_INVITADO = [
   { to: '/profesionales', etiqueta: 'Directorio' },
   { to: '/solicitar-presupuesto', etiqueta: 'Solicitar presupuesto' },
+  { to: '/blog', etiqueta: 'Blog' },
 ]
 
 export function Header() {
   const [menuAbierto, setMenuAbierto] = useState(false)
   const { user } = useAuth()
-  const { modo, setModo } = useModo()
+  const { modo } = useModo()
   const navigate = useNavigate()
 
   async function salir() {
@@ -24,13 +25,13 @@ export function Header() {
     navigate('/')
   }
 
-  function cambiarModo(nuevo: 'particular' | 'profesional') {
-    setModo(nuevo)
-    setMenuAbierto(false)
-    navigate(nuevo === 'profesional' ? '/profesional' : '/particular')
-  }
-
-  const enlacesFinal = user ? [] : ENLACES_INVITADO
+  const enlacesFinal = user
+    ? [
+        { to: '/', etiqueta: 'Descubrir' },
+        { to: '/blog', etiqueta: 'Blog' },
+        { to: modo === 'profesional' ? '/profesional' : '/particular', etiqueta: 'Perfil' },
+      ]
+    : ENLACES_INVITADO
 
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur">
@@ -42,7 +43,7 @@ export function Header() {
         <nav className="hidden flex-1 items-center gap-6 md:flex" aria-label="Navegación principal">
           {enlacesFinal.map((enlace) => (
             <NavLink
-              key={enlace.to}
+              key={enlace.etiqueta}
               to={enlace.to}
               className={({ isActive }) =>
                 cn(
@@ -62,44 +63,20 @@ export function Header() {
               Para profesionales
             </NavLink>
           )}
-          {user && (
-            <div className="flex gap-1 rounded-lg bg-neutral-100 p-1 text-sm font-medium">
-              <button
-                type="button"
-                onClick={() => cambiarModo('particular')}
-                className={cn(
-                  'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5',
-                  modo === 'particular' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
-                )}
-              >
-                <User className="h-4 w-4" /> Particular
-              </button>
-              <button
-                type="button"
-                onClick={() => cambiarModo('profesional')}
-                className={cn(
-                  'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5',
-                  modo === 'profesional' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
-                )}
-              >
-                <Briefcase className="h-4 w-4" /> Profesional
-              </button>
-            </div>
-          )}
           {user ? (
             <button
               type="button"
               onClick={salir}
               className="inline-flex items-center justify-center rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
             >
-              Salir
+              Cerrar sesión
             </button>
           ) : (
             <NavLink
               to="/acceso"
               className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
             >
-              Acceder
+              Iniciar sesión
             </NavLink>
           )}
         </div>
@@ -117,36 +94,17 @@ export function Header() {
 
       {menuAbierto && (
         <nav className="border-t border-neutral-200 bg-white px-4 pb-4 md:hidden" aria-label="Navegación móvil">
-          {user && (
-            <div className="mt-2 flex gap-1 rounded-lg bg-neutral-100 p-1 text-sm font-medium">
-              <button
-                type="button"
-                onClick={() => cambiarModo('particular')}
-                className={cn(
-                  'flex-1 rounded-md py-1.5',
-                  modo === 'particular' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
-                )}
-              >
-                Particular
-              </button>
-              <button
-                type="button"
-                onClick={() => cambiarModo('profesional')}
-                className={cn(
-                  'flex-1 rounded-md py-1.5',
-                  modo === 'profesional' ? 'bg-white text-brand-700 shadow-sm' : 'text-neutral-600',
-                )}
-              >
-                Profesional
-              </button>
-            </div>
-          )}
           <ul className="flex flex-col gap-1 pt-2">
             {[
               ...enlacesFinal,
-              ...(!user ? [{ to: '/acceso?rol=profesional', etiqueta: 'Para profesionales' }, { to: '/acceso', etiqueta: 'Acceder' }] : []),
+              ...(!user
+                ? [
+                    { to: '/acceso?rol=profesional', etiqueta: 'Para profesionales' },
+                    { to: '/acceso', etiqueta: 'Iniciar sesión' },
+                  ]
+                : []),
             ].map((enlace) => (
-              <li key={enlace.to}>
+              <li key={enlace.etiqueta}>
                 <NavLink
                   to={enlace.to}
                   onClick={() => setMenuAbierto(false)}
@@ -163,7 +121,7 @@ export function Header() {
                   onClick={salir}
                   className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                 >
-                  Salir
+                  Cerrar sesión
                 </button>
               </li>
             )}
