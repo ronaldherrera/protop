@@ -35,16 +35,28 @@ export function ParaProfesionales() {
 
   return (
     <div>
-      <section className="border-b border-neutral-200 bg-brand-50">
-        <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6">
-          <h1 className="text-3xl font-bold text-neutral-900 sm:text-4xl">Encuentra trabajo cerca de ti, sin comisión</h1>
-          <p className="mx-auto mt-3 max-w-xl text-neutral-600">
-            Protop conecta a particulares con profesionales de reformas y hogar en su zona. Publica tu ficha,
-            responde a solicitudes reales y cobra el 100% de lo que factures.
-          </p>
-          <Button type="button" tamano="lg" className="mt-6" onClick={registrarse}>
-            Publicar mi ficha gratis
-          </Button>
+      <section className="relative overflow-hidden border-b border-neutral-200 bg-brand-50">
+        <img
+          src="/fotos/profesional-autonomo.webp"
+          alt="Equipo de profesionales de reformas sonriendo con sus herramientas en una vivienda en obras"
+          className="absolute inset-0 h-full w-full object-cover object-[65%_25%]"
+          fetchPriority="high"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-50 from-15% via-brand-50/60 via-50% to-brand-50/0" />
+
+        <div className="relative mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="max-w-xl">
+            <h1 className="text-3xl font-bold text-neutral-900 sm:text-4xl">
+              Encuentra trabajo cerca de ti — y quédate con el 100%
+            </h1>
+            <p className="mt-3 text-neutral-700">
+              Protop conecta a particulares con profesionales de reformas y hogar en su zona. Publica tu ficha,
+              responde a solicitudes reales y cobra el 100% de lo que factures.
+            </p>
+            <Button type="button" tamano="lg" className="mt-6" onClick={registrarse}>
+              Publicar mi ficha gratis
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -62,19 +74,29 @@ export function ParaProfesionales() {
 
       <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
         <h2 className="text-xl font-semibold text-neutral-900">Cómo funciona</h2>
-        <div className="mt-6 grid gap-6 sm:grid-cols-3">
-          {PASOS.map(({ Icono, titulo, texto }, indice) => (
-            <div key={titulo} className="flex flex-col items-start gap-2">
-              <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">
+        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:items-center">
+          <img
+            src="/fotos/herramientas-flatlay.webp"
+            alt="Herramientas de profesionales de reformas y mantenimiento del hogar"
+            className="aspect-square w-full rounded-2xl object-cover shadow-sm"
+            loading="lazy"
+          />
+          <div className="flex flex-col gap-6">
+            {PASOS.map(({ Icono, titulo, texto }, indice) => (
+              <div key={titulo} className="flex items-start gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white">
                   {indice + 1}
                 </span>
-                <Icono className="h-5 w-5 text-brand-500" aria-hidden="true" />
+                <div>
+                  <h3 className="flex items-center gap-2 font-medium text-neutral-900">
+                    <Icono className="h-4 w-4 text-brand-500" aria-hidden="true" />
+                    {titulo}
+                  </h3>
+                  <p className="mt-1 text-sm text-neutral-600">{texto}</p>
+                </div>
               </div>
-              <h3 className="font-medium text-neutral-900">{titulo}</h3>
-              <p className="text-sm text-neutral-600">{texto}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
