@@ -1,5 +1,5 @@
 import { Globe, ImagePlus, Mail, Phone, Plus, X } from 'lucide-react'
-import { type FormEvent, useEffect, useMemo, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { BuscadorZonaUnica, BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
 import { IconoCategoria } from '../components/directorio/IconoCategoria'
@@ -193,7 +193,69 @@ export function AreaProfesional() {
   )
 }
 
-const OFICIOS_VISIBLES_SIDEBAR = 3
+function ChipsOficios({ oficios }: { oficios: Profesional['oficios'] }) {
+  const contenedorRef = useRef<HTMLDivElement>(null)
+  const [hayOcultos, setHayOcultos] = useState(false)
+  const [verTodos, setVerTodos] = useState(false)
+
+  useEffect(() => {
+    const contenedor = contenedorRef.current
+    if (!contenedor) return
+
+    function medir() {
+      setHayOcultos(contenedor!.scrollHeight > contenedor!.clientHeight + 1)
+    }
+
+    medir()
+    const observer = new ResizeObserver(medir)
+    observer.observe(contenedor)
+    return () => observer.disconnect()
+  }, [oficios])
+
+  if (oficios.length === 0) return null
+
+  return (
+    <>
+      <div ref={contenedorRef} className="mt-4 flex max-h-[64px] flex-wrap gap-1.5 overflow-hidden">
+        {oficios.map((oficio) => (
+          <span
+            key={oficio.id}
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700"
+          >
+            <IconoCategoria iconoUrl={oficio.iconoUrl} nombre={oficio.nombre} className="h-3.5 w-3.5" />
+            {oficio.nombre}
+          </span>
+        ))}
+      </div>
+
+      {hayOcultos && (
+        <button
+          type="button"
+          onClick={() => setVerTodos(true)}
+          className="mt-1.5 text-xs font-medium text-brand-700 hover:underline"
+        >
+          Ver todos los oficios ({oficios.length})
+        </button>
+      )}
+
+      {verTodos && (
+        <Modal titulo="Tus oficios" onCerrar={() => setVerTodos(false)}>
+          <ul className="flex flex-col gap-2">
+            {oficios.map((oficio) => (
+              <li
+                key={oficio.id}
+                className="flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700"
+              >
+                <IconoCategoria iconoUrl={oficio.iconoUrl} nombre={oficio.nombre} className="h-4 w-4" />
+                {oficio.nombre}
+              </li>
+            ))}
+          </ul>
+        </Modal>
+      )}
+    </>
+  )
+}
 
 function TarjetaPerfilLateral({ profesional, onEditar }: { profesional: Profesional; onEditar: () => void }) {
   const porcentajeCompletitud = calcularCompletitudPorcentaje({
@@ -203,9 +265,6 @@ function TarjetaPerfilLateral({ profesional, onEditar }: { profesional: Profesio
     fotosTrabajos: profesional.fotosTrabajos,
     contacto: profesional.contacto,
   })
-  const [verTodosOficios, setVerTodosOficios] = useState(false)
-  const oficiosVisibles = profesional.oficios.slice(0, OFICIOS_VISIBLES_SIDEBAR)
-  const oficiosOcultos = profesional.oficios.length - oficiosVisibles.length
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4">
@@ -222,44 +281,7 @@ function TarjetaPerfilLateral({ profesional, onEditar }: { profesional: Profesio
         </div>
       </div>
 
-      {profesional.oficios.length > 0 && (
-        <div className="mt-4 flex flex-wrap justify-center gap-1.5">
-          {oficiosVisibles.map((oficio) => (
-            <span
-              key={oficio.id}
-              className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700"
-            >
-              <IconoCategoria iconoUrl={oficio.iconoUrl} nombre={oficio.nombre} className="h-3.5 w-3.5" />
-              {oficio.nombre}
-            </span>
-          ))}
-          {oficiosOcultos > 0 && (
-            <button
-              type="button"
-              onClick={() => setVerTodosOficios(true)}
-              className="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-200"
-            >
-              +{oficiosOcultos} más
-            </button>
-          )}
-        </div>
-      )}
-
-      {verTodosOficios && (
-        <Modal titulo="Tus oficios" onCerrar={() => setVerTodosOficios(false)}>
-          <ul className="flex flex-col gap-2">
-            {profesional.oficios.map((oficio) => (
-              <li
-                key={oficio.id}
-                className="flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700"
-              >
-                <IconoCategoria iconoUrl={oficio.iconoUrl} nombre={oficio.nombre} className="h-4 w-4" />
-                {oficio.nombre}
-              </li>
-            ))}
-          </ul>
-        </Modal>
-      )}
+      <ChipsOficios oficios={profesional.oficios} />
 
       {(profesional.contacto.telefono || profesional.contacto.email || profesional.contacto.web) && (
         <div className="mt-4 flex flex-col gap-1.5 border-t border-neutral-100 pt-3 text-sm">
