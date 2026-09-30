@@ -101,29 +101,45 @@ export function SolicitarPresupuesto() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-xl px-4 py-16 sm:px-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-neutral-900">Pide presupuesto a varios profesionales a la vez</h1>
-          <p className="mt-2 text-neutral-600">
-            Cuéntanos qué necesitas una vez y deja que los profesionales de tu zona vengan a ti — sin llamar,
-            sin comisión y sin coste por pedirlo.
-          </p>
-        </div>
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900 sm:text-4xl">
+              Cuéntanoslo una vez, que te llamen ellos a ti
+            </h1>
+            <p className="mt-4 text-lg text-neutral-600">
+              Describe el trabajo en unos minutos y varios profesionales de tu zona te mandan su propuesta.
+              Sin llamar uno a uno, sin comisión, sin coste por pedirlo.
+            </p>
 
-        <ul className="mt-6 flex flex-col gap-3">
-          {RAZONES.map(({ Icono, texto }) => (
-            <li key={texto} className="flex items-start gap-2 rounded-xl border border-neutral-200 bg-white p-3 text-sm text-neutral-700">
-              <Icono className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" aria-hidden="true" />
-              {texto}
-            </li>
-          ))}
-        </ul>
+            <ul className="mt-8 flex flex-col gap-3">
+              {RAZONES.map(({ Icono, texto }) => (
+                <li
+                  key={texto}
+                  className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-white p-4 text-sm text-neutral-700"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50">
+                    <Icono className="h-5 w-5 text-brand-600" aria-hidden="true" />
+                  </span>
+                  {texto}
+                </li>
+              ))}
+            </ul>
 
-        <div className="mt-6 text-center">
-          <Button type="button" onClick={() => navigate('/acceso')}>
-            Crear cuenta gratis
-          </Button>
-          <p className="mt-2 text-xs text-neutral-500">¿Ya tienes cuenta? Entra desde el mismo botón.</p>
+            <div className="mt-8">
+              <Button type="button" tamano="lg" onClick={() => navigate('/acceso')}>
+                Crear cuenta gratis
+              </Button>
+              <p className="mt-2 text-xs text-neutral-500">¿Ya tienes cuenta? Entra desde el mismo botón.</p>
+            </div>
+          </div>
+
+          <img
+            src="/fotos/profesional-cliente.webp"
+            alt="Profesional mostrando un presupuesto a una clienta en su vivienda"
+            className="order-first aspect-[4/3] w-full rounded-2xl object-cover shadow-sm lg:order-none"
+            loading="lazy"
+          />
         </div>
       </div>
     )
