@@ -1,5 +1,5 @@
 import { Globe, ImagePlus, Mail, Phone, Plus, X } from 'lucide-react'
-import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { type FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { BuscadorZonaUnica, BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
 import { IconoCategoria } from '../components/directorio/IconoCategoria'
@@ -195,15 +195,27 @@ export function AreaProfesional() {
 
 function ChipsOficios({ oficios }: { oficios: Profesional['oficios'] }) {
   const contenedorRef = useRef<HTMLDivElement>(null)
-  const [hayOcultos, setHayOcultos] = useState(false)
+  const [alturaVisible, setAlturaVisible] = useState<number>()
   const [verTodos, setVerTodos] = useState(false)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const contenedor = contenedorRef.current
     if (!contenedor) return
 
     function medir() {
-      setHayOcultos(contenedor!.scrollHeight > contenedor!.clientHeight + 1)
+      const hijos = Array.from(contenedor!.children) as HTMLElement[]
+      if (hijos.length === 0) return
+      const contenedorTop = contenedor!.getBoundingClientRect().top
+      const filasVistas: number[] = []
+      for (const hijo of hijos) {
+        const top = Math.round(hijo.getBoundingClientRect().top - contenedorTop)
+        if (!filasVistas.includes(top)) filasVistas.push(top)
+        if (filasVistas.length > 2) {
+          setAlturaVisible(top)
+          return
+        }
+      }
+      setAlturaVisible(undefined)
     }
 
     medir()
@@ -214,9 +226,15 @@ function ChipsOficios({ oficios }: { oficios: Profesional['oficios'] }) {
 
   if (oficios.length === 0) return null
 
+  const hayOcultos = alturaVisible !== undefined
+
   return (
     <>
-      <div ref={contenedorRef} className="mt-4 flex max-h-[64px] flex-wrap gap-1.5 overflow-hidden">
+      <div
+        ref={contenedorRef}
+        className="mt-4 flex flex-wrap gap-1.5 overflow-hidden"
+        style={{ maxHeight: alturaVisible }}
+      >
         {oficios.map((oficio) => (
           <span
             key={oficio.id}
