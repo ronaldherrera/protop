@@ -8,6 +8,7 @@ export type Solicitud = {
   categoriaId: string
   categoriaNombre: string
   categoriaSlug: string
+  categoriaIconoUrl: string | null
   zonaId: string
   zonaNombre: string
   zonaSlug: string
