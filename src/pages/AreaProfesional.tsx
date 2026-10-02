@@ -1,4 +1,4 @@
-import { Globe, ImagePlus, Mail, Phone, Plus, X } from 'lucide-react'
+import { Briefcase, FileText, Globe, ImagePlus, Mail, MapPin, Pencil, Phone, Plus, User, X } from 'lucide-react'
 import { type FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { BuscadorZonaUnica, BuscadorZonasChips } from '../components/directorio/BuscadorZonas'
@@ -1068,6 +1068,7 @@ type PropsGestion = {
 
 function TarjetaEditable({
   titulo,
+  icono: Icono,
   editando,
   onEditar,
   onCancelar,
@@ -1079,6 +1080,7 @@ function TarjetaEditable({
   siempreVisible = false,
 }: {
   titulo: string
+  icono: React.ComponentType<{ className?: string }>
   editando: boolean
   onEditar: () => void
   onCancelar: () => void
@@ -1093,18 +1095,28 @@ function TarjetaEditable({
   const mostrarFormulario = siempreVisible || editando
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="font-semibold text-neutral-900">{titulo}</h3>
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50">
+            <Icono className="h-4 w-4 text-brand-600" aria-hidden="true" />
+          </span>
+          <h3 className="font-semibold text-neutral-900">{titulo}</h3>
+        </div>
         {!siempreVisible && !editando && (
-          <button type="button" onClick={onEditar} className="text-sm font-medium text-brand-700 hover:underline">
+          <button
+            type="button"
+            onClick={onEditar}
+            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
+          >
+            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
             Editar
           </button>
         )}
       </div>
 
       {mostrarFormulario ? (
-        <div className="mt-3 flex flex-col gap-3">
+        <div className="mt-4 flex flex-col gap-3 border-t border-neutral-100 pt-4">
           {children}
           <div className="flex items-center gap-2">
             <Button type="button" tamano="md" onClick={onGuardar} disabled={guardando}>
@@ -1117,7 +1129,7 @@ function TarjetaEditable({
           </div>
         </div>
       ) : (
-        <div className="mt-2 text-sm text-neutral-600">{resumen}</div>
+        <div className="mt-3 pl-[42px] text-sm text-neutral-600">{resumen}</div>
       )}
     </div>
   )
@@ -1274,8 +1286,8 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
   }
 
   const contactoTexto = [contacto.telefono, contacto.whatsapp, contacto.email, contacto.web].filter(Boolean).join(' · ')
-  const oficiosSeleccionados = categorias.filter((c) => categoriaIds.includes(c.id)).map((c) => c.nombre)
-  const zonasSeleccionadas = zonas.filter((z) => zonaIds.includes(z.id)).map((z) => z.nombre)
+  const oficiosSeleccionados = categorias.filter((c) => categoriaIds.includes(c.id))
+  const zonasSeleccionadas = zonas.filter((z) => zonaIds.includes(z.id))
 
   return (
     <div className="mt-6 flex flex-col gap-4">
@@ -1283,6 +1295,7 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
 
       <TarjetaEditable
         titulo="Datos básicos"
+        icono={User}
         editando={tarjetaEditando === 'basicos'}
         onEditar={() => abrirTarjeta('basicos')}
         onCancelar={cancelarBasicos}
@@ -1335,6 +1348,7 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
 
       <TarjetaEditable
         titulo="Oficios"
+        icono={Briefcase}
         editando={tarjetaEditando === 'oficios'}
         onEditar={() => abrirTarjeta('oficios')}
         onCancelar={cancelarOficios}
@@ -1342,7 +1356,21 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
         guardando={guardar.isPending}
         resumen={
           <>
-            <p>{oficiosSeleccionados.join(', ') || 'Sin oficios todavía'}</p>
+            {oficiosSeleccionados.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {oficiosSeleccionados.map((c) => (
+                  <span
+                    key={c.id}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700"
+                  >
+                    <IconoCategoria iconoUrl={c.iconoUrl} nombre={c.nombre} className="h-3.5 w-3.5" />
+                    {c.nombre}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p>Sin oficios todavía</p>
+            )}
             {guardadoOk === 'oficios' && <p className="mt-1 text-success-500">Guardado.</p>}
           </>
         }
@@ -1355,6 +1383,7 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
 
       <TarjetaEditable
         titulo="Zonas donde trabajas"
+        icono={MapPin}
         editando={tarjetaEditando === 'zonas'}
         onEditar={() => abrirTarjeta('zonas')}
         onCancelar={cancelarZonas}
@@ -1362,7 +1391,20 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
         guardando={guardar.isPending}
         resumen={
           <>
-            <p>{zonasSeleccionadas.join(', ') || 'Sin zonas todavía'}</p>
+            {zonasSeleccionadas.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {zonasSeleccionadas.map((z) => (
+                  <span
+                    key={z.id}
+                    className="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700"
+                  >
+                    {z.nombre}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p>Sin zonas todavía</p>
+            )}
             {guardadoOk === 'zonas' && <p className="mt-1 text-success-500">Guardado.</p>}
           </>
         }
@@ -1373,6 +1415,7 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
 
       <TarjetaEditable
         titulo="Contacto"
+        icono={Phone}
         editando={tarjetaEditando === 'contacto'}
         onEditar={() => abrirTarjeta('contacto')}
         onCancelar={cancelarContacto}
@@ -1420,6 +1463,7 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
 
       <TarjetaEditable
         titulo="Especialidades y presentación"
+        icono={FileText}
         editando={tarjetaEditando === 'especialidades'}
         onEditar={() => abrirTarjeta('especialidades')}
         onCancelar={cancelarEspecialidades}
@@ -1507,6 +1551,7 @@ function GestionarPerfil({ userId, familias, categorias, zonas, profesional }: P
 
       <TarjetaEditable
         titulo="Fotos"
+        icono={ImagePlus}
         siempreVisible
         editando={tarjetaEditando === 'fotos'}
         onEditar={() => abrirTarjeta('fotos')}
