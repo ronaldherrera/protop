@@ -34,11 +34,14 @@ npm run preview    # sirve el build de producción en local
 
 El esquema vive como migraciones SQL en `supabase/migrations/`, versionadas en el repo. Para aplicar cambios:
 
+Protop tiene su propia cuenta de Supabase (proyecto `uofnwnxpxsicotsxqgfu`, región eu-north-1), separada del resto de proyectos.
+
 ```bash
-supabase login                                              # una vez por máquina
-supabase link --project-ref bydlbfsssfpcdaqprqgl            # vincula esta carpeta al proyecto
+supabase link --project-ref uofnwnxpxsicotsxqgfu            # vincula esta carpeta al proyecto
 supabase db push                                             # aplica las migraciones pendientes
 ```
+
+La CLI debe autenticarse con la cuenta de Protop: un `SUPABASE_ACCESS_TOKEN` de esa cuenta o `supabase login` con ella.
 
 Tras cambiar el esquema, regenera los tipos TypeScript:
 
