@@ -16,7 +16,7 @@
 
 **Stack:** React 19 · TypeScript · Vite · Supabase (Postgres, RLS, Auth, Storage, Edge Functions) · GitHub Actions → Hostinger
 
-Diseñado y desarrollado por **Ronald Herrera** · [ronaldherrera.es](https://ronaldherrera.es) · [LinkedIn](https://linkedin.com/in/ronald-herrera)
+Diseñado y desarrollado por **Ronald Herrera** · [ronaldherrera.es](https://ronaldherrera.es) · [LinkedIn](https://linkedin.com/in/ronald-sc-herrera)
 
 ---
 
