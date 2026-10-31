@@ -1,8 +1,24 @@
 # Protop
 
-Directorio digital de profesionales de reformas, construcción y servicios para el hogar. Lanzamiento inicial en Santander y alrededores.
+**El tablón de anuncios de los profesionales de reformas, en digital.** Un directorio de profesionales y empresas de reformas, construcción y servicios para el hogar de toda España, con fichas de cada profesional, solicitudes de presupuesto y valoraciones respaldadas por factura.
 
-Estado actual: **Fase 5 — solicitudes de presupuestos, propuestas y comparación**, con el pago todavía sin activar (Fase 6). Además, el perfil de profesional incorpora un portfolio de trabajos publicados, independiente del sistema oficial de valoraciones. Identidad de marca real (logo, colores, tipografía) y directorio de oficios en dos niveles (familias → categorías), con iconos propios en cada nivel.
+🌐 **[protop.es](https://protop.es)**
+
+<!-- Añadir aquí 2–3 capturas: buscador, ficha de profesional y comparador de propuestas -->
+<!-- ![Protop](docs/capturas/directorio.png) -->
+
+| | |
+| --- | --- |
+| **1.219 fichas en toda España** | Generadas a partir de datos abiertos de OpenStreetMap y revisadas desde un panel de administración. |
+| **~1.600 páginas prerenderizadas** | Una página por oficio y localidad (`/electricistas/madrid`) para posicionar en Google desde una SPA estática. |
+| **Valoraciones que no se pueden inventar** | Cada valoración necesita una factura. Las facturas se guardan en un bucket privado al que solo acceden los administradores, con URLs firmadas de 5 minutos. Un trigger recalcula la reputación cuando se aprueba una valoración. |
+| **Flujo completo de presupuestos** | Solicitud → propuestas de los profesionales que coinciden en oficio y zona → comparación. Las reglas de visibilidad se aplican en la base de datos con RLS, no solo en la interfaz. |
+
+**Stack:** React 19 · TypeScript · Vite · Supabase (Postgres, RLS, Auth, Storage, Edge Functions) · GitHub Actions → Hostinger
+
+Diseñado y desarrollado por **Ronald Herrera** · [ronaldherrera.es](https://ronaldherrera.es) · [LinkedIn](https://linkedin.com/in/ronald-herrera)
+
+---
 
 ## Stack y por qué
 
