@@ -1,11 +1,23 @@
-# Protop es una SPA: las rutas de React Router deben resolver siempre a index.html.
+# Protop es una SPA: las rutas de React Router deben resolver siempre a index.html, salvo las páginas públicas
+# que el build genera también en HTML estático (scripts/prerender.mjs) para que Google lea su contenido.
+
+# /blog es a la vez blog.html y la carpeta blog/: sin esto Apache redirigiría a /blog/.
+DirectorySlash Off
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
 
-  # No reescribir archivos ni carpetas que existan de verdad (assets, favicon, etc.)
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
+  # Portada y páginas con HTML estático: /blog -> blog.html, /blog/x -> blog/x.html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{DOCUMENT_ROOT}/inicio.html -f
+  RewriteRule ^$ inicio.html [L]
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.+)$ $1.html [L]
+
+  # No reescribir archivos que existan de verdad (assets, favicon, etc.). Las carpetas no: /profesionales es a la vez
+  # una ruta de la SPA y la carpeta con el HTML estático de las fichas.
+  RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^ - [L]
 
   RewriteRule ^ index.html [L]

@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist-servidor
 *.local
 supabase/.temp
 
@@ -27,3 +28,6 @@ Thumbs.db
 
 # Claude Code local session files
 .claude/
+
+# Índice de oficios por lugar: lo genera el build (scripts/generar-indice-oficios.mjs)
+public/datos/

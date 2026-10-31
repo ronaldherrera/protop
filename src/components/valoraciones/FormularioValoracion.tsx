@@ -139,7 +139,7 @@ export function FormularioValoracion({
             onChange={(e) => setFactura(e.target.files?.[0] ?? null)}
           />
           <span className="mt-1 block text-xs text-neutral-500">
-            Se almacena de forma privada. Nunca aparece en tu ficha pública.
+            Se almacena de forma privada y solo la ve administración para revisarla. Nunca aparece en público.
           </span>
         </label>
 

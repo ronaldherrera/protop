@@ -59,7 +59,7 @@ export function CuandoLlamarAUnElectricista() {
       <P>
         Para una avería puntual, lo razonable es pedir un diagnóstico y comparar cómo lo resuelve cada profesional,
         no solo el precio final. En Protop puedes describir el problema una vez y recibir propuestas de varios{' '}
-        <Link to="/profesionales?categoria=electricidad" className="font-medium text-brand-700 hover:underline">
+        <Link to="/electricistas" className="font-medium text-brand-700 hover:underline">
           electricistas de tu zona
         </Link>
         , con su reputación basada en trabajos reales valorados con factura, para elegir con algo más que una

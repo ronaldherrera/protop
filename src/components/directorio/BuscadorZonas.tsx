@@ -1,9 +1,15 @@
-import { Search, X } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { LoaderCircle, LocateFixed, Search, X } from 'lucide-react'
+import { type KeyboardEvent, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { ErrorUbicacion, zonaDeMiUbicacion } from '../../features/directorio/ubicacion'
 import type { Zona } from '../../types/profesional'
 import { cn } from '../../lib/cn'
 
 const LIMITE_RESULTADOS = 30
+const COMUNIDAD_LANZAMIENTO = 'cantabria'
+
+function esDeLaZonaDeLanzamiento(zona: Zona): boolean {
+  return zona.slug === COMUNIDAD_LANZAMIENTO || zona.comunidadSlug === COMUNIDAD_LANZAMIENTO
+}
 
 function normalizar(texto: string): string {
   return texto
@@ -21,6 +27,10 @@ function buscarZonas(zonas: Zona[], texto: string, excluirIds: Set<string>): Zon
       const aEmpieza = normalizar(a.nombre).startsWith(consulta)
       const bEmpieza = normalizar(b.nombre).startsWith(consulta)
       if (aEmpieza !== bEmpieza) return aEmpieza ? -1 : 1
+      // Protop arranca en Santander: los lugares de Cantabria van delante del resto de España.
+      const aCerca = esDeLaZonaDeLanzamiento(a)
+      const bCerca = esDeLaZonaDeLanzamiento(b)
+      if (aCerca !== bCerca) return aCerca ? -1 : 1
       return a.nombre.localeCompare(b.nombre, 'es')
     })
     .slice(0, LIMITE_RESULTADOS)
@@ -51,36 +61,49 @@ function useZonasPorSlug(zonas: Zona[]) {
 }
 
 function PanelResultados({
+  id,
   resultados,
   zonasPorSlug,
+  activo = -1,
   onSeleccionar,
 }: {
+  id?: string
   resultados: Zona[]
   zonasPorSlug: Map<string, Zona>
+  activo?: number
   onSeleccionar: (zona: Zona) => void
 }) {
   if (resultados.length === 0) {
     return (
-      <div className="absolute z-10 mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-500 shadow-lg">
+      <div className="absolute z-20 mt-1 w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-500 shadow-lg">
         Sin resultados
       </div>
     )
   }
   return (
     <ul
+      id={id}
       role="listbox"
-      className="absolute z-10 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 shadow-lg"
+      className="absolute z-20 mt-1 max-h-72 w-full min-w-[16rem] overflow-y-auto rounded-xl border border-neutral-200 bg-white py-1 shadow-lg"
     >
-      {resultados.map((zona) => (
-        <li key={zona.id} role="option" aria-selected={false}>
-          <button
-            type="button"
-            onClick={() => onSeleccionar(zona)}
-            className="flex w-full items-center px-3 py-2 text-left text-sm text-neutral-700 hover:bg-brand-50 hover:text-brand-700"
-          >
-            <EtiquetaZona zona={zona} />
-            <ContextoZona zona={zona} zonasPorSlug={zonasPorSlug} />
-          </button>
+      {resultados.map((zona, indice) => (
+        <li
+          key={zona.id}
+          id={id ? `${id}-${indice}` : undefined}
+          role="option"
+          aria-selected={indice === activo}
+          // mousedown y no click: así el input no pierde el foco antes de elegir.
+          onMouseDown={(evento) => {
+            evento.preventDefault()
+            onSeleccionar(zona)
+          }}
+          className={cn(
+            'flex w-full cursor-pointer items-center px-3 py-2 text-left text-sm text-neutral-700 hover:bg-brand-50 hover:text-brand-800',
+            indice === activo && 'bg-brand-50 text-brand-800',
+          )}
+        >
+          <EtiquetaZona zona={zona} />
+          <ContextoZona zona={zona} zonasPorSlug={zonasPorSlug} />
         </li>
       ))}
     </ul>
@@ -93,6 +116,7 @@ type PropsUnica = {
   onChange: (valor: string) => void
   campoValor?: 'slug' | 'id'
   placeholder?: string
+  etiqueta?: string
 }
 
 /** Buscador de un único lugar (filtros de Home/Directorio, o la zona de una solicitud). */
@@ -102,10 +126,13 @@ export function BuscadorZonaUnica({
   onChange,
   campoValor = 'slug',
   placeholder = 'Busca una comunidad o una ciudad…',
+  etiqueta,
 }: PropsUnica) {
   const [texto, setTexto] = useState('')
   const [abierto, setAbierto] = useState(false)
+  const [activo, setActivo] = useState(-1)
   const contenedorRef = useRef<HTMLDivElement>(null)
+  const idLista = useId()
   const zonasPorSlug = useZonasPorSlug(zonas)
   const zonasPorValor = useMemo(
     () => new Map(zonas.map((z) => [campoValor === 'id' ? z.id : z.slug, z])),
@@ -122,25 +149,106 @@ export function BuscadorZonaUnica({
   }, [])
 
   const resultados = useMemo(() => buscarZonas(zonas, texto, new Set()), [zonas, texto])
+  const panelVisible = abierto && Boolean(texto.trim())
+
+  const [localizando, setLocalizando] = useState(false)
+  const [avisoUbicacion, setAvisoUbicacion] = useState('')
+
+  async function usarMiUbicacion() {
+    setLocalizando(true)
+    setAvisoUbicacion('')
+    try {
+      const { zona, soloComunidad } = await zonaDeMiUbicacion(zonas)
+      seleccionar(zona)
+      if (soloComunidad) setAvisoUbicacion(`No hemos reconocido tu municipio: buscamos en ${zona.nombre}.`)
+    } catch (error) {
+      setAvisoUbicacion(
+        error instanceof ErrorUbicacion ? error.message : 'No hemos podido saber tu localidad. Escríbela.',
+      )
+    } finally {
+      setLocalizando(false)
+    }
+  }
+
+  const aviso = avisoUbicacion && (
+    <p className="mt-1.5 text-sm text-neutral-600" role="status">
+      {avisoUbicacion}
+    </p>
+  )
+
+  function seleccionar(zona: Zona) {
+    onChange(campoValor === 'id' ? zona.id : zona.slug)
+    setTexto('')
+    setAbierto(false)
+    setActivo(-1)
+  }
+
+  function alPulsarTecla(evento: KeyboardEvent<HTMLInputElement>) {
+    if (evento.key === 'ArrowDown' && resultados.length > 0) {
+      evento.preventDefault()
+      setAbierto(true)
+      setActivo((actual) => Math.min(actual + 1, resultados.length - 1))
+    } else if (evento.key === 'ArrowUp' && resultados.length > 0) {
+      evento.preventDefault()
+      setActivo((actual) => Math.max(actual - 1, 0))
+    } else if (evento.key === 'Enter' && panelVisible && resultados.length > 0) {
+      evento.preventDefault()
+      seleccionar(resultados[Math.max(activo, 0)])
+    } else if (evento.key === 'Escape') {
+      setAbierto(false)
+      setActivo(-1)
+    }
+  }
+
+  const campo = (
+    <input
+      type="text"
+      role="combobox"
+      aria-label={etiqueta}
+      aria-expanded={panelVisible}
+      aria-controls={idLista}
+      aria-autocomplete="list"
+      aria-activedescendant={panelVisible && activo >= 0 ? `${idLista}-${activo}` : undefined}
+      autoComplete="off"
+      value={texto}
+      onChange={(e) => {
+        setTexto(e.target.value)
+        setAbierto(true)
+        setActivo(-1)
+      }}
+      onFocus={() => setAbierto(true)}
+      onKeyDown={alPulsarTecla}
+      placeholder={placeholder}
+      className="h-11 w-full rounded-[10px] border border-neutral-300 bg-white pl-9 pr-11 text-neutral-900 placeholder:text-neutral-400"
+    />
+  )
+
+  const panel = panelVisible && (
+    <PanelResultados id={idLista} resultados={resultados} zonasPorSlug={zonasPorSlug} activo={activo} onSeleccionar={seleccionar} />
+  )
 
   if (zonaSeleccionada) {
     return (
-      <div className="flex items-center justify-between gap-2 rounded-lg border border-brand-600 bg-brand-50 px-3 py-2 text-sm text-brand-700">
-        <span className="flex items-center">
-          <EtiquetaZona zona={zonaSeleccionada} />
-          <ContextoZona zona={zonaSeleccionada} zonasPorSlug={zonasPorSlug} />
-        </span>
-        <button
-          type="button"
-          onClick={() => {
-            onChange('')
-            setTexto('')
-          }}
-          aria-label="Quitar lugar"
-          className="rounded-full p-0.5 hover:bg-brand-100"
-        >
-          <X className="h-4 w-4" />
-        </button>
+      <div>
+        <div className="flex min-h-11 items-center justify-between gap-2 rounded-[10px] border border-brand-600 bg-brand-50 px-3 py-2 text-sm text-brand-800">
+          <span className="flex items-center">
+            <EtiquetaZona zona={zonaSeleccionada} />
+            <ContextoZona zona={zonaSeleccionada} zonasPorSlug={zonasPorSlug} />
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              onChange('')
+              setTexto('')
+              setAvisoUbicacion('')
+            }}
+            aria-label={`Quitar ${zonaSeleccionada.nombre}`}
+            className="shrink-0 rounded-full p-0.5 hover:bg-brand-100"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        {aviso}
       </div>
     )
   }
@@ -149,32 +257,28 @@ export function BuscadorZonaUnica({
     <div ref={contenedorRef} className="relative">
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-        <input
-          type="text"
-          value={texto}
-          onChange={(e) => {
-            setTexto(e.target.value)
-            setAbierto(true)
-          }}
-          onFocus={() => setAbierto(true)}
-          placeholder={placeholder}
-          className="w-full rounded-lg border border-neutral-300 bg-white py-2 pl-9 pr-3 text-neutral-900"
-        />
+        {campo}
+        <button
+          type="button"
+          onClick={usarMiUbicacion}
+          disabled={localizando || zonas.length === 0}
+          title="Usar mi ubicación"
+          aria-label="Usar mi ubicación"
+          className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-brand-700 hover:bg-brand-50 disabled:text-neutral-300"
+        >
+          {localizando ? (
+            <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <LocateFixed className="h-4 w-4" aria-hidden="true" />
+          )}
+        </button>
       </div>
-      {abierto && texto.trim() && (
-        <PanelResultados
-          resultados={resultados}
-          zonasPorSlug={zonasPorSlug}
-          onSeleccionar={(zona) => {
-            onChange(campoValor === 'id' ? zona.id : zona.slug)
-            setTexto('')
-            setAbierto(false)
-          }}
-        />
-      )}
+      {panel}
+      {aviso}
     </div>
   )
 }
+
 
 type PropsMultiple = {
   zonas: Zona[]
@@ -246,7 +350,7 @@ export function BuscadorZonasChips({ zonas, valores, onChange, placeholder = 'Bu
             }}
             onFocus={() => setAbierto(true)}
             placeholder={placeholder}
-            className="w-full rounded-lg border border-neutral-300 bg-white py-2 pl-9 pr-3 text-neutral-900"
+            className="h-11 w-full rounded-md border border-neutral-300 bg-white pl-9 pr-3 text-neutral-900"
           />
         </div>
         {abierto && texto.trim() && (

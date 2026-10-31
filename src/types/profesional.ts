@@ -115,6 +115,11 @@ export type Profesional = {
   trabajosValorados: number
   desglosePorConcepto: DesgloseValoracion
   distintivos: Distintivo[]
-  patrocinado: boolean
+  /** Oficios (slugs) en los que tiene el Plan Destacado activo: solo ahí sale como «Patrocinado». */
+  destacadoEn: string[]
   esDemo: boolean
+  /** Ficha creada por Protop con datos públicos que el negocio todavía no ha reclamado. */
+  sinReclamar: boolean
+  /** Ficha creada con datos de OpenStreetMap: la licencia (ODbL) obliga a citarlo. */
+  datosDeOpenStreetMap?: boolean
 }

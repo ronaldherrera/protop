@@ -23,14 +23,24 @@ jobs:
 
       - name: Compilar
         run: npm run build
+        env:
+          # Publicidad (opcional): variables del repositorio en Settings → Secrets and variables → Actions → Variables.
+          VITE_ADSENSE_CLIENT: ${{ vars.VITE_ADSENSE_CLIENT }}
+          VITE_ADSENSE_SLOT: ${{ vars.VITE_ADSENSE_SLOT }}
+          VITE_ADSENSE_CMP: ${{ vars.VITE_ADSENSE_CMP }}
 
-      - name: Subir a Hostinger por FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          protocol: ftps
-          local-dir: dist/
-          server-dir: ${{ secrets.FTP_SERVER_DIR || './' }}
+      # rsync por SSH, igual que Tankily y eSolar: el FTP de Hostinger corta la conexión desde GitHub (timeout) y,
+      # con ~1.600 páginas estáticas, sería lentísimo. Una sola conexión y sube solo lo que cambia.
+      # Sin --delete de momento: no se borra nada de lo que ya hay en el servidor.
+      - name: Subir a Hostinger por rsync (SSH)
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          DESTINO: ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_RUTA }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          rsync -rlz --checksum --exclude '.well-known/' \
+            -e "ssh -i ~/.ssh/deploy -p ${{ secrets.SSH_PORT }}" \
+            ./dist/ "$DESTINO"

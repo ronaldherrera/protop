@@ -5,7 +5,7 @@ export function Logo({ className, invertido = false }: { className?: string; inv
     <img
       src={invertido ? '/iconos/logotipo-negativo.svg' : '/iconos/logotipo.svg'}
       alt="Protop"
-      className={cn('h-7 w-auto', className)}
+      className={cn('h-8 w-auto', className)}
     />
   )
 }

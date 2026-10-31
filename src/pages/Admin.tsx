@@ -1,11 +1,16 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { type ReactNode, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { EmptyState } from '../components/estado/EmptyState'
 import { ErrorState } from '../components/estado/ErrorState'
 import { LoadingState } from '../components/estado/LoadingState'
+import { CrearFichaSinReclamar } from '../components/admin/CrearFichaSinReclamar'
+import { NegociosPorRevisar } from '../components/admin/NegociosPorRevisar'
+import { PeticionesBaja, ReclamacionesPendientes } from '../components/admin/GestionFichasSinReclamar'
+import { PreciosDestacado } from '../components/admin/PreciosDestacado'
+import { ListaDestacadoAdmin } from '../components/admin/ListaDestacadoAdmin'
+import { seccionAdmin } from '../features/admin/secciones'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
-import { useAbrirSolicitudManualmente, useSolicitudesPendientesPago } from '../features/solicitudes/queries'
 import { useRevisarValoracion, useValoracionesParaRevision } from '../features/valoraciones/queries'
 import type { ValoracionParaRevision } from '../features/valoraciones/types'
 import { obtenerUrlFirmadaFactura } from '../lib/storage'
@@ -13,72 +18,77 @@ import { CONCEPTOS_VALORACION } from '../types/profesional'
 
 export function Admin() {
   const valoraciones = useValoracionesParaRevision()
+  const { hash } = useLocation()
+
+  // Los accesos de la burbuja llevan a /admin#seccion: se baja hasta ella al llegar.
+  useEffect(() => {
+    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [hash])
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
       <h1 className="text-2xl font-bold text-neutral-900">Administración</h1>
 
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold text-neutral-900">Solicitudes pendientes de pago</h2>
-        <p className="mt-1 text-sm text-neutral-600">
-          El cobro real todavía no está activado (Fase 6). Ábrelas manualmente para que las vean los profesionales.
-        </p>
-        <SolicitudesPendientesPago />
-      </section>
-
-      <section className="mt-10">
-        <h2 className="text-lg font-semibold text-neutral-900">Revisión de valoraciones</h2>
+      <Seccion id="valoraciones">
         <p className="mt-1 text-sm text-neutral-600">
           Solo cuentan para la puntuación del profesional las valoraciones aprobadas. Revisa la factura antes de
           decidir.
         </p>
         <ValoracionesRevision valoraciones={valoraciones} />
-      </section>
+      </Seccion>
+
+      <Seccion id="reclamaciones">
+        <p className="mt-1 text-sm text-neutral-600">
+          Si el email de la cuenta coincide con el de la ficha, se aprueban solas. Aquí llegan las demás.
+        </p>
+        <ReclamacionesPendientes />
+      </Seccion>
+
+      <Seccion id="bajas">
+        <PeticionesBaja />
+      </Seccion>
+
+      <Seccion id="negocios-por-revisar">
+        <p className="mt-1 text-sm text-neutral-600">
+          Negocios con datos públicos que necesitan un vistazo antes de publicarse: puede que sean solo tienda, que no
+          hagan el trabajo en casa o que estén cerrados.
+        </p>
+        <NegociosPorRevisar />
+      </Seccion>
+
+      <Seccion id="alta-negocio">
+        <p className="mt-1 text-sm text-neutral-600">
+          Crea la ficha de un negocio que aún no está en Protop con sus datos públicos. Saldrá marcada como «creada por
+          Protop» y el negocio podrá reclamarla o pedir que la borremos.
+        </p>
+        <CrearFichaSinReclamar />
+      </Seccion>
+
+      <Seccion id="destacado">
+        <p className="mt-1 text-sm text-neutral-600">
+          Precio mensual por oficio para aparecer como «Patrocinado» en sus búsquedas. Un oficio sin precio, o sin
+          marcar «Se puede contratar», no se ofrece a los profesionales.
+        </p>
+        <PreciosDestacado />
+      </Seccion>
+
+      <Seccion id="lista-destacado">
+        <p className="mt-1 text-sm text-neutral-600">
+          Profesionales que quieren el Plan Destacado. Escríbeles cuando se pueda contratar.
+        </p>
+        <ListaDestacadoAdmin />
+      </Seccion>
     </div>
   )
 }
 
-function SolicitudesPendientesPago() {
-  const solicitudes = useSolicitudesPendientesPago()
-  const abrir = useAbrirSolicitudManualmente()
-
-  if (solicitudes.isLoading) {
-    return <LoadingState etiqueta="Cargando…" />
-  }
-
-  if (solicitudes.isError) {
-    return <ErrorState descripcion="No hemos podido cargar las solicitudes pendientes de pago." />
-  }
-
-  if (!solicitudes.data || solicitudes.data.length === 0) {
-    return (
-      <div className="mt-3">
-        <EmptyState titulo="No hay solicitudes pendientes de pago" />
-      </div>
-    )
-  }
-
+// Cada sección toma su título de SECCIONES_ADMIN, el mismo que muestra la burbuja.
+function Seccion({ id, children }: { id: string; children: ReactNode }) {
   return (
-    <ul className="mt-3 flex flex-col gap-2">
-      {solicitudes.data.map((s) => (
-        <li
-          key={s.id}
-          className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 px-4 py-3"
-        >
-          <div>
-            <Link to={`/solicitudes/${s.id}`} className="text-sm font-medium text-brand-700 hover:underline">
-              {s.titulo}
-            </Link>
-            <p className="text-xs text-neutral-500">
-              {s.categoriaNombre} · {s.zonaNombre}
-            </p>
-          </div>
-          <Button type="button" onClick={() => abrir.mutate(s.id)} disabled={abrir.isPending}>
-            Marcar como pagada y abrir
-          </Button>
-        </li>
-      ))}
-    </ul>
+    <section id={id} className="mt-10 scroll-mt-24 first-of-type:mt-8">
+      <h2 className="text-lg font-semibold text-neutral-900">{seccionAdmin(id).etiqueta}</h2>
+      {children}
+    </section>
   )
 }
 

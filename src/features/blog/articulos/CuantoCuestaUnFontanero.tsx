@@ -80,7 +80,7 @@ export function CuantoCuestaUnFontanero() {
       <P>
         La forma más sencilla de no pagar de más es no depender de un único presupuesto. En Protop describes el
         trabajo una vez —con fotos si hace falta— y varios{' '}
-        <Link to="/profesionales?categoria=fontaneria" className="font-medium text-brand-700 hover:underline">
+        <Link to="/fontaneros" className="font-medium text-brand-700 hover:underline">
           fontaneros de tu zona
         </Link>{' '}
         te envían su propuesta, para que puedas comparar precio, plazo y alcance antes de decidir. Y como las

@@ -74,7 +74,7 @@ export function ComoOrganizarUnaReformaIntegral() {
           describir tu reforma una vez
         </Link>{' '}
         y recibir propuestas de varios profesionales, o consultar directamente el directorio de{' '}
-        <Link to="/profesionales?categoria=albanileria" className="font-medium text-brand-700 hover:underline">
+        <Link to="/albaniles" className="font-medium text-brand-700 hover:underline">
           albañiles y reformas integrales de tu zona
         </Link>{' '}
         si ya sabes con quién quieres empezar a hablar.

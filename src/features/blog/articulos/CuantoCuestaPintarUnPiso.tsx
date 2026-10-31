@@ -68,7 +68,7 @@ export function CuantoCuestaPintarUnPiso() {
         La forma más fiable de comparar dos presupuestos de pintura no es mirar solo el total, sino comprobar que
         ambos incluyen lo mismo: misma superficie, mismo número de manos y los mismos detalles (marcos, puertas,
         radiadores). En Protop puedes describir tu vivienda una vez y pedir presupuesto a varios{' '}
-        <Link to="/profesionales?categoria=pintura-decoracion" className="font-medium text-brand-700 hover:underline">
+        <Link to="/pintores" className="font-medium text-brand-700 hover:underline">
           pintores de tu zona
         </Link>{' '}
         para comparar propuestas reales, alcance a alcance, antes de decidir.

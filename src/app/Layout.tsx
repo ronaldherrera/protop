@@ -1,5 +1,7 @@
 import { Outlet } from 'react-router-dom'
+import { BurbujaAdmin } from '../components/admin/BurbujaAdmin'
 import { Footer } from '../components/layout/Footer'
+import { AvisoCookies } from '../components/layout/AvisoCookies'
 import { Header } from '../components/layout/Header'
 
 export function Layout() {
@@ -10,6 +12,8 @@ export function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <AvisoCookies />
+      <BurbujaAdmin />
     </div>
   )
 }

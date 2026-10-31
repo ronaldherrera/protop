@@ -71,7 +71,7 @@ export function AireAcondicionadoOBombaDeCalor() {
       <P>
         Como es una decisión que dura muchos años, conviene no quedarse con la primera propuesta. Describe tu
         vivienda y lo que buscas una vez en Protop y recibe propuestas de varios{' '}
-        <Link to="/profesionales?categoria=climatizacion" className="font-medium text-brand-700 hover:underline">
+        <Link to="/aire-acondicionado" className="font-medium text-brand-700 hover:underline">
           técnicos de climatización de tu zona
         </Link>
         , para comparar equipo, precio y plazo antes de instalar nada.

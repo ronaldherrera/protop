@@ -1,0 +1,36 @@
+{
+  "comun": {
+    "pie": "Si no has sido tú, ignora este correo: no cambiará nada.",
+    "lema": "El tablón de profesionales de Santander y alrededores",
+    "contacto": "contacto@protop.es",
+    "reserva": "Si el botón no funciona, copia y pega este enlace en tu navegador:"
+  },
+  "confirmacion": {
+    "asunto": "Confirma tu cuenta de Protop",
+    "previa": "Un clic y ya puedes buscar profesionales, pedir presupuestos o publicar tu ficha.",
+    "titulo": "Confirma tu cuenta",
+    "texto": "Hola {{ .Data.nombre }}, solo falta un paso. Confirma tu email y ya puedes buscar profesionales de tu zona, pedir presupuestos gratis o clavar tu tarjeta en el tablón si eres profesional.",
+    "boton": "Confirmar mi cuenta"
+  },
+  "recuperacion": {
+    "asunto": "Crea una contraseña nueva para Protop",
+    "previa": "El enlace sirve una sola vez y caduca en una hora.",
+    "titulo": "Crea una contraseña nueva",
+    "texto": "Has pedido cambiar la contraseña de tu cuenta de Protop. Pulsa el botón y elige una nueva. El enlace sirve una sola vez y caduca en una hora.",
+    "boton": "Elegir contraseña nueva"
+  },
+  "enlace": {
+    "asunto": "Tu enlace para entrar en Protop",
+    "previa": "Entra en tu cuenta con un clic, sin contraseña.",
+    "titulo": "Tu enlace para entrar",
+    "texto": "Pulsa el botón para entrar en tu cuenta de Protop. El enlace sirve una sola vez y caduca en una hora.",
+    "boton": "Entrar en Protop"
+  },
+  "cambio_email": {
+    "asunto": "Confirma tu nuevo email en Protop",
+    "previa": "Confírmalo para que el cambio se complete.",
+    "titulo": "Confirma tu nuevo email",
+    "texto": "Has pedido usar {{ .NewEmail }} en tu cuenta de Protop en lugar de {{ .Email }}. Confírmalo para que el cambio se complete.",
+    "boton": "Confirmar el cambio"
+  }
+}

@@ -12,7 +12,7 @@ import { useAuth } from '../features/auth/useAuth'
 import { useMiProfesional } from '../features/directorio/queries'
 import {
   useCerrarSolicitud,
-  useEnviarAPago,
+  usePublicarSolicitud,
   useMiPropuesta,
   usePropuestasDeSolicitud,
   useSolicitud,
@@ -58,7 +58,7 @@ export function SolicitudDetalle() {
   const miProfesional = useMiProfesional()
   const propuestas = usePropuestasDeSolicitud(id)
   const miPropuesta = useMiPropuesta(id, miProfesional.data?.id)
-  const enviarAPago = useEnviarAPago()
+  const publicar = usePublicarSolicitud()
   const cerrar = useCerrarSolicitud()
 
   if (solicitud.isLoading) {
@@ -110,27 +110,19 @@ export function SolicitudDetalle() {
       {esPropietario && s.estado === 'borrador' && (
         <div className="mt-6 rounded-xl border border-neutral-200 p-4">
           <p className="text-sm text-neutral-700">
-            Esta solicitud está en borrador. Cuando esté lista, envíala para que empiece el proceso de pago y los
-            profesionales puedan verla.
+            Esta solicitud está en borrador y solo la ves tú. Cuando la publiques, la verán los profesionales de ese
+            oficio y te podrán enviar su propuesta. Es gratis.
           </p>
           <Button
             type="button"
             className="mt-3"
-            onClick={() => enviarAPago.mutate(s.id)}
-            disabled={enviarAPago.isPending}
+            onClick={() => publicar.mutate(s.id)}
+            disabled={publicar.isPending}
           >
-            Enviar solicitud
+            {publicar.isPending ? 'Publicando…' : 'Publicar solicitud'}
           </Button>
         </div>
       )}
-
-      {esPropietario && s.estado === 'pendiente_pago' && (
-        <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Tu solicitud está pendiente de pago. El pago online todavía no está activado en Protop; nuestro equipo la
-          abrirá manualmente en breve para que la vean los profesionales.
-        </div>
-      )}
-
       {esPropietario && (s.estado === 'abierta' || s.estado === 'cerrada') && (
         <div className="mt-8">
           <div className="flex items-center justify-between">

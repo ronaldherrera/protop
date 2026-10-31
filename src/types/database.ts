@@ -143,6 +143,115 @@ export type Database = {
         }
         Relationships: []
       }
+      reclamaciones_ficha: {
+        Row: {
+          created_at: string
+          email_cuenta: string
+          estado: string
+          id: string
+          mensaje: string | null
+          motivo_revision: string | null
+          profesional_id: string
+          revisada_en: string | null
+          user_id: string
+        }
+        Insert: { profesional_id: string; user_id: string; email_cuenta: string; mensaje?: string | null }
+        Update: { estado?: string; motivo_revision?: string | null; revisada_en?: string | null }
+        Relationships: []
+      }
+      interes_destacado: {
+        Row: {
+          categoria_id: string | null
+          created_at: string
+          email: string
+          id: string
+          nombre_negocio: string | null
+          user_id: string | null
+          zona: string | null
+        }
+        Insert: {
+          categoria_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          nombre_negocio?: string | null
+          user_id?: string | null
+          zona?: string | null
+        }
+        Update: {
+          categoria_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          nombre_negocio?: string | null
+          user_id?: string | null
+          zona?: string | null
+        }
+        Relationships: []
+      }
+      negocios_candidatos: {
+        Row: {
+          categoria_id: string | null
+          contacto: Json
+          created_at: string
+          descripcion_breve: string
+          direccion: string | null
+          enlace_fuente: string | null
+          estado: string
+          avisos: string | null
+          fuente_datos: string
+          id: string
+          localidad: string
+          nombre: string
+          profesional_id: string | null
+          revisado_en: string | null
+          zona_id: string | null
+        }
+        Insert: {
+          categoria_id?: string | null
+          contacto?: Json
+          descripcion_breve?: string
+          direccion?: string | null
+          enlace_fuente?: string | null
+          avisos?: string | null
+          fuente_datos: string
+          localidad?: string
+          nombre: string
+          zona_id?: string | null
+        }
+        Update: { estado?: string; revisado_en?: string | null }
+        Relationships: []
+      }
+      bajas_ficha: {
+        Row: { contacto: string; created_at: string; id: string; motivo: string | null; profesional_id: string }
+        Insert: { contacto: string; motivo?: string | null; profesional_id: string }
+        Update: { contacto?: string; motivo?: string | null }
+        Relationships: []
+      }
+      precios_destacado: {
+        Row: {
+          activo: boolean
+          categoria_id: string
+          precio_mensual_centimos: number
+          stripe_price_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          categoria_id: string
+          precio_mensual_centimos: number
+          stripe_price_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          categoria_id?: string
+          precio_mensual_centimos?: number
+          stripe_price_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       perfiles: {
         Row: {
           created_at: string
@@ -232,6 +341,9 @@ export type Database = {
       }
       profesionales: {
         Row: {
+          creado_por_protop: boolean
+          fuente_datos: string | null
+          reclamada_en: string | null
           categoria_id: string
           contacto: Json
           created_at: string
@@ -699,6 +811,56 @@ export type Database = {
     }
     Functions: {
       es_admin_actual: { Args: never; Returns: boolean }
+      crear_ficha_sin_reclamar: {
+        Args: {
+          p_nombre_comercial: string
+          p_categoria_ids: string[]
+          p_zona_ids: string[]
+          p_localidad: string
+          p_descripcion_breve: string
+          p_contacto: Json
+          p_fuente_datos: string
+        }
+        Returns: string
+      }
+      publicar_negocio_candidato: {
+        Args: {
+          p_id: string
+          p_nombre: string
+          p_categoria_id: string
+          p_zona_id: string | null
+          p_localidad: string
+          p_descripcion_breve: string
+          p_contacto: Json
+        }
+        Returns: string
+      }
+      reclamar_ficha: { Args: { p_profesional_id: string; p_mensaje?: string }; Returns: string }
+      resolver_reclamacion: {
+        Args: { p_reclamacion_id: string; p_aprobar: boolean; p_motivo?: string }
+        Returns: undefined
+      }
+      borrar_ficha_sin_reclamar: { Args: { p_profesional_id: string }; Returns: undefined }
+      registrar_visita_ficha: {
+        Args: { p_slug: string; p_tipo?: string }
+        Returns: undefined
+      }
+      estadisticas_ficha: {
+        Args: { p_slug: string }
+        Returns: { visitas: number; contactos: number }[]
+      }
+      buscar_profesionales: {
+        Args: { p_categorias?: string[] | null; p_zona?: string | null; p_texto?: string | null }
+        Returns: Database['public']['Tables']['profesionales']['Row'][]
+      }
+      oficios_destacados: {
+        Args: never
+        Returns: { profesional_id: string; categoria_slug: string }[]
+      }
+      resumen_solicitudes_abiertas: {
+        Args: never
+        Returns: { categoria_slug: string; abiertas: number }[]
+      }
       recalcular_reputacion_profesional: {
         Args: { target_id: string }
         Returns: undefined

@@ -1,50 +1,103 @@
 @import 'tailwindcss';
-@import '@fontsource/roboto/latin-400.css';
-@import '@fontsource/roboto/latin-500.css';
-@import '@fontsource/roboto/latin-700.css';
-@import '@fontsource/montserrat/latin-700.css';
-@import '@fontsource/montserrat/latin-800.css';
+@import '@fontsource-variable/bricolage-grotesque/opsz.css';
+@import '@fontsource-variable/figtree/wght.css';
+@import '@fontsource/caveat/latin-600.css';
+@import '@fontsource/caveat/latin-700.css';
 
+/* Estilo «El vecino de confianza»: ver Protop/marca/manual-de-marca.html */
 @theme {
-  --font-sans: 'Roboto', system-ui, sans-serif;
-  --font-heading: 'Montserrat', system-ui, sans-serif;
+  --font-sans: 'Figtree Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-heading: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  /* Letra «a boli» de las notas del tablón. Solo en piezas del tablón, nunca en formularios. */
+  --font-mano: 'Caveat', 'Segoe Print', cursive;
 
-  /* Naranja Top (#D45A1B): color de marca primario (CTAs, enlaces, logo) */
-  --color-brand-50: #fceee7;
-  --color-brand-100: #f8d7c4;
-  --color-brand-200: #f0ae89;
-  --color-brand-300: #e8854e;
-  --color-brand-400: #de6c2f;
+  /* Naranja Protop (#D45A1B). Con texto blanco encima se usa brand-600 (#B84A12, «naranja texto»). */
+  --color-brand-50: #fdeee5;
+  --color-brand-100: #fbdcc9;
+  --color-brand-200: #f5b791;
+  --color-brand-300: #ec8d5b;
+  --color-brand-400: #e0702f;
   --color-brand-500: #d45a1b;
-  --color-brand-600: #b44a16;
-  --color-brand-700: #8f3b12;
-  --color-brand-800: #6b2c0d;
-  --color-brand-900: #481d09;
+  --color-brand-600: #b84a12;
+  --color-brand-700: #923a0e;
+  --color-brand-800: #6e2c0b;
+  --color-brand-900: #4a1e08;
   --color-brand-950: #2c1105;
 
-  /* Verde grisáceo (#717E76): acento secundario (patrocinado, resaltes discretos) */
-  --color-accent-50: #eef1ef;
-  --color-accent-100: #dce1de;
-  --color-accent-200: #b9c3bc;
-  --color-accent-300: #96a59b;
-  --color-accent-400: #838f82;
-  --color-accent-500: #717e76;
-  --color-accent-600: #5a6560;
-  --color-accent-700: #444c49;
-  --color-accent-800: #2d3331;
-  --color-accent-900: #171a19;
+  /* Neutros cálidos sobre blanco tiza: sustituyen a los de Tailwind en toda la aplicación. */
+  --color-neutral-50: #fbfaf8;
+  --color-neutral-100: #f4f2ee;
+  --color-neutral-200: #ebe8e3;
+  --color-neutral-300: #d6d3cd;
+  --color-neutral-400: #a3a19c;
+  --color-neutral-500: #6b6f71;
+  --color-neutral-600: #575a5c;
+  --color-neutral-700: #424547;
+  --color-neutral-800: #2e2f30;
+  --color-neutral-900: #232425;
+  --color-neutral-950: #161718;
 
-  /* Gris oscuro (#333334): texto fuerte y superficies invertidas de marca */
-  --color-ink: #333334;
-  /* Blanco roto (#F7F3EA): fondo general de la app */
-  --color-cream: #f7f3ea;
+  /* Salvia: solo lo que Protop ha comprobado (factura revisada, distintivos). Nunca anuncios. */
+  --color-accent-50: #f1f5f2;
+  --color-accent-100: #e8efea;
+  --color-accent-200: #c9d6cd;
+  --color-accent-300: #a3b6a9;
+  --color-accent-400: #7b9183;
+  --color-accent-500: #56685d;
+  --color-accent-600: #47564d;
+  --color-accent-700: #39453e;
+  --color-accent-800: #2a332d;
+  --color-accent-900: #1b211d;
 
-  --color-success-500: #2e8b57;
-  --color-success-100: #dcf3e6;
-  --color-warning-500: #b7791f;
-  --color-warning-100: #faecd2;
-  --color-danger-500: #c53030;
-  --color-danger-100: #fbdede;
+  /* Amarillo metro: detalles alegres y la etiqueta «Ejemplo». Nunca en texto ni botones. */
+  --color-metro-100: #fdf3dc;
+  --color-metro-500: #f2b23a;
+  --color-metro-800: #8a5a07;
+
+  --color-ink: #2e2f30;
+  --color-cream: #fbfaf8;
+  --color-carton: #ffffff;
+
+  --color-success-500: #3d7a52;
+  --color-success-100: #e3f1e7;
+  --color-warning-500: #8a5a07;
+  --color-warning-100: #fdf3dc;
+  --color-danger-500: #c53b30;
+  --color-danger-100: #fbe4e1;
+
+  --radius-tarjeta: 0.875rem;
+  --radius-bloque: 1.25rem;
+  --shadow-tarjeta: 0 1px 2px rgb(46 47 48 / 0.06), 0 10px 24px -14px rgb(46 47 48 / 0.28);
+  --shadow-tarjeta-alzada: 0 2px 4px rgb(46 47 48 / 0.06), 0 18px 32px -16px rgb(46 47 48 / 0.38);
+}
+
+/* Titulares de marca: Bricolage Grotesque en su tamaño óptico de cartel. */
+@utility titular {
+  font-family: var(--font-heading);
+  font-variation-settings: 'opsz' 96;
+  font-weight: 780;
+  letter-spacing: -0.025em;
+}
+
+@utility cifras {
+  font-variant-numeric: tabular-nums;
+}
+
+/* La chincheta naranja que sujeta cada tarjeta del tablón. */
+@utility chincheta {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin-left: -8px;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 35% 30%, #ffb38a, var(--color-brand-500) 55%, #9c3d0d);
+    box-shadow: 0 3px 4px rgb(0 0 0 / 0.22);
+  }
 }
 
 @layer base {
@@ -56,6 +109,7 @@
     font-family: var(--font-sans);
     background-color: var(--color-cream);
     color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
   }
 
   h1,
@@ -65,11 +119,97 @@
   h5,
   h6 {
     font-family: var(--font-heading);
-    font-weight: 800;
+    font-variation-settings: 'opsz' 72;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Los campos van siempre sobre blanco. Las utilidades (bg-transparent…) siguen ganando. */
+  input:not([type='checkbox'], [type='radio'], [type='range'], [type='file']),
+  select,
+  textarea {
+    background-color: #fff;
   }
 
   :focus-visible {
     outline: 2px solid var(--color-brand-500);
     outline-offset: 2px;
+  }
+}
+
+/* Corcho del tablón: color base + grano (ruido SVG) + poros. */
+.corcho {
+  background-color: #c8935a;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .28 0 0 0 0 .16 0 0 0 0 .06 0 0 0 1.4 -.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.018' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .27 0 0 0 0 .1 0 0 0 .9 -.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 18% 25%, rgb(255 225 180 / 0.3), transparent 55%);
+  box-shadow: inset 0 0 0 1px rgb(90 55 25 / 0.3), inset 0 4px 24px rgb(60 35 15 / 0.35);
+}
+
+/* Tiras de la papeleta: al arrancar una, cae girando. */
+@keyframes arrancar {
+  0% {
+    transform: none;
+  }
+  25% {
+    transform: translateY(6px) rotate(-6deg);
+  }
+  100% {
+    transform: translateY(140px) rotate(-28deg);
+    opacity: 0;
+  }
+}
+
+.tira-arrancada {
+  animation: arrancar 0.55s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+
+/* Único gesto propio de la marca: las tarjetas «se clavan» al aparecer el tablón. */
+@keyframes clavar {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) rotate(-1.2deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tablon-clavado > * {
+    animation: clavar 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  }
+  .tablon-clavado > :nth-child(2) {
+    animation-delay: 0.07s;
+  }
+  .tablon-clavado > :nth-child(3) {
+    animation-delay: 0.14s;
+  }
+  .tablon-clavado > :nth-child(4) {
+    animation-delay: 0.21s;
+  }
+  .tablon-clavado > :nth-child(5) {
+    animation-delay: 0.28s;
+  }
+  .tablon-clavado > :nth-child(n + 6) {
+    animation-delay: 0.35s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

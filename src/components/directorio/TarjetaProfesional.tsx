@@ -1,71 +1,110 @@
-import { MapPin } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import type { Profesional } from '../../types/profesional'
-import { Avatar } from '../ui/Avatar'
-import { Badge } from '../ui/Badge'
-import { Puntuacion } from '../ui/Puntuacion'
-import { IconoCategoria } from './IconoCategoria'
+import { MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
+import { portadaDeProfesional } from "../../features/directorio/imagen";
+import { cn } from "../../lib/cn";
+import type { Profesional } from "../../types/profesional";
+import { Avatar } from "../ui/Avatar";
+import { Badge } from "../ui/Badge";
+import { Puntuacion } from "../ui/Puntuacion";
+import { IconoCategoria } from "./IconoCategoria";
 
-export function TarjetaProfesional({ profesional }: { profesional: Profesional }) {
-  const portada = profesional.fotosTrabajos[0]
+/**
+ * Cada profesional se presenta como la tarjeta de visita que dejaría clavada en el tablón:
+ * apaisada, con el nombre comercial como protagonista y la reputación en el pie.
+ */
+export function TarjetaProfesional({
+  profesional,
+  patrocinado = false,
+}: {
+  profesional: Profesional;
+  patrocinado?: boolean;
+}) {
+  const otrosOficios = profesional.oficios.length - 1;
+  const portada = portadaDeProfesional(profesional);
+  const esLogo = portada.tipo === "logo";
 
   return (
     <Link
       to={`/profesionales/${profesional.slug}`}
-      className="flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white transition-shadow hover:shadow-md focus-visible:shadow-md"
+      className={cn(
+        "group flex min-w-0 flex-col overflow-hidden rounded-tarjeta bg-carton shadow-tarjeta transition-shadow",
+        "hover:shadow-tarjeta-alzada focus-visible:shadow-tarjeta-alzada",
+      )}
     >
-      <div className="relative aspect-[16/10] w-full shrink-0 bg-gradient-to-br from-brand-100 to-brand-200">
-        {portada ? (
-          <img src={portada} alt="" className="h-full w-full object-cover" loading="lazy" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
+      <img
+        src={portada.src}
+        alt={
+          portada.tipo === "cartel"
+            ? ""
+            : esLogo
+              ? `Logotipo de ${profesional.nombreComercial}`
+              : `Trabajo de ${profesional.nombreComercial}`
+        }
+        width={1200}
+        height={560}
+        loading="lazy"
+        className={cn(
+          "aspect-[15/7] w-full shrink-0",
+          esLogo
+            ? "border-b border-neutral-100 bg-white object-contain px-6 py-2"
+            : "object-cover",
+        )}
+      />
+      <div className="flex flex-1 flex-col p-5 pt-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="flex min-w-0 items-center gap-1.5 text-sm font-medium text-neutral-600">
             <IconoCategoria
               iconoUrl={profesional.categoriaIconoUrl}
               nombre={profesional.categoriaNombre}
-              className="h-12 w-12 opacity-50"
+              className="h-4 w-4 shrink-0"
             />
-          </div>
-        )}
-        {profesional.patrocinado && (
-          <div className="absolute left-2 top-2">
-            <Badge tono="patrocinado">Patrocinado</Badge>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="flex items-start gap-3">
-          <Avatar nombre={profesional.nombreComercial} fotoUrl={profesional.fotoPerfilUrl} />
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate font-semibold text-neutral-900">{profesional.nombreComercial}</h3>
-            <p className="flex items-center gap-1.5 text-sm text-neutral-500">
-              <IconoCategoria
-                iconoUrl={profesional.categoriaIconoUrl}
-                nombre={profesional.categoriaNombre}
-                className="h-4 w-4 shrink-0"
-              />
-              <span className="truncate">{profesional.categoriaNombre}</span>
-              {profesional.oficios.length > 1 && (
-                <span className="shrink-0 text-neutral-400">+{profesional.oficios.length - 1}</span>
-              )}
-            </p>
+            <span className="truncate">{profesional.categoriaNombre}</span>
+            {otrosOficios > 0 && (
+              <span className="shrink-0 text-neutral-400">
+                y {otrosOficios}{" "}
+                {otrosOficios === 1 ? "oficio más" : "oficios más"}
+              </span>
+            )}
+          </p>
+          <div className="flex shrink-0 gap-1.5">
+            {profesional.esDemo && <Badge tono="ejemplo">Ejemplo</Badge>}
+            {patrocinado && <Badge tono="patrocinado">Patrocinado</Badge>}
           </div>
         </div>
 
-        <p className="line-clamp-2 min-h-[2.5rem] text-sm text-neutral-600">{profesional.descripcionBreve}</p>
-
-        <div className="mt-auto flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 text-sm text-neutral-500">
-            <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
-            {profesional.localidad}
+        <div className="mb-4 mt-4 flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className="titular line-clamp-2 text-[1.6rem] leading-[1.05] text-neutral-900 group-hover:text-brand-700">
+              {profesional.nombreComercial}
+            </h3>
+            <p className="mt-2 line-clamp-2 text-sm text-neutral-600">
+              {profesional.descripcionBreve}
+            </p>
           </div>
+          {!esLogo && (
+            <Avatar
+              nombre={profesional.nombreComercial}
+              fotoUrl={profesional.fotoPerfilUrl}
+              className="h-14 w-14 shrink-0 rounded-xl object-cover text-lg"
+            />
+          )}
+        </div>
+
+        <div className="mt-auto flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-t-[1.5px] border-dashed border-neutral-200 pt-3">
           <Puntuacion
             puntuacion={profesional.puntuacionGlobal}
             trabajosValorados={profesional.trabajosValorados}
             tamano="sm"
           />
+          <p className="flex items-center gap-1 text-sm text-neutral-600">
+            <MapPin
+              className="h-4 w-4 shrink-0 text-neutral-400"
+              aria-hidden="true"
+            />
+            {profesional.localidad}
+          </p>
         </div>
       </div>
     </Link>
-  )
+  );
 }

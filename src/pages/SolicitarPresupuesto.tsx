@@ -1,6 +1,5 @@
-import { CheckCircle2, FileText, ShieldCheck } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { BuscadorZonaUnica } from '../components/directorio/BuscadorZonas'
 import { SelectorCategoria } from '../components/directorio/SelectorCategoria'
 import { LoadingState } from '../components/estado/LoadingState'
@@ -9,19 +8,21 @@ import { useCategorias, useFamilias, useZonas } from '../features/directorio/que
 import { useCrearBorradorSolicitud } from '../features/solicitudes/queries'
 import { subirFotoSolicitud } from '../lib/storage'
 import { useAuth } from '../features/auth/useAuth'
+import { useSeo } from '../lib/useSeo'
+import { SEO_SOLICITAR } from '../app/seoPaginas'
 
-const RAZONES = [
+const PASOS_SOLICITUD = [
   {
-    Icono: FileText,
-    texto: 'Describes el trabajo una vez y lo reciben varios profesionales de tu zona, sin llamar uno a uno.',
+    titulo: 'Describes el trabajo',
+    texto: 'Qué hay que hacer, dónde y para cuándo, con fotos si quieres. No hace falta saber de obras.',
   },
   {
-    Icono: CheckCircle2,
-    texto: 'Comparas sus propuestas en el mismo sitio antes de decidir. Pedir presupuesto es gratis.',
+    titulo: 'Llega a profesionales de tu zona',
+    texto: 'Solo a los de ese oficio que trabajan en tu localidad. Tu dirección y tu teléfono no se publican.',
   },
   {
-    Icono: ShieldCheck,
-    texto: 'La cuenta también te deja ver las valoraciones con factura de cada profesional antes de elegir.',
+    titulo: 'Comparas sus propuestas',
+    texto: 'Todas con la misma estructura: alcance, materiales, exclusiones, plazo e importe orientativo.',
   },
 ]
 
@@ -34,18 +35,27 @@ export function SolicitarPresupuesto() {
   const categorias = useCategorias()
   const zonas = useZonas()
   const crear = useCrearBorradorSolicitud()
+  useSeo(SEO_SOLICITAR.titulo, SEO_SOLICITAR.descripcion)
 
   const [paso, setPaso] = useState(1)
   const [titulo, setTitulo] = useState('')
-  const [categoriaId, setCategoriaId] = useState('')
+  const [categoriaElegida, setCategoriaId] = useState<string | null>(null)
   const [descripcion, setDescripcion] = useState('')
-  const [zonaId, setZonaId] = useState('')
+  const [zonaElegida, setZonaId] = useState<string | null>(null)
   const [medidasCantidades, setMedidasCantidades] = useState('')
   const [fechaDeseada, setFechaDeseada] = useState('')
   const [fotos, setFotos] = useState<string[]>([])
   const [subiendoFoto, setSubiendoFoto] = useState(false)
   const [informacionAdicional, setInformacionAdicional] = useState('')
   const [error, setError] = useState<string | null>(null)
+
+  // Desde una página de oficio («Electricistas en Madrid») el oficio y la localidad llegan ya elegidos.
+  const [parametros] = useSearchParams()
+  const categoriaInicial = categorias.data?.find((c) => c.slug === parametros.get('categoria'))?.id
+  const zonaInicial = zonas.data?.find((z) => z.slug === parametros.get('zona'))?.id
+  // Lo que elija la persona manda; mientras no toque el campo, vale lo que trae el enlace.
+  const categoriaId = categoriaElegida ?? categoriaInicial ?? ''
+  const zonaId = zonaElegida ?? zonaInicial ?? ''
 
   async function subirFoto(evento: React.ChangeEvent<HTMLInputElement>) {
     const archivo = evento.target.files?.[0]
@@ -101,46 +111,92 @@ export function SolicitarPresupuesto() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
-          <div>
-            <h1 className="text-3xl font-bold text-neutral-900 sm:text-4xl">
-              Cuéntanoslo una vez, que te llamen ellos a ti
-            </h1>
-            <p className="mt-4 text-lg text-neutral-600">
-              Describe el trabajo en unos minutos y varios profesionales de tu zona te mandan su propuesta.
-              Sin llamar uno a uno, sin comisión, sin coste por pedirlo.
-            </p>
-
-            <ul className="mt-8 flex flex-col gap-3">
-              {RAZONES.map(({ Icono, texto }) => (
-                <li
-                  key={texto}
-                  className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-white p-4 text-sm text-neutral-700"
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50">
-                    <Icono className="h-5 w-5 text-brand-600" aria-hidden="true" />
+      <div>
+        <section className="corcho border-b border-[#a87a4a]">
+          <div className="tablon-clavado mx-auto grid max-w-6xl items-start gap-x-10 gap-y-12 px-4 py-12 sm:px-6 lg:grid-cols-[1.25fr_1fr] lg:py-16">
+            <div>
+              <div className="chincheta rotate-[-0.7deg] rounded-tarjeta bg-white p-6 pt-8 shadow-tarjeta-alzada sm:p-9">
+                <h1 className="titular text-[2.6rem] leading-[1.02] text-neutral-900 sm:text-6xl">
+                  Cuéntalo una vez y que te escriban ellos
+                </h1>
+                <p className="mt-5 max-w-lg text-lg text-neutral-600">
+                  Prepara la ficha de tu trabajo y recibe propuestas de varios profesionales de tu zona, listas para
+                  comparar. Sin llamar uno a uno.
+                </p>
+                <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+                  <Button
+                    type="button"
+                    tamano="lg"
+                    onClick={() => navigate(`/acceso?volver=${encodeURIComponent(`/solicitar-presupuesto?${parametros}`)}`)}
+                  >
+                    Empezar mi solicitud
+                  </Button>
+                  <span className="text-sm text-neutral-500">
+                    Es gratis. Necesitas una cuenta para recibir las propuestas; si ya la tienes, entra con ella.
                   </span>
-                  {texto}
-                </li>
-              ))}
-            </ul>
+                </div>
+              </div>
+            </div>
 
-            <div className="mt-8">
-              <Button type="button" tamano="lg" onClick={() => navigate('/acceso')}>
-                Crear cuenta gratis
-              </Button>
-              <p className="mt-2 text-xs text-neutral-500">¿Ya tienes cuenta? Entra desde el mismo botón.</p>
+            <figure className="m-0 rotate-[1.8deg] lg:mt-8">
+              <div className="relative rounded-sm bg-[#fffdf6] p-6 pt-8 shadow-tarjeta-alzada">
+                <span
+                  className="absolute -top-3 left-1/2 h-6 w-24 -translate-x-1/2 rotate-[-3deg] bg-[#efe3c4]/90 shadow-sm"
+                  aria-hidden="true"
+                />
+                <span className="absolute right-4 top-4 rounded-full bg-metro-100 px-2.5 py-0.5 text-xs font-semibold text-metro-800">
+                  Ejemplo
+                </span>
+                <p className="font-mano text-[2rem] font-bold leading-none text-neutral-900">Cambiar el plato de ducha</p>
+                <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+                  <dt className="text-neutral-500">Oficio</dt>
+                  <dd className="text-neutral-800">Fontanería</dd>
+                  <dt className="text-neutral-500">Dónde</dt>
+                  <dd className="text-neutral-800">Camargo</dd>
+                  <dt className="text-neutral-500">Cuándo</dt>
+                  <dd className="text-neutral-800">Antes de Navidad, con flexibilidad</dd>
+                  <dt className="text-neutral-500">Medidas</dt>
+                  <dd className="text-neutral-800">Plato de 120 × 80 cm</dd>
+                </dl>
+                <p className="mt-4 border-t-[1.5px] border-dashed border-neutral-200 pt-3 text-sm text-neutral-600">
+                  Tu dirección y tu teléfono no aparecen: solo lo necesario para que el profesional sepa si encaja.
+                </p>
+              </div>
+            </figure>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6" aria-labelledby="titulo-como">
+          <h2 id="titulo-como" className="text-3xl text-neutral-900 sm:text-4xl">
+            Cómo funciona
+          </h2>
+          <ol className="mt-8 grid gap-8 md:grid-cols-3">
+            {PASOS_SOLICITUD.map((paso, indice) => (
+              <li key={paso.titulo} className="border-t-2 border-ink pt-4">
+                <p className="titular text-5xl font-extrabold text-brand-500" aria-hidden="true">
+                  {indice + 1}
+                </p>
+                <h3 className="mt-2 text-xl font-bold text-neutral-900">{paso.titulo}</h3>
+                <p className="mt-2 text-neutral-600">{paso.texto}</p>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-12 grid gap-6 rounded-tarjeta bg-carton p-6 ring-1 ring-neutral-200 md:grid-cols-2">
+            <div>
+              <h3 className="text-lg font-bold text-neutral-900">Qué cuesta</h3>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+                Nada. Pedir presupuestos en Protop es gratis, y los profesionales tampoco pagan por responderte.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-neutral-900">Si prefieres llamar tú</h3>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+                Busca en el directorio y contacta directamente con quien quieras: el teléfono está en su ficha.
+              </p>
             </div>
           </div>
-
-          <img
-            src="/fotos/profesional-cliente.webp"
-            alt="Profesional mostrando un presupuesto a una clienta en su vivienda"
-            className="order-first aspect-[4/3] w-full rounded-2xl object-cover shadow-sm lg:order-none"
-            loading="lazy"
-          />
-        </div>
+        </section>
       </div>
     )
   }
@@ -151,15 +207,24 @@ export function SolicitarPresupuesto() {
 
   return (
     <div className="mx-auto max-w-xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-bold text-neutral-900">Solicitar presupuestos</h1>
+      <h1 className="titular text-4xl text-neutral-900 sm:text-5xl">Solicitar presupuestos</h1>
       <p className="mt-1 text-sm text-neutral-600">
         Describe tu trabajo en unos pasos. No hace falta que sepas de obras: cuanta más información des, mejor
         podrán ajustar su propuesta los profesionales.
       </p>
 
-      <p className="mt-4 text-xs font-medium uppercase tracking-wide text-neutral-400">
-        Paso {paso} de {TOTAL_PASOS}
-      </p>
+      <div className="mt-6 flex items-center gap-3" aria-label={`Paso ${paso} de ${TOTAL_PASOS}`}>
+        {Array.from({ length: TOTAL_PASOS }, (_, indice) => (
+          <span
+            key={indice}
+            className={`h-1.5 flex-1 rounded-full ${indice < paso ? 'bg-brand-500' : 'bg-neutral-300'}`}
+            aria-hidden="true"
+          />
+        ))}
+        <span className="shrink-0 text-sm font-semibold text-neutral-600">
+          Paso {paso} de {TOTAL_PASOS}
+        </span>
+      </div>
 
       <form onSubmit={paso === TOTAL_PASOS ? guardarBorrador : (e) => e.preventDefault()} className="mt-3 flex flex-col gap-4">
         {paso === 1 && (

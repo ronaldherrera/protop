@@ -1,20 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../auth/useAuth'
 import {
-  abrirSolicitudManualmente,
   cerrarSolicitud,
   crearBorradorSolicitud,
   enviarAclaracion,
-  enviarAPago,
   enviarPropuesta,
   obtenerAclaraciones,
   obtenerMiPropuesta,
   obtenerMisPropuestas,
+  obtenerResumenSolicitudesAbiertas,
   obtenerMisSolicitudes,
   obtenerPropuestasDeSolicitud,
   obtenerSolicitud,
   obtenerSolicitudesDisponibles,
-  obtenerSolicitudesPendientesPago,
+  publicarSolicitud,
 } from './api'
 import type { DatosPropuesta, DatosSolicitud } from './types'
 
@@ -35,12 +34,16 @@ export function useSolicitud(id: string | undefined) {
   })
 }
 
-export function useSolicitudesDisponibles() {
-  return useQuery({ queryKey: ['solicitudes-disponibles'], queryFn: obtenerSolicitudesDisponibles })
+export function useResumenSolicitudesAbiertas() {
+  return useQuery({
+    queryKey: ['resumen-solicitudes-abiertas'],
+    queryFn: obtenerResumenSolicitudesAbiertas,
+    staleTime: 5 * 60 * 1000,
+  })
 }
 
-export function useSolicitudesPendientesPago() {
-  return useQuery({ queryKey: ['solicitudes-pendientes-pago'], queryFn: obtenerSolicitudesPendientesPago })
+export function useSolicitudesDisponibles() {
+  return useQuery({ queryKey: ['solicitudes-disponibles'], queryFn: obtenerSolicitudesDisponibles })
 }
 
 export function useCrearBorradorSolicitud() {
@@ -61,22 +64,19 @@ function useCambioEstadoSolicitud(mutationFn: (id: string) => Promise<void>) {
       queryClient.invalidateQueries({ queryKey: ['mis-solicitudes', user?.id] })
       queryClient.invalidateQueries({ queryKey: ['solicitud', id] })
       queryClient.invalidateQueries({ queryKey: ['solicitudes-disponibles'] })
-      queryClient.invalidateQueries({ queryKey: ['solicitudes-pendientes-pago'] })
+      queryClient.invalidateQueries({ queryKey: ['resumen-solicitudes-abiertas'] })
     },
   })
 }
 
-export function useEnviarAPago() {
-  return useCambioEstadoSolicitud(enviarAPago)
+export function usePublicarSolicitud() {
+  return useCambioEstadoSolicitud(publicarSolicitud)
 }
 
 export function useCerrarSolicitud() {
   return useCambioEstadoSolicitud(cerrarSolicitud)
 }
 
-export function useAbrirSolicitudManualmente() {
-  return useCambioEstadoSolicitud(abrirSolicitudManualmente)
-}
 
 export function usePropuestasDeSolicitud(solicitudId: string | undefined) {
   return useQuery({

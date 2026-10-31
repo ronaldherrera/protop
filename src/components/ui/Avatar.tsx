@@ -15,7 +15,7 @@ export function Avatar({ nombre, fotoUrl, className }: { nombre: string; fotoUrl
       <img
         src={fotoUrl}
         alt={`Logotipo de ${nombre}`}
-        className={className ?? 'h-14 w-14 rounded-xl object-cover'}
+        className={cn('bg-white ring-1 ring-black/10', className ?? 'h-14 w-14 rounded-xl object-cover')}
       />
     )
   }
@@ -23,7 +23,7 @@ export function Avatar({ nombre, fotoUrl, className }: { nombre: string; fotoUrl
   return (
     <div
       className={cn(
-        'flex shrink-0 items-center justify-center bg-brand-100 font-semibold text-brand-700',
+        'flex shrink-0 items-center justify-center bg-brand-50 font-heading font-bold text-brand-600',
         className ?? 'h-14 w-14 rounded-xl text-lg',
       )}
       aria-hidden="true"

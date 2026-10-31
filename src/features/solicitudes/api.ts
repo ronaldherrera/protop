@@ -90,6 +90,13 @@ export async function obtenerSolicitud(id: string): Promise<Solicitud | null> {
   return data ? mapearSolicitud(data as unknown as FilaSolicitud) : null
 }
 
+/** Solicitudes abiertas por oficio (solo cifras). Devuelve {} si la función aún no existe en la base. */
+export async function obtenerResumenSolicitudesAbiertas(): Promise<Record<string, number>> {
+  const { data, error } = await supabase.rpc('resumen_solicitudes_abiertas')
+  if (error) return {}
+  return Object.fromEntries((data ?? []).map((fila) => [fila.categoria_slug, fila.abiertas]))
+}
+
 export async function obtenerSolicitudesDisponibles(): Promise<Solicitud[]> {
   const { data, error } = await supabase
     .from('solicitudes')
@@ -100,29 +107,14 @@ export async function obtenerSolicitudesDisponibles(): Promise<Solicitud[]> {
   return (data as unknown as FilaSolicitud[]).map(mapearSolicitud)
 }
 
-export async function obtenerSolicitudesPendientesPago(): Promise<Solicitud[]> {
-  const { data, error } = await supabase
-    .from('solicitudes')
-    .select(SELECT_SOLICITUD)
-    .eq('estado', 'pendiente_pago')
-    .order('created_at', { ascending: true })
-  if (error) throw error
-  return (data as unknown as FilaSolicitud[]).map(mapearSolicitud)
-}
-
-export async function enviarAPago(id: string): Promise<void> {
-  const { error } = await supabase.from('solicitudes').update({ estado: 'pendiente_pago' }).eq('id', id)
+/** Pedir presupuestos es gratis: el particular publica su borrador y queda abierto a los profesionales. */
+export async function publicarSolicitud(id: string): Promise<void> {
+  const { error } = await supabase.from('solicitudes').update({ estado: 'abierta' }).eq('id', id)
   if (error) throw error
 }
 
 export async function cerrarSolicitud(id: string): Promise<void> {
   const { error } = await supabase.from('solicitudes').update({ estado: 'cerrada' }).eq('id', id)
-  if (error) throw error
-}
-
-/** Acción manual de administración mientras no exista el cobro real (Fase 6). */
-export async function abrirSolicitudManualmente(id: string): Promise<void> {
-  const { error } = await supabase.from('solicitudes').update({ estado: 'abierta' }).eq('id', id)
   if (error) throw error
 }
 

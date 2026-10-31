@@ -1,13 +1,7 @@
-import { calcularCompletitud } from './completitud'
 import type { Profesional, Zona } from '../../types/profesional'
 
-export type FiltrosDirectorio = {
-  categoria?: string
-  /** Slugs de todas las categorías de una familia; se combina con `categoria` (AND). */
-  categoriaSlugsFamilia?: string[]
-  zona?: string
-  texto?: string
-}
+// El filtro y el orden orgánico del directorio están en la base (buscar_profesionales). Aquí queda la regla de
+// zonas, que también usan las solicitudes, y la elección de patrocinados, que rota por visita.
 
 /**
  * Un profesional que trabaja en una comunidad entera encaja con una búsqueda
@@ -24,68 +18,37 @@ export function coincideZona(filtroSlug: string, zonasProfesional: string[], zon
   return zonasProfesional.some((slug) => zonasPorSlug.get(slug)?.comunidadSlug === filtroZona.slug)
 }
 
-export function filtrarProfesionales(
-  profesionales: Profesional[],
-  filtros: FiltrosDirectorio,
-  zonas: Zona[] = [],
-): Profesional[] {
-  const texto = filtros.texto?.trim().toLowerCase()
-  const zonasPorSlug = new Map(zonas.map((z) => [z.slug, z]))
+/** Como mucho estos patrocinados encabezan una búsqueda: el resto del hueco es para resultados orgánicos. */
+const MAXIMO_PATROCINADOS = 3
 
-  return profesionales.filter((profesional) => {
-    const slugsOficios = profesional.oficios.map((oficio) => oficio.slug)
+/** Semilla por visita: los patrocinados rotan entre visitas pero no saltan mientras navegas. */
+function semillaDeRotacion(): number {
+  try {
+    const guardada = sessionStorage.getItem('protop-rotacion')
+    if (guardada) return Number(guardada)
+    const nueva = Math.floor(Math.random() * 1_000_000)
+    sessionStorage.setItem('protop-rotacion', String(nueva))
+    return nueva
+  } catch {
+    return 0
+  }
+}
 
-    if (filtros.categoria && !slugsOficios.includes(filtros.categoria)) {
-      return false
-    }
-
-    if (filtros.categoriaSlugsFamilia && !slugsOficios.some((slug) => filtros.categoriaSlugsFamilia?.includes(slug))) {
-      return false
-    }
-
-    if (filtros.zona && !coincideZona(filtros.zona, profesional.zonasTrabajo, zonasPorSlug)) {
-      return false
-    }
-
-    if (texto) {
-      const enNombre = profesional.nombreComercial.toLowerCase().includes(texto)
-      const enEspecialidades = profesional.especialidades.some((especialidad) =>
-        especialidad.nombre.toLowerCase().includes(texto),
-      )
-      if (!enNombre && !enEspecialidades) {
-        return false
-      }
-    }
-
-    return true
-  })
+function posicionRotada(id: string, semilla: number): number {
+  let hash = semilla
+  for (const caracter of id) hash = (hash * 31 + caracter.charCodeAt(0)) | 0
+  return hash
 }
 
 /**
- * Orden por defecto: patrocinados primero (dejando hueco suficiente para
- * resultados orgánicos), después por puntuación y nº de trabajos valorados.
- * Los perfiles sin valoraciones se muestran al final, no penalizados a cero.
- * En cada empate (incluido entre perfiles nuevos, que empatan a 0 trabajos),
- * desempata quién tiene el perfil más completo — así "cuanto más completo,
- * más visibilidad" es real, no solo un mensaje motivacional.
+ * Solo cuenta como patrocinado quien tiene el Plan Destacado en alguno de los oficios buscados; sin oficio en la
+ * búsqueda no hay patrocinados. Hasta MAXIMO_PATROCINADOS van delante, rotando entre visitas. Pagar nunca cambia
+ * el orden orgánico de los demás.
  */
-export function ordenarProfesionales(profesionales: Profesional[]): Profesional[] {
-  return [...profesionales].sort((a, b) => {
-    if (a.patrocinado !== b.patrocinado) {
-      return a.patrocinado ? -1 : 1
-    }
-
-    if (a.puntuacionGlobal === null && b.puntuacionGlobal === null) {
-      if (b.trabajosValorados !== a.trabajosValorados) return b.trabajosValorados - a.trabajosValorados
-      return calcularCompletitud(b) - calcularCompletitud(a)
-    }
-    if (a.puntuacionGlobal === null) return 1
-    if (b.puntuacionGlobal === null) return -1
-
-    if (b.puntuacionGlobal !== a.puntuacionGlobal) {
-      return b.puntuacionGlobal - a.puntuacionGlobal
-    }
-    if (b.trabajosValorados !== a.trabajosValorados) return b.trabajosValorados - a.trabajosValorados
-    return calcularCompletitud(b) - calcularCompletitud(a)
-  })
+export function elegirPatrocinados(candidatos: Profesional[], oficiosBuscados: string[]): Profesional[] {
+  const semilla = semillaDeRotacion()
+  return candidatos
+    .filter((profesional) => profesional.destacadoEn.some((slug) => oficiosBuscados.includes(slug)))
+    .sort((a, b) => posicionRotada(a.id, semilla) - posicionRotada(b.id, semilla))
+    .slice(0, MAXIMO_PATROCINADOS)
 }

@@ -1,13 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../auth/useAuth'
 import {
+  type BusquedaDirectorio,
+  buscarProfesionales,
   type DatosFormularioProfesional,
   guardarMiProfesional,
   obtenerCategorias,
   obtenerFamilias,
   obtenerMiProfesional,
   obtenerProfesionalPorSlug,
-  obtenerProfesionales,
   obtenerZonas,
 } from './api'
 
@@ -23,8 +24,17 @@ export function useZonas() {
   return useQuery({ queryKey: ['zonas'], queryFn: obtenerZonas, staleTime: 5 * 60 * 1000 })
 }
 
-export function useProfesionales() {
-  return useQuery({ queryKey: ['profesionales'], queryFn: obtenerProfesionales, staleTime: 60 * 1000 })
+/** Páginas del directorio para una búsqueda; `fetchNextPage` trae las siguientes. */
+export function useBusquedaProfesionales(busqueda: BusquedaDirectorio, { activa = true }: { activa?: boolean } = {}) {
+  return useInfiniteQuery({
+    queryKey: ['profesionales', busqueda],
+    queryFn: ({ pageParam }) => buscarProfesionales(busqueda, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (pagina) => pagina.siguiente,
+    staleTime: 60 * 1000,
+    placeholderData: keepPreviousData,
+    enabled: activa,
+  })
 }
 
 export function useProfesional(slug: string | undefined) {
