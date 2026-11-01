@@ -23,11 +23,12 @@ DirectorySlash Off
   RewriteRule ^ index.html [L]
 </IfModule>
 
-# Cachear los assets con hash en el nombre (los genera Vite en cada build)
+# Cachear los assets con hash en el nombre (los genera Vite en cada build). Los SVG de public/ no llevan hash:
+# solo una semana, y al cambiar el logotipo o el favicon se sube el ?v= de su enlace.
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/css "access plus 1 year"
   ExpiresByType application/javascript "access plus 1 year"
   ExpiresByType font/woff2 "access plus 1 year"
-  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 week"
 </IfModule>
